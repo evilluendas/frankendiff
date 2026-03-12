@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AlignedParagraphGroup, Edition, DiffOp } from '@/lib/types'
+import { AlignedParagraphGroup, Edition, DiffOp, ParagraphElementType } from '@/lib/types'
 import DiffDisplay from './DiffDisplay'
 
 interface DiffViewProps {
@@ -69,9 +69,14 @@ export default function DiffView({ groups, available }: DiffViewProps) {
               }))
             : rawOps
 
+          const elementType: ParagraphElementType =
+            group.paragraphs[editionA]?.elementType ??
+            group.paragraphs[editionB]?.elementType ??
+            'body'
+
           return (
             <div key={group.alignmentKey} className="pb-8 border-b border-border last:border-0">
-              <DiffDisplay ops={ops} />
+              <DiffDisplay ops={ops} elementType={elementType} />
             </div>
           )
         })}

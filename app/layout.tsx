@@ -17,7 +17,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Frankendiff — Frankenstein Editions Compared',
   description:
-    'Side-by-side comparison of the 1818, 1823, and 1831 editions of Mary Shelley\'s Frankenstein.',
+    'Side-by-side comparison of the 1818 and 1831 editions of Mary Shelley\'s Frankenstein.',
 }
 
 export default function RootLayout({

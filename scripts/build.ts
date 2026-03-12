@@ -2,7 +2,7 @@
  * Preprocessing pipeline. Run with:
  *   npm run preprocess
  *
- * Reads:  content/raw/{1818,1823,1831}.md
+ * Reads:  content/raw/{1818,1831}.md
  * Writes: content/processed/chapters.json
  *         content/processed/ch{slug}.json
  */

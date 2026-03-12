@@ -1,10 +1,9 @@
-export type Edition = '1818' | '1823' | '1831'
+export type Edition = '1818' | '1831'
 
-export const EDITIONS: Edition[] = ['1818', '1823', '1831']
+export const EDITIONS: Edition[] = ['1818', '1831']
 
 export const EDITION_LABELS: Record<Edition, string> = {
   '1818': '1818 First Edition',
-  '1823': '1823 Second Edition',
   '1831': '1831 Revised Edition',
 }
 
@@ -15,12 +14,22 @@ export interface DiffOp {
   text: string
 }
 
+/** Structural role of a paragraph, derived from [tag] markers in source. */
+export type ParagraphElementType =
+  | 'body'
+  | 'salutation'
+  | 'dateline'
+  | 'closing'
+  | 'signature'
+  | 'poem'
+
 export interface BookParagraph {
-  id: string           // e.g. "1818-ch1-p3"
+  id: string                        // e.g. "1818-ch1-p3"
   edition: Edition
-  chapter: string      // slug, e.g. "1", "preface"
+  chapter: string                   // slug, e.g. "1", "preface"
   paragraphIndex: number
   text: string
+  elementType: ParagraphElementType
 }
 
 export interface AlignedParagraphGroup {
