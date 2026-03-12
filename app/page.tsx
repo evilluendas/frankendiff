@@ -20,10 +20,10 @@ export default function HomePage() {
           <h1 className="font-serif text-4xl sm:text-5xl font-medium leading-tight mb-6">
             Frankenstein
             <br />
-            <span className="text-muted font-normal">Across Three Editions</span>
+            <span className="text-muted font-normal">Two Editions Compared</span>
           </h1>
           <p className="font-serif text-xl text-muted leading-relaxed max-w-2xl mb-8">
-            Frankenstein exists in two major editions — the original 1818 text and Mary Shelley’s extensively revised 1831 version. An intermediate edition appeared in 1823 with minor corrections. This site lets you read all three side by side and examine how the novel changed over time.
+            Frankenstein exists in two major editions — the original 1818 text and Mary Shelley’s extensively revised 1831 version. This project lets you read them side by side and examine how the novel changed over time.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -46,9 +46,9 @@ export default function HomePage() {
         {/* Edition timeline */}
         <section className="mb-20">
           <h2 className="font-sans text-xs tracking-widest text-muted uppercase mb-6">
-            The three editions
+            The two editions
           </h2>
-          <div className="grid sm:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 gap-6">
             {(Object.entries(EDITION_LABELS) as [string, string][]).map(
               ([year, label]) => (
                 <Link
@@ -61,8 +61,6 @@ export default function HomePage() {
                   <p className="font-serif text-sm text-muted leading-relaxed">
                     {year === '1818' &&
                       'Published anonymously. Dedicated to William Godwin. Percy Shelley contributed the preface.'}
-                    {year === '1823' &&
-                      'Second edition, published under Mary Shelley\'s name for the first time. Minor textual corrections.'}
                     {year === '1831' &&
                       'Substantially revised. Mary Shelley added a new preface and rewrote significant passages throughout.'}
                   </p>
