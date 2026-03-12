@@ -10,7 +10,20 @@ import fs from 'fs'
 import path from 'path'
 import { AlignedParagraphGroup, ChapterMeta } from './types'
 
-const PROCESSED_DIR = path.join(process.cwd(), 'content', 'processed')
+const PROCESSED_DIR  = path.join(process.cwd(), 'content', 'processed')
+const CONTENT_DIR    = path.join(process.cwd(), 'content')
+
+export interface ChapterStructureRow {
+  slug: string
+  label1818: string | null
+  label1831: string | null
+  /** Volume group header to render before this row in the 1818 column (e.g. "Volume II") */
+  volBreak?: string
+}
+
+export interface ChapterStructure {
+  rows: ChapterStructureRow[]
+}
 
 export function readChapterList(): ChapterMeta[] {
   const file = path.join(PROCESSED_DIR, 'chapters.json')
@@ -28,6 +41,12 @@ export function readChapter(slug: string): AlignedParagraphGroup[] {
 export function readChapterMeta(slug: string): ChapterMeta | undefined {
   const chapters = readChapterList()
   return chapters.find((c) => c.slug === slug)
+}
+
+export function readChapterStructure(): ChapterStructure {
+  const file = path.join(CONTENT_DIR, 'chapter-structure.json')
+  const raw = fs.readFileSync(file, 'utf-8')
+  return JSON.parse(raw) as ChapterStructure
 }
 
 /** Adjacent chapter slugs for prev/next navigation. */

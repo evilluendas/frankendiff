@@ -1,28 +1,49 @@
 import Link from 'next/link'
 import { BookOpen, GitCompare } from 'lucide-react'
-import { ChapterMeta } from '@/lib/types'
+import { ChapterMeta, Edition } from '@/lib/types'
+import { ChapterStructureRow } from '@/lib/data'
 
 interface ChapterNavProps {
   chapters: ChapterMeta[]
+  structure: ChapterStructureRow[]
   activeSlug?: string
+  activeEdition?: Edition
   mode?: 'read' | 'diff'
 }
 
 export default function ChapterNav({
   chapters,
+  structure,
   activeSlug,
+  activeEdition = '1831',
   mode = 'read',
 }: ChapterNavProps) {
+  const chapterBySlug = new Map(chapters.map((ch) => [ch.slug, ch]))
+
   return (
     <nav aria-label="Chapters">
       <ul className="space-y-0.5">
-        {chapters.map((ch) => {
-          const href =
-            mode === 'diff' ? `/diff/${ch.slug}` : `/chapter/${ch.slug}`
+        {structure.map((row) => {
+          // Only show rows available in the active edition
+          const label = activeEdition === '1818' ? row.label1818 : row.label1831
+          if (!label) return null
+
+          const ch = chapterBySlug.get(row.slug)
+          if (!ch) return null
+
+          const href = mode === 'diff'
+            ? `/diff/${ch.slug}`
+            : `/chapter/${ch.slug}?edition=${activeEdition}`
           const isActive = ch.slug === activeSlug
 
           return (
             <li key={ch.slug}>
+              {/* Volume break dividers are meaningful only when reading 1818 */}
+              {row.volBreak && activeEdition === '1818' && (
+                <p className="mt-3 mb-1 px-3 font-sans text-[10px] tracking-widest uppercase text-muted/60 select-none">
+                  {row.volBreak}
+                </p>
+              )}
               <Link
                 href={href}
                 className={[
@@ -32,7 +53,7 @@ export default function ChapterNav({
                     : 'text-muted hover:text-fg hover:bg-subtle',
                 ].join(' ')}
               >
-                {ch.title}
+                {label}
               </Link>
             </li>
           )
@@ -43,7 +64,7 @@ export default function ChapterNav({
       {activeSlug && (
         <div className="mt-6 pt-4 border-t border-border space-y-0.5">
           <Link
-            href={`/chapter/${activeSlug}`}
+            href={`/chapter/${activeSlug}?edition=${activeEdition}`}
             className={[
               'flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
               mode === 'read'
@@ -52,7 +73,7 @@ export default function ChapterNav({
             ].join(' ')}
           >
             <BookOpen size={14} />
-            Read side-by-side
+            Read
           </Link>
           <Link
             href={`/diff/${activeSlug}`}
@@ -64,7 +85,7 @@ export default function ChapterNav({
             ].join(' ')}
           >
             <GitCompare size={14} />
-            Diff view
+            Compare editions
           </Link>
         </div>
       )}
