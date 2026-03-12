@@ -23,9 +23,7 @@ export default function HomePage() {
             <span className="text-muted font-normal">Across Three Editions</span>
           </h1>
           <p className="font-serif text-xl text-muted leading-relaxed max-w-2xl mb-8">
-            Mary Shelley revised her novel three times — in 1818, 1823, and 1831.
-            This site lets you read those editions side by side and inspect every
-            textual change, paragraph by paragraph.
+            Frankenstein exists in two major editions — the original 1818 text and Mary Shelley’s extensively revised 1831 version. An intermediate edition appeared in 1823 with minor corrections. This site lets you read all three side by side and examine how the novel changed over time.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -53,9 +51,10 @@ export default function HomePage() {
           <div className="grid sm:grid-cols-3 gap-6">
             {(Object.entries(EDITION_LABELS) as [string, string][]).map(
               ([year, label]) => (
-                <div
+                <Link
                   key={year}
-                  className="p-5 rounded-lg border border-border bg-subtle"
+                  href={`/chapter/${chapters[0]?.slug ?? '1'}?editions=${year}`}
+                  className="p-5 rounded-lg border border-border bg-subtle hover:border-muted transition-colors block"
                 >
                   <p className="font-serif text-3xl font-medium mb-1">{year}</p>
                   <p className="font-sans text-xs text-muted mb-3">{label}</p>
@@ -67,7 +66,7 @@ export default function HomePage() {
                     {year === '1831' &&
                       'Substantially revised. Mary Shelley added a new preface and rewrote significant passages throughout.'}
                   </p>
-                </div>
+                </Link>
               ),
             )}
           </div>
