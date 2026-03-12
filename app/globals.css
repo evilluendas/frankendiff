@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* Class-based dark mode — toggled by ThemeToggle */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Color tokens ─────────────────────────────────── */
+:root {
+  --bg:           #faf8f4;
+  --fg:           #1c1916;
+  --muted:        #7a7267;
+  --subtle:       #f0ece5;
+  --border:       #ddd8cf;
+  --ins-text:     #166534;
+  --ins-bg:       #dcfce7;
+  --del-text:     #991b1b;
+  --del-bg:       #fee2e2;
+}
+
+.dark {
+  --bg:           #18161300;
+  --fg:           #ede9e2;
+  --muted:        #9c9285;
+  --subtle:       #1f1c18;
+  --border:       #312d27;
+  --ins-text:     #86efac;
+  --ins-bg:       #14532d;
+  --del-text:     #fca5a5;
+  --del-bg:       #7f1d1d;
+}
+
+/* Fix the bugged dark bg variable */
+.dark { --bg: #181613; }
+
+/* ── Tailwind theme mapping ───────────────────────── */
+@theme inline {
+  --color-bg:       var(--bg);
+  --color-fg:       var(--fg);
+  --color-muted:    var(--muted);
+  --color-subtle:   var(--subtle);
+  --color-border:   var(--border);
+  --color-ins-text: var(--ins-text);
+  --color-ins-bg:   var(--ins-bg);
+  --color-del-text: var(--del-text);
+  --color-del-bg:   var(--del-bg);
+
+  --font-serif: var(--font-lora), Georgia, 'Times New Roman', serif;
+  --font-sans:  var(--font-inter), system-ui, sans-serif;
+}
+
+/* ── Base styles ──────────────────────────────────── */
+html {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Prose text uses serif */
+.prose-serif {
+  font-family: var(--font-serif);
+  line-height: 1.85;
+  font-size: 1.0625rem;
+}
