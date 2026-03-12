@@ -1,31 +1,41 @@
 /**
  * Parses a Markdown source file into structured BookParagraph objects.
  *
- * Expected format:
+ * Expected format for 1831 (flat):
  *   ## Section Title
  *
  *   Paragraph one text.
  *
- *   Paragraph two text.
+ * Expected format for 1818 (volume-structured):
+ *   # Volume I
  *
- *   ## Next Section
+ *   ## Letter I
+ *   ...
+ *   ## Chapter VII
+ *
+ *   # Volume II
+ *
+ *   ## Chapter I
  *   ...
  *
- * Numbered chapters ("Chapter I", "Chapter 1", "Chapter II", etc.) get a
- * numeric slug; other headings ("Preface", "Letter I") get a lowercased
- * kebab-case slug.
+ * Numbered chapters get volume-aware slugs:
+ *   - Without a volume context: "Chapter VII" → slug "7"
+ *   - With volume context (1818): "Chapter I" in Volume II → slug "v2-1"
+ *
+ * Other headings ("Letter I", "Walton, in continuation") get kebab-case slugs,
+ * unchanged regardless of volume context.
  */
 
 import { BookParagraph, Edition, ParagraphElementType } from '../lib/types'
 
-const CHAPTER_HEADING_RE =
-  /^chapter\s+([ivxlcdm]+|\d+)$/i
+const CHAPTER_HEADING_RE = /^chapter\s+([ivxlcdm]+|\d+)$/i
+const VOLUME_HEADING_RE  = /^volume\s+([ivxlcdm]+|\d+)$/i
 
-function toSlug(title: string): string {
-  const m = title.match(CHAPTER_HEADING_RE)
-  if (m) {
-    const num = parseRoman(m[1]) ?? parseInt(m[1], 10)
-    return String(num)
+function toSlug(title: string, volume: number | null): string {
+  const chapMatch = title.match(CHAPTER_HEADING_RE)
+  if (chapMatch) {
+    const num = parseRoman(chapMatch[1]) ?? parseInt(chapMatch[1], 10)
+    return volume !== null ? `v${volume}-${num}` : String(num)
   }
   return title
     .toLowerCase()
@@ -35,9 +45,16 @@ function toSlug(title: string): string {
 }
 
 function toOrder(slug: string): number {
+  // Volume-prefixed chapter slugs: "v2-1" → sort as if they were continuous
+  const volChap = slug.match(/^v(\d+)-(\d+)$/)
+  if (volChap) {
+    const vol = parseInt(volChap[1], 10)
+    const ch  = parseInt(volChap[2], 10)
+    // Pack into a single integer: vol * 100 + ch (volumes never exceed 9 chapters * 3)
+    return vol * 100 + ch
+  }
   const n = parseInt(slug, 10)
   if (!isNaN(n)) return n
-  // Non-numeric sections: preface → introduction → letters → chapters → walton
   if (slug === 'introduction') return -3
   if (slug === 'preface') return -2
   if (slug.startsWith('letter')) return -1
@@ -53,7 +70,7 @@ function parseRoman(s: string): number | null {
   if (!/^[ivxlcdm]+$/.test(lower)) return null
   let result = 0
   for (let i = 0; i < lower.length; i++) {
-    const cur = map[lower[i]]
+    const cur  = map[lower[i]]
     const next = map[lower[i + 1]]
     if (next && cur < next) {
       result -= cur
@@ -96,47 +113,82 @@ function detectElement(raw: string): {
 export interface ParsedSection {
   slug: string
   order: number
-  title: string
+  title: string           // original heading text, e.g. "Chapter I"
+  volume?: number         // 1 | 2 | 3 — only present for 1818 volume-structured files
   paragraphs: string[]
 }
 
 export function parseMarkdown(raw: string): ParsedSection[] {
   const sections: ParsedSection[] = []
+  let currentVolume: number | null = null
+  let currentTitle: string | null  = null
+  let currentBodyLines: string[]   = []
 
-  // Split on lines that start with "## " to get sections
-  const parts = raw.split(/^## /m)
+  function flushSection() {
+    if (currentTitle === null) return
 
-  for (const part of parts) {
-    const trimmed = part.trim()
-    if (!trimmed) continue
-
-    const newlineIdx = trimmed.indexOf('\n')
-    const title = newlineIdx === -1 ? trimmed : trimmed.slice(0, newlineIdx).trim()
-    const body = newlineIdx === -1 ? '' : trimmed.slice(newlineIdx + 1).trim()
-
-    // Skip the document title (# heading) or empty bodies
-    if (!title || title.startsWith('#')) continue
-
+    const body = currentBodyLines.join('\n').trim()
     const paragraphs = body
       .split(/\n{2,}/)
       .map((p) => {
         const block = p.trim()
-        // Preserve internal newlines for poem blocks so line breaks survive
         if (/^\[poem\]/i.test(block)) return block
         return block.replace(/\n/g, ' ')
       })
       .filter((p) => p.length > 0)
 
-    if (paragraphs.length === 0) continue
+    if (paragraphs.length === 0) {
+      currentTitle = null
+      currentBodyLines = []
+      return
+    }
 
-    const slug = toSlug(title)
-    sections.push({
+    const slug = toSlug(currentTitle, currentVolume)
+    const section: ParsedSection = {
       slug,
       order: toOrder(slug),
-      title,
+      title: currentTitle,
       paragraphs,
-    })
+    }
+    if (currentVolume !== null) {
+      section.volume = currentVolume
+    }
+    sections.push(section)
+
+    currentTitle = null
+    currentBodyLines = []
   }
+
+  const lines = raw.split('\n')
+
+  for (const line of lines) {
+    // H1 heading — either the document title or a volume marker
+    if (line.startsWith('# ') && !line.startsWith('## ')) {
+      flushSection()
+      const heading = line.slice(2).trim()
+      const volMatch = heading.match(VOLUME_HEADING_RE)
+      if (volMatch) {
+        currentVolume = parseRoman(volMatch[1]) ?? parseInt(volMatch[1], 10)
+      }
+      // Document title and other H1s are ignored as section content
+      continue
+    }
+
+    // H2 heading — a section
+    if (line.startsWith('## ')) {
+      flushSection()
+      currentTitle = line.slice(3).trim()
+      currentBodyLines = []
+      continue
+    }
+
+    // Body line — accumulate
+    if (currentTitle !== null) {
+      currentBodyLines.push(line)
+    }
+  }
+
+  flushSection()
 
   return sections
 }

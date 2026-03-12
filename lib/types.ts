@@ -46,4 +46,6 @@ export interface ChapterMeta {
   order: number        // sort key
   title: string
   editions: Edition[]
+  /** Per-edition display label, e.g. { '1818': 'Volume II, Chapter I', '1831': 'Chapter VIII' } */
+  labelsByEdition?: Partial<Record<Edition, string>>
 }

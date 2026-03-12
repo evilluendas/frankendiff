@@ -8,6 +8,7 @@ import {
   readChapterList,
   readChapter,
   readChapterMeta,
+  readChapterStructure,
   getAdjacentChapters,
 } from '@/lib/data'
 import { Edition } from '@/lib/types'
@@ -35,8 +36,9 @@ export default async function DiffPage({ params }: PageProps) {
   const meta = readChapterMeta(slug)
   if (!meta) notFound()
 
-  const chapters = readChapterList()
-  const groups = readChapter(slug)
+  const chapters  = readChapterList()
+  const structure = readChapterStructure()
+  const groups    = readChapter(slug)
   const { prev, next } = getAdjacentChapters(slug)
 
   const available = meta.editions as Edition[]
@@ -48,7 +50,13 @@ export default async function DiffPage({ params }: PageProps) {
         <div className="flex gap-10">
           {/* Sidebar */}
           <aside className="hidden lg:block w-44 shrink-0 pt-2">
-            <ChapterNav chapters={chapters} activeSlug={slug} mode="diff" />
+            <ChapterNav
+              chapters={chapters}
+              structure={structure.rows}
+              activeSlug={slug}
+              activeEdition="1831"
+              mode="diff"
+            />
           </aside>
 
           {/* Main content */}
@@ -58,6 +66,11 @@ export default async function DiffPage({ params }: PageProps) {
                 Diff
               </p>
               <h1 className="font-serif text-3xl font-medium">{meta.title}</h1>
+              {meta.labelsByEdition && (
+                <p className="font-sans text-xs text-muted mt-1">
+                  {meta.labelsByEdition['1818']} · {meta.labelsByEdition['1831']}
+                </p>
+              )}
             </div>
 
             <DiffView groups={groups} available={available} />

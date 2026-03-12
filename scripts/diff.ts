@@ -8,9 +8,15 @@
 
 import { DiffOp, DiffOpType } from '../lib/types'
 
-/** Split text into word and whitespace tokens. */
+/**
+ * Split text into fine-grained tokens: words (with apostrophes for
+ * contractions), individual punctuation characters, and whitespace runs.
+ *
+ * Splitting punctuation from words means a change like "excellent," → "excellent"
+ * will only highlight the comma rather than the entire word.
+ */
 function tokenize(text: string): string[] {
-  return text.match(/\S+|\s+/g) ?? []
+  return text.match(/\w+(?:'\w+)*|[^\w\s]|\s+/g) ?? []
 }
 
 /** Build LCS DP table for two token arrays. */
