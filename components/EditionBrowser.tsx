@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BookOpen, GitCompare } from 'lucide-react'
 import { Edition, EDITION_LABELS } from '@/lib/types'
@@ -13,10 +13,15 @@ const EDITION_DESCRIPTIONS: Record<Edition, string> = {
 
 interface EditionBrowserProps {
   structure: ChapterStructureRow[]
+  initialEdition: Edition
 }
 
-export default function EditionBrowser({ structure }: EditionBrowserProps) {
-  const [edition, setEdition] = useState<Edition>('1831')
+export default function EditionBrowser({ structure, initialEdition }: EditionBrowserProps) {
+  const [edition, setEdition] = useState<Edition>(initialEdition)
+
+  useEffect(() => {
+    document.cookie = `frankendiff_edition=${edition}; path=/; max-age=31536000; SameSite=Lax`
+  }, [edition])
 
   const rows = structure.filter((row) =>
     edition === '1818' ? row.label1818 !== null : row.label1831 !== null,

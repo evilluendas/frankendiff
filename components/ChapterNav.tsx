@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { BookOpen, GitCompare } from 'lucide-react'
 import { ChapterMeta, Edition } from '@/lib/types'
 import { ChapterStructureRow } from '@/lib/data'
 
@@ -59,36 +58,6 @@ export default function ChapterNav({
           )
         })}
       </ul>
-
-      {/* Mode switcher */}
-      {activeSlug && (
-        <div className="mt-6 pt-4 border-t border-border space-y-0.5">
-          <Link
-            href={`/chapter/${activeSlug}?edition=${activeEdition}`}
-            className={[
-              'flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
-              mode === 'read'
-                ? 'bg-subtle text-fg font-medium'
-                : 'text-muted hover:text-fg hover:bg-subtle',
-            ].join(' ')}
-          >
-            <BookOpen size={14} />
-            Read
-          </Link>
-          <Link
-            href={`/diff/${activeSlug}`}
-            className={[
-              'flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
-              mode === 'diff'
-                ? 'bg-subtle text-fg font-medium'
-                : 'text-muted hover:text-fg hover:bg-subtle',
-            ].join(' ')}
-          >
-            <GitCompare size={14} />
-            Compare editions
-          </Link>
-        </div>
-      )}
     </nav>
   )
 }

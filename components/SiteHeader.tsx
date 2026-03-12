@@ -1,7 +1,18 @@
 import Link from 'next/link'
+import { BookOpen, GitCompare } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import { Edition } from '@/lib/types'
 
-export default function SiteHeader() {
+interface SiteHeaderProps {
+  mode?: 'read' | 'diff'
+  activeSlug?: string
+  activeEdition?: Edition
+}
+
+export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }: SiteHeaderProps) {
+  const readHref  = activeSlug ? `/chapter/${activeSlug}?edition=${activeEdition}` : '/chapter/preface?edition=1818'
+  const diffHref  = activeSlug ? `/diff/${activeSlug}` : '/diff/preface'
+
   return (
     <header className="border-b border-border bg-bg sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
@@ -14,16 +25,28 @@ export default function SiteHeader() {
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center gap-1 text-sm">
             <Link
-              href="/chapter/1"
-              className="px-3 py-1.5 rounded-md text-muted hover:text-fg hover:bg-subtle transition-colors font-sans"
+              href={readHref}
+              className={[
+                'flex items-center gap-2 px-3 py-1.5 rounded-md font-sans transition-colors',
+                mode === 'read'
+                  ? 'bg-subtle text-fg font-medium'
+                  : 'text-muted hover:text-fg hover:bg-subtle',
+              ].join(' ')}
             >
+              <BookOpen size={14} />
               Read
             </Link>
             <Link
-              href="/diff/1"
-              className="px-3 py-1.5 rounded-md text-muted hover:text-fg hover:bg-subtle transition-colors font-sans"
+              href={diffHref}
+              className={[
+                'flex items-center gap-2 px-3 py-1.5 rounded-md font-sans transition-colors',
+                mode === 'diff'
+                  ? 'bg-subtle text-fg font-medium'
+                  : 'text-muted hover:text-fg hover:bg-subtle',
+              ].join(' ')}
             >
-              Diff
+              <GitCompare size={14} />
+              Compare editions
             </Link>
           </nav>
           <ThemeToggle />

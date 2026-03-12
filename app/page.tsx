@@ -1,13 +1,16 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { BookOpen, GitCompare } from 'lucide-react'
 import SiteHeader from '@/components/SiteHeader'
 import EditionBrowser from '@/components/EditionBrowser'
-import { readChapterList, readChapterStructure } from '@/lib/data'
+import { readChapterStructure } from '@/lib/data'
+import { Edition } from '@/lib/types'
 
-export default function HomePage() {
-  const chapters  = readChapterList()
+export default async function HomePage() {
   const structure = readChapterStructure()
-  const firstSlug = chapters[0]?.slug ?? '1'
+  const cookieStore = await cookies()
+  const raw = cookieStore.get('frankendiff_edition')?.value
+  const initialEdition: Edition = raw === '1818' || raw === '1831' ? raw : '1818'
 
   return (
     <>
@@ -31,14 +34,14 @@ export default function HomePage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href={`/chapter/${firstSlug}`}
+              href="/chapter/preface?edition=1818"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-fg text-bg rounded-md font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
               <BookOpen size={15} />
               Start reading
             </Link>
             <Link
-              href={`/diff/${firstSlug}`}
+              href="/diff/preface"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-subtle text-fg rounded-md font-sans text-sm font-medium hover:bg-border transition-colors"
             >
               <GitCompare size={15} />
@@ -48,7 +51,7 @@ export default function HomePage() {
         </section>
 
         {/* Interactive edition browser */}
-        <EditionBrowser structure={structure.rows} />
+        <EditionBrowser structure={structure.rows} initialEdition={initialEdition} />
 
         {/* Footer note */}
         <footer className="mt-20 pt-8 border-t border-border">
