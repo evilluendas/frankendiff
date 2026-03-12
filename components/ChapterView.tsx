@@ -7,10 +7,11 @@ import ParagraphGroup from './ParagraphGroup'
 interface ChapterViewProps {
   groups: AlignedParagraphGroup[]
   available: Edition[]
+  initialEditions?: Edition[]
 }
 
-export default function ChapterView({ groups, available }: ChapterViewProps) {
-  const [selected, setSelected] = useState<Edition[]>(available)
+export default function ChapterView({ groups, available, initialEditions }: ChapterViewProps) {
+  const [selected, setSelected] = useState<Edition[]>(initialEditions ?? available)
 
   function toggle(edition: Edition) {
     const next = selected.includes(edition)

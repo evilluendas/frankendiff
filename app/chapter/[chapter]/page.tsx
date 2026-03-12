@@ -14,6 +14,7 @@ import { Edition } from '@/lib/types'
 
 interface PageProps {
   params: Promise<{ chapter: string }>
+  searchParams: Promise<{ editions?: string }>
 }
 
 export async function generateStaticParams() {
@@ -29,8 +30,9 @@ export async function generateMetadata({ params }: PageProps) {
   }
 }
 
-export default async function ChapterPage({ params }: PageProps) {
+export default async function ChapterPage({ params, searchParams }: PageProps) {
   const { chapter: slug } = await params
+  const { editions: editionsParam } = await searchParams
 
   const meta = readChapterMeta(slug)
   if (!meta) notFound()
@@ -40,6 +42,10 @@ export default async function ChapterPage({ params }: PageProps) {
   const { prev, next } = getAdjacentChapters(slug)
 
   const available = meta.editions as Edition[]
+
+  const initialEditions = editionsParam
+    ? (editionsParam.split(',').filter((e) => available.includes(e as Edition)) as Edition[])
+    : available
 
   return (
     <>
@@ -60,7 +66,7 @@ export default async function ChapterPage({ params }: PageProps) {
               <h1 className="font-serif text-3xl font-medium">{meta.title}</h1>
             </div>
 
-            <ChapterView groups={groups} available={available} />
+            <ChapterView groups={groups} available={available} initialEditions={initialEditions} />
 
             {/* Prev / Next */}
             <nav className="flex justify-between items-center mt-12 pt-8 border-t border-border">
