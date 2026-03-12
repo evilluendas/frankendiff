@@ -45,7 +45,7 @@ export default async function DiffPage({ params }: PageProps) {
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader mode="diff" activeSlug={slug} />
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex gap-10">
           {/* Sidebar */}

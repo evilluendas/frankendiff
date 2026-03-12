@@ -98,7 +98,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader mode="read" activeSlug={slug} activeEdition={activeEdition} />
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Global edition switcher — spans full width above sidebar + content */}
         <EditionSwitcher activeEdition={activeEdition} links={editionLinks} />

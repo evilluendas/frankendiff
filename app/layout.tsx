@@ -1,13 +1,6 @@
 import type { Metadata } from 'next'
-import { Source_Serif_4, Lora, Inter } from 'next/font/google'
+import { Lora, Inter } from 'next/font/google'
 import './globals.css'
-
-const sourceSerif4 = Source_Serif_4({
-  variable: '--font-source-serif',
-  subsets: ['latin'],
-  display: 'swap',
-  axes: ['opsz'],
-})
 
 const lora = Lora({
   variable: '--font-lora',
@@ -40,7 +33,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${sourceSerif4.variable} ${lora.variable} ${inter.variable} bg-bg text-fg`}>
+      <body className={`${lora.variable} ${inter.variable} bg-bg text-fg`}>
         {children}
       </body>
     </html>
