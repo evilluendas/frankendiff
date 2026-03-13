@@ -18,7 +18,7 @@ const EDITION_SUBTITLE: Record<Edition, string> = {
 
 export default function EditionSwitcher({ activeEdition, links }: EditionSwitcherProps) {
   return (
-    <div className="flex items-stretch gap-8 mb-14 justify-center border-b border-border py-7">
+    <div className="flex items-stretch gap-8 mb-14 justify-center border-b border-border py-6 sm:py-7">
       {links.map(({ edition, href }, i) => (
         <div key={edition} className="flex items-stretch gap-8">
           {i > 0 && (
@@ -34,7 +34,7 @@ export default function EditionSwitcher({ activeEdition, links }: EditionSwitche
                 : 'opacity-25 hover:opacity-50',
             ].join(' ')}
           >
-            <span className="font-display text-4xl leading-none tracking-tight">
+            <span className="font-display text-3xl sm:text-4xl leading-none tracking-tight">
               {edition}
             </span>
             <span className="hidden sm:inline font-sans text-[10px] tracking-[0.18em] uppercase text-muted">

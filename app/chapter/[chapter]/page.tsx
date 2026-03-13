@@ -7,6 +7,7 @@ import ChapterView from '@/components/ChapterView'
 import EditionSwitcher, { EditionLink } from '@/components/EditionSwitcher'
 import InlineTitle from '@/components/InlineTitle'
 import EditionCookieSync from '@/components/EditionCookieSync'
+import ChapterNavFAB from '@/components/ChapterNavFAB'
 import {
   readChapterList,
   readChapter,
@@ -106,9 +107,9 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
         {/* Global edition switcher — spans full width above sidebar + content */}
         <EditionSwitcher activeEdition={activeEdition} links={editionLinks} />
 
-        <div className="relative px-6 flex gap-10">
+        <div className="relative px-6 flex">
           {/* Sidebar */}
-          <aside className="absolute hidden lg:block w-44 shrink-0">
+          <aside className="absolute hidden xl:block w-44 shrink-0">
             <ChapterNav
               chapters={chapters}
               structure={structure.rows}
@@ -118,11 +119,25 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
             />
           </aside>
 
+          {/* FAB chapter nav — visible below xl */}
+          <div className="xl:hidden">
+            <ChapterNavFAB>
+              <ChapterNav
+                chapters={chapters}
+                structure={structure.rows}
+                activeSlug={slug}
+                activeEdition={activeEdition}
+                mode="read"
+                size="base"
+              />
+            </ChapterNavFAB>
+          </div>
+
           {/* Main content */}
           <div className="flex-1 min-w-0 flex justify-center">
             <div className="max-w-[68ch]">
               <div className="mb-16">
-                <h1 className="pt-8 pb-16 font-display text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg"><InlineTitle text={chapterLabel} />.</h1>
+                <h1 className="pt-8 pb-16 font-display text-3xl sm:text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg"><InlineTitle text={chapterLabel} />.</h1>
               </div>
 
               <ChapterView groups={groups} edition={activeEdition} />

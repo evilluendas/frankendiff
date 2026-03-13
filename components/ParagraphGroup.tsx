@@ -65,7 +65,7 @@ function ElementParagraph({ para, id }: { para: BookParagraph; id: string }) {
 
     default:
       return (
-        <p className="prose-serif text-fg text-pretty" id={id}>
+        <p className="prose-serif text-fg text-pretty indent-10" id={id}>
           {renderText(para.text)}
         </p>
       )

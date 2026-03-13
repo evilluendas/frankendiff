@@ -9,6 +9,7 @@ interface ChapterNavProps {
   activeSlug?: string
   activeEdition?: Edition
   mode?: 'read' | 'diff'
+  size?: 'sm' | 'base'
 }
 
 export default function ChapterNav({
@@ -17,6 +18,7 @@ export default function ChapterNav({
   activeSlug,
   activeEdition = '1831',
   mode = 'read',
+  size = 'sm',
 }: ChapterNavProps) {
   const chapterBySlug = new Map(chapters.map((ch) => [ch.slug, ch]))
 
@@ -47,7 +49,8 @@ export default function ChapterNav({
               <Link
                 href={href}
                 className={[
-                  'block px-3 py-2 rounded-md text-sm transition-colors',
+                  'block px-3 rounded-md transition-colors',
+                  size === 'base' ? 'py-3 text-base' : 'py-2 text-sm',
                   isActive
                     ? 'bg-subtle text-fg font-medium'
                     : 'text-muted hover:text-fg hover:bg-subtle',
