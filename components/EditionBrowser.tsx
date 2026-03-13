@@ -9,7 +9,7 @@ import InlineTitle from '@/components/InlineTitle'
 
 const EDITION_DESCRIPTIONS: Record<Edition, string> = {
   '1818': 'The novel as it first appeared in 1818. Published anonymously in three volumes, with a preface written by Percy Bysshe Shelley. This text presents the story in its earliest form.',
-  '1831': 'Mary Shelley substantially revised the novel for this edition, rewriting many passages and adding a new introduction describing the book’s origin. It became the version most widely read in the nineteenth century.',
+  '1831': 'Mary Shelley substantially revised the novel for this edition, rewriting many passages and adding a new introduction describing the book’s origin. It became the version most widely read.',
 }
 
 interface EditionBrowserProps {
@@ -59,7 +59,7 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
               >
                 <p className="font-serif text-3xl">{ed}</p>
                 <p className="font-sans text-muted text-[10px] tracking-[0.18em] uppercase mb-3">{EDITION_LABELS[ed]}</p>
-                <p className="font-serif leading-relaxed text-pretty text-sm">
+                <p className="font-serif text-muted tracking-[0.01em] leading-relaxed text-pretty">
                   {EDITION_DESCRIPTIONS[ed]}
                 </p>
               </Link>

@@ -17,11 +17,11 @@
 }
 
 .dark {
-  --bg:           #171a1f;
+  --bg:           #131416;
   --fg:           #e8e6e2;
-  --muted:        #8c9199;
-  --subtle:       #1e2127;
-  --border:       #2c3038;
+  --muted:        #8a8b8e;
+  --subtle:       #1b1c1e;
+  --border:       #2a2b2e;
   --ins-text:     #86efac;
   --ins-bg:       #14532d;
   --del-text:     #fca5a5;
