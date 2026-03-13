@@ -77,7 +77,7 @@ export default async function DiffPage({ params }: PageProps) {
 
             {splitNote && (
               <div className="mb-6 px-4 py-3 rounded-md border border-border bg-subtle">
-                <p className="font-sans text-xs text-muted leading-relaxed">{splitNote}</p>
+                <p className="font-sans text-muted leading-relaxed">{splitNote}</p>
               </div>
             )}
 

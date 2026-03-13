@@ -23,30 +23,30 @@ export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }:
           Frankendiff
         </Link>
         <div className="flex items-center gap-4">
-          <nav className="hidden sm:flex items-center gap-1 text-sm">
+          <nav className="flex items-center gap-1 text-sm">
             <Link
               href={readHref}
               className={[
-                'flex items-center gap-2 px-3 py-1.5 rounded-md font-sans transition-colors',
+                'flex items-center gap-2 px-3 h-8 rounded-md font-sans transition-colors',
                 mode === 'read'
                   ? 'bg-subtle text-fg font-medium'
                   : 'text-muted hover:text-fg hover:bg-subtle',
               ].join(' ')}
             >
               <BookOpen size={14} />
-              Read
+              <span className="hidden sm:inline">Read</span>
             </Link>
             <Link
               href={diffHref}
               className={[
-                'flex items-center gap-2 px-3 py-1.5 rounded-md font-sans transition-colors',
+                'flex items-center gap-2 px-3 h-8 rounded-md font-sans transition-colors',
                 mode === 'diff'
                   ? 'bg-subtle text-fg font-medium'
                   : 'text-muted hover:text-fg hover:bg-subtle',
               ].join(' ')}
             >
               <GitCompare size={14} />
-              Compare editions
+              <span className="hidden sm:inline">Compare editions</span>
             </Link>
           </nav>
           <ThemeToggle />

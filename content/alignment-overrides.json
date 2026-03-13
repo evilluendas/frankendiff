@@ -1,0 +1,19 @@
+{
+  "rowOverrides": [
+    {
+      "alignmentKey": "ch7-p1",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart; leave row 1 as 1818-only"
+    }
+  ],
+  "chapterShifts": [
+    {
+      "chapter": "7",
+      "edition": "1831",
+      "fromRow": 2,
+      "shift": -1,
+      "note": "1818 Chapter VII has an extra letter header at p1 that was removed in 1831, shifting all subsequent 1831 paragraphs by -1"
+    }
+  ]
+}

@@ -25,41 +25,29 @@ function ElementParagraph({ para, id }: { para: BookParagraph; id: string }) {
   switch (type) {
     case 'salutation':
       return (
-        <div id={id} className="space-y-0.5">
-          <span className="font-sans text-[10px] uppercase tracking-widest text-muted select-none">
-            {ELEMENT_LABELS.salutation}
-          </span>
-          <p className="prose-serif text-fg italic text-sm">{renderText(para.text)}</p>
+        <div id={id}>
+          <p className="prose-serif text-fg">{renderText(para.text)}</p>
         </div>
       )
 
     case 'dateline':
       return (
-        <div id={id} className="space-y-0.5">
-          <span className="font-sans text-[10px] uppercase tracking-widest text-muted select-none">
-            {ELEMENT_LABELS.dateline}
-          </span>
-          <p className="font-sans text-muted text-sm">{renderText(para.text)}</p>
+        <div id={id}>
+          <p className="prose-serif text-fg text-right">{renderText(para.text)}</p>
         </div>
       )
 
     case 'closing':
       return (
-        <div id={id} className="space-y-0.5">
-          <span className="font-sans text-[10px] uppercase tracking-widest text-muted select-none">
-            {ELEMENT_LABELS.closing}
-          </span>
-          <p className="prose-serif text-fg italic">{renderText(para.text)}</p>
+        <div id={id}>
+          <p className="prose-serif text-fg text-right pr-16">{renderText(para.text)}</p>
         </div>
       )
 
     case 'signature':
       return (
-        <div id={id} className="space-y-0.5">
-          <span className="font-sans text-[10px] uppercase tracking-widest text-muted select-none">
-            {ELEMENT_LABELS.signature}
-          </span>
-          <p className="prose-serif text-fg font-semibold">{renderText(para.text)}</p>
+        <div id={id}>
+          <p className="prose-serif text-fg text-right font-semibold [font-variant:small-caps]">{renderText(para.text)}</p>
         </div>
       )
 
@@ -77,7 +65,7 @@ function ElementParagraph({ para, id }: { para: BookParagraph; id: string }) {
 
     default:
       return (
-        <p className="prose-serif text-fg" id={id}>
+        <p className="prose-serif text-fg text-pretty" id={id}>
           {renderText(para.text)}
         </p>
       )

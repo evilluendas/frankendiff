@@ -99,13 +99,13 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
   return (
     <>
       <SiteHeader mode="read" activeSlug={slug} activeEdition={activeEdition} />
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="view-read mx-auto pb-8">
         {/* Global edition switcher — spans full width above sidebar + content */}
         <EditionSwitcher activeEdition={activeEdition} links={editionLinks} />
 
-        <div className="flex gap-10">
+        <div className="relative px-6 flex gap-10">
           {/* Sidebar */}
-          <aside className="hidden lg:block w-44 shrink-0">
+          <aside className="absolute hidden lg:block w-44 shrink-0">
             <ChapterNav
               chapters={chapters}
               structure={structure.rows}
@@ -116,13 +116,10 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
           </aside>
 
           {/* Main content */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 flex justify-center">
             <div className="max-w-[68ch]">
-              <div className="mb-10 pb-7 border-b border-border">
-                <p className="font-sans text-xs tracking-widest text-muted uppercase mb-3">
-                  Reading
-                </p>
-                <h1 className="font-display text-4xl font-medium leading-tight">{chapterLabel}</h1>
+              <div className="mb-16">
+                <h1 className="pt-8 pb-16 font-display text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg">{chapterLabel}.</h1>
               </div>
 
               <ChapterView groups={groups} edition={activeEdition} />
