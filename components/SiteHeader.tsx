@@ -18,9 +18,9 @@ export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }:
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
         <Link
           href="/"
-          className="font-serif text-lg font-medium tracking-tight hover:opacity-75 transition-opacity"
+          className="font-serif text-lg font-medium flex items-center leading-tight hover:opacity-75 transition-opacity no-wrap"
         >
-          Frankendiff
+          <span className="z-1">Franken</span><ins className="inline no-underline bg-ins-bg text-ins-text rounded-sm pl-0.5 pr-1 -ml-0.5">diff</ins>
         </Link>
         <div className="flex items-center gap-4">
           <nav className="flex items-center gap-1 text-sm">
