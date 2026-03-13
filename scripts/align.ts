@@ -23,19 +23,43 @@ import { ParsedSection } from './parse'
 import fs from 'fs'
 import path from 'path'
 
+/** Override the paragraph index used for a specific (row, edition) pair.
+ *  Set paragraphIndex to null to leave that edition empty for the row
+ *  (useful when one edition has an extra paragraph with no counterpart). */
 interface AlignmentOverride {
   alignmentKey: string
   edition: Edition
-  paragraphIndex: number
+  paragraphIndex: number | null
 }
 
-function loadOverrides(contentRoot: string): AlignmentOverride[] {
+/** Shift one edition's paragraph index by `shift` for all rows >= fromRow
+ *  within a given chapter.  Combine with a rowOverride (paragraphIndex: null)
+ *  on the row just before fromRow to create a clean "1818-only" slot. */
+interface ChapterShift {
+  chapter: string
+  edition: Edition
+  fromRow: number
+  shift: number
+}
+
+interface Overrides {
+  rowOverrides: AlignmentOverride[]
+  chapterShifts: ChapterShift[]
+}
+
+function loadOverrides(contentRoot: string): Overrides {
   const p = path.join(contentRoot, 'alignment-overrides.json')
-  if (!fs.existsSync(p)) return []
+  if (!fs.existsSync(p)) return { rowOverrides: [], chapterShifts: [] }
   try {
-    return JSON.parse(fs.readFileSync(p, 'utf-8')) as AlignmentOverride[]
+    const raw = JSON.parse(fs.readFileSync(p, 'utf-8'))
+    // Support legacy format (plain array of row overrides)
+    if (Array.isArray(raw)) return { rowOverrides: raw, chapterShifts: [] }
+    return {
+      rowOverrides: raw.rowOverrides ?? [],
+      chapterShifts: raw.chapterShifts ?? [],
+    }
   } catch {
-    return []
+    return { rowOverrides: [], chapterShifts: [] }
   }
 }
 
@@ -53,13 +77,17 @@ function loadEditionAlignment(contentRoot: string): Record<string, string> {
 export function alignChapter(
   slug: string,
   paragraphsByEdition: Partial<Record<Edition, BookParagraph[]>>,
-  overrides: AlignmentOverride[],
+  { rowOverrides, chapterShifts }: Overrides,
 ): AlignedParagraphGroup[] {
-  // Build a lookup for overrides keyed by alignmentKey + edition
-  const overrideMap = new Map<string, number>()
-  for (const o of overrides) {
+  // Build a lookup for row overrides keyed by "alignmentKey|edition"
+  // Value is number (use that index) or null (leave this edition empty for the row)
+  const overrideMap = new Map<string, number | null>()
+  for (const o of rowOverrides) {
     overrideMap.set(`${o.alignmentKey}|${o.edition}`, o.paragraphIndex)
   }
+
+  // Chapter shifts applicable to this chapter
+  const shifts = chapterShifts.filter((s) => s.chapter === slug)
 
   // Find the maximum paragraph count across all editions for this chapter
   const editions = Object.keys(paragraphsByEdition) as Edition[]
@@ -82,9 +110,18 @@ export function alignChapter(
 
     for (const edition of editions) {
       const edParas = paragraphsByEdition[edition] ?? []
-      const overrideIdx = overrideMap.get(`${alignmentKey}|${edition}`)
-      const idx = overrideIdx !== undefined ? overrideIdx : i
-      if (idx < edParas.length) {
+      const rowKey = `${alignmentKey}|${edition}`
+
+      let idx: number | null
+      if (overrideMap.has(rowKey)) {
+        idx = overrideMap.get(rowKey)!  // may be null (explicit skip)
+      } else {
+        // Apply the first matching chapter shift for this edition/row
+        const shift = shifts.find((s) => s.edition === edition && i >= s.fromRow)
+        idx = shift ? i + shift.shift : i
+      }
+
+      if (idx !== null && idx >= 0 && idx < edParas.length) {
         group.paragraphs[edition] = edParas[idx]
       }
     }
@@ -100,7 +137,7 @@ export function alignAllChapters(
   paragraphsByEdition: Partial<Record<Edition, BookParagraph[]>>,
   contentRoot: string,
 ): Map<string, AlignedParagraphGroup[]> {
-  const overrides = loadOverrides(contentRoot)
+  const overrides: Overrides = loadOverrides(contentRoot)
   const editionAlignment = loadEditionAlignment(contentRoot)
 
   // Build inverse map: canonical slug → set of edition-specific slugs

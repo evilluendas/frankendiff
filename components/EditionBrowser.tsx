@@ -42,7 +42,7 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
               className={[
                 'p-5 rounded-lg border text-left transition-colors',
                 edition === ed
-                  ? 'border-fg bg-fg/[0.04]'
+                  ? 'border-fg bg-border/50'
                   : 'border-border bg-subtle hover:border-muted',
               ].join(' ')}
             >
@@ -84,14 +84,14 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
                   <div className="flex items-center gap-2 shrink-0">
                     <Link
                       href={`/chapter/${row.slug}?edition=${edition}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-sans text-xs text-muted hover:text-fg hover:bg-subtle transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-sans text-sm text-muted hover:text-fg hover:bg-subtle transition-colors"
                     >
                       <BookOpen size={12} />
                       Read
                     </Link>
                     <Link
                       href={`/diff/${row.slug}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-sans text-xs text-muted hover:text-fg hover:bg-subtle transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-sans text-sm text-muted hover:text-fg hover:bg-subtle transition-colors"
                     >
                       <GitCompare size={12} />
                       Diff
