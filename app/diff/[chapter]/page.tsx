@@ -42,6 +42,8 @@ export default async function DiffPage({ params }: PageProps) {
   const { prev, next } = getAdjacentChapters(slug)
 
   const available = meta.editions as Edition[]
+  const structureRow = structure.rows.find((r) => r.slug === slug)
+  const splitNote = structureRow?.splitNote
 
   return (
     <>
@@ -66,12 +68,18 @@ export default async function DiffPage({ params }: PageProps) {
                 Diff
               </p>
               <h1 className="font-serif text-3xl font-medium">{meta.title}</h1>
-              {meta.labelsByEdition && (
+              {meta.labelsByEdition?.['1818'] && meta.labelsByEdition?.['1831'] && (
                 <p className="font-sans text-xs text-muted mt-1">
                   {meta.labelsByEdition['1818']} · {meta.labelsByEdition['1831']}
                 </p>
               )}
             </div>
+
+            {splitNote && (
+              <div className="mb-6 px-4 py-3 rounded-md border border-border bg-subtle">
+                <p className="font-sans text-xs text-muted leading-relaxed">{splitNote}</p>
+              </div>
+            )}
 
             <DiffView groups={groups} available={available} />
 
