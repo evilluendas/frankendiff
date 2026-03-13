@@ -28,9 +28,7 @@ export default async function HomePage() {
             <span className="text-muted font-normal">Two Editions Compared</span>
           </h1>
           <p className="font-serif text-xl text-muted leading-relaxed max-w-2xl mb-8">
-            Frankenstein exists in two major editions — the original 1818 text and Mary Shelley&apos;s
-            extensively revised 1831 version. This project lets you read them and examine
-            how the novel changed over time.
+            Mary Shelley’s Frankenstein exists in two major versions: the original 1818 text, and an extensively revised 1831 edition. This project lets you read them side by side and explore how the novel changed over time, from small wording changes to substantial rewrites.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link

@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import SiteHeader from '@/components/SiteHeader'
 import ChapterNav from '@/components/ChapterNav'
 import DiffView from '@/components/DiffView'
+import InlineTitle from '@/components/InlineTitle'
 import {
   readChapterList,
   readChapter,
@@ -45,9 +47,16 @@ export default async function DiffPage({ params }: PageProps) {
   const structureRow = structure.rows.find((r) => r.slug === slug)
   const splitNote = structureRow?.splitNote
 
+  const label1818 = meta.labelsByEdition?.['1818'] ?? structureRow?.label1818 ?? null
+  const label1831 = meta.labelsByEdition?.['1831'] ?? structureRow?.label1831 ?? null
+
+  const cookieStore = await cookies()
+  const rawEdition = cookieStore.get('frankendiff_edition')?.value
+  const activeEdition: Edition = rawEdition === '1818' || rawEdition === '1831' ? rawEdition : '1831'
+
   return (
     <>
-      <SiteHeader mode="diff" activeSlug={slug} />
+      <SiteHeader mode="diff" activeSlug={slug} activeEdition={activeEdition} />
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex gap-10">
           {/* Sidebar */}
@@ -67,12 +76,29 @@ export default async function DiffPage({ params }: PageProps) {
               <p className="font-sans text-xs tracking-widest text-muted uppercase mb-2">
                 Diff
               </p>
-              <h1 className="font-serif text-3xl font-medium">{meta.title}</h1>
-              {meta.labelsByEdition?.['1818'] && meta.labelsByEdition?.['1831'] && (
-                <p className="font-sans text-xs text-muted mt-1">
-                  {meta.labelsByEdition['1818']} · {meta.labelsByEdition['1831']}
-                </p>
-              )}
+              <h1 className="font-serif text-3xl font-medium"><InlineTitle text={meta.title} /></h1>
+              <div className="flex justify-between items-center mt-3">
+                {label1818 && label1831 ? (
+                  <p className="font-sans text-xs text-muted">
+                    <span className="inline-block align-middle bg-subtle px-2 py-1 rounded">{label1818} (1818)</span> <ArrowRight size={12} className="inline-block align-middle" /> <span className="inline-block align-middle bg-subtle px-2 py-1 rounded">{label1831} (1831)</span>
+                  </p>
+                ) : !label1818 && label1831 ? (
+                  <p className="font-sans text-xs text-muted">
+                    <span className="inline-block align-middle bg-subtle px-2 py-1 rounded">New in 1831</span>
+                  </p>
+                ) : null}
+                {/* Legend */}
+                <div className="flex items-center gap-4 font-sans text-xs text-muted">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-ins-bg" />
+                    Added in 1831
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-del-bg" />
+                    Removed from 1818
+                  </span>
+                </div>
+              </div>
             </div>
 
             {splitNote && (
@@ -91,7 +117,7 @@ export default async function DiffPage({ params }: PageProps) {
                   className="flex items-center gap-1.5 font-sans text-sm text-muted hover:text-fg transition-colors"
                 >
                   <ChevronLeft size={16} />
-                  {prev.title}
+                  <InlineTitle text={prev.title} />
                 </Link>
               ) : (
                 <div />
@@ -101,7 +127,7 @@ export default async function DiffPage({ params }: PageProps) {
                   href={`/diff/${next.slug}`}
                   className="flex items-center gap-1.5 font-sans text-sm text-muted hover:text-fg transition-colors"
                 >
-                  {next.title}
+                  <InlineTitle text={next.title} />
                   <ChevronRight size={16} />
                 </Link>
               ) : (

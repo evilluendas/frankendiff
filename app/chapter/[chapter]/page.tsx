@@ -5,6 +5,8 @@ import SiteHeader from '@/components/SiteHeader'
 import ChapterNav from '@/components/ChapterNav'
 import ChapterView from '@/components/ChapterView'
 import EditionSwitcher, { EditionLink } from '@/components/EditionSwitcher'
+import InlineTitle from '@/components/InlineTitle'
+import EditionCookieSync from '@/components/EditionCookieSync'
 import {
   readChapterList,
   readChapter,
@@ -99,6 +101,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
   return (
     <>
       <SiteHeader mode="read" activeSlug={slug} activeEdition={activeEdition} />
+      <EditionCookieSync edition={activeEdition} />
       <div className="view-read mx-auto pb-8">
         {/* Global edition switcher — spans full width above sidebar + content */}
         <EditionSwitcher activeEdition={activeEdition} links={editionLinks} />
@@ -119,7 +122,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
           <div className="flex-1 min-w-0 flex justify-center">
             <div className="max-w-[68ch]">
               <div className="mb-16">
-                <h1 className="pt-8 pb-16 font-display text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg">{chapterLabel}.</h1>
+                <h1 className="pt-8 pb-16 font-display text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg"><InlineTitle text={chapterLabel} />.</h1>
               </div>
 
               <ChapterView groups={groups} edition={activeEdition} />
@@ -132,7 +135,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
                     className="flex items-center gap-1.5 font-sans text-sm text-muted hover:text-fg transition-colors"
                   >
                     <ChevronLeft size={16} />
-                    {prevLabel}
+                    <InlineTitle text={prevLabel!} />
                   </Link>
                 ) : (
                   <div />
@@ -142,7 +145,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
                     href={`/chapter/${next.slug}?edition=${activeEdition}`}
                     className="flex items-center gap-1.5 font-sans text-sm text-muted hover:text-fg transition-colors"
                   >
-                    {nextLabel}
+                    <InlineTitle text={nextLabel!} />
                     <ChevronRight size={16} />
                   </Link>
                 ) : (

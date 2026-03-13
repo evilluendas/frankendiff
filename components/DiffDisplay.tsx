@@ -30,9 +30,9 @@ export default function DiffDisplay({ ops, elementType = 'body' }: DiffDisplayPr
     <p
       className={[
         'prose-serif leading-[1.85]',
-        elementType === 'salutation' || elementType === 'closing' ? 'italic text-sm' : '',
-        elementType === 'dateline' ? 'font-sans text-sm text-muted' : '',
-        elementType === 'signature' ? 'font-semibold' : '',
+        elementType === 'salutation' || elementType === 'closing' ? '' : '',
+        elementType === 'dateline' ? '' : '',
+        elementType === 'signature' ? 'font-semibold [font-variant:small-caps]' : '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -45,9 +45,6 @@ export default function DiffDisplay({ ops, elementType = 'body' }: DiffDisplayPr
 
   return (
     <div className="space-y-1">
-      <span className="font-sans text-[10px] uppercase tracking-widest text-muted select-none">
-        {label}
-      </span>
       {content}
     </div>
   )

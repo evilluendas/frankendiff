@@ -16,17 +16,6 @@ export default function DiffView({ groups }: DiffViewProps) {
 
   return (
     <div>
-      {/* Legend */}
-      <div className="flex items-center gap-4 mb-8 font-sans text-xs text-muted">
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded-sm bg-ins-bg" />
-          Added in {EDITION_B}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="inline-block w-3 h-3 rounded-sm bg-del-bg" />
-          Removed from {EDITION_A}
-        </span>
-      </div>
 
       {/* Diff paragraphs */}
       <div className="space-y-8">
