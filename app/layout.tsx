@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Lora, Inter } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 const lora = Lora({
@@ -33,6 +34,14 @@ export default function RootLayout({
           }}
         />
       </head>
+      <Script
+        src="https://plausible.io/js/pa-mt4xBf1uClaKgQcbHV35_.js"
+        strategy="afterInteractive"
+      />
+      <Script id="plausible-init" strategy="afterInteractive">{`
+        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+        plausible.init()
+      `}</Script>
       <body className={`${lora.variable} ${inter.variable} bg-bg text-fg`}>
         {children}
       </body>
