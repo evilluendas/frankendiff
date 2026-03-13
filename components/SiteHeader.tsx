@@ -14,7 +14,7 @@ export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }:
   const diffHref  = activeSlug ? `/diff/${activeSlug}` : '/diff/preface'
 
   return (
-    <header className="border-b border-border bg-bg sticky top-0 z-10">
+    <header className="border-b border-border bg-bg sticky top-0 z-10 h-14">
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
         <Link
           href="/"

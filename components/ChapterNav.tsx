@@ -42,7 +42,12 @@ export default function ChapterNav({
             <li key={ch.slug}>
               {/* Volume break dividers are meaningful only when reading 1818 */}
               {row.volBreak && activeEdition === '1818' && (
-                <p className="mt-3 mb-1 px-3 font-sans text-[10px] tracking-widest uppercase text-muted/60 select-none">
+                <p className={[
+                  'px-3 font-sans tracking-widest uppercase text-muted/60 select-none',
+                  size === 'base'
+                    ? 'mt-6 mb-2 text-xs relative flex gap-6 items-center text-nowrap text-center before:content-[" "] before:block before:h-[1px] before:w-full before:bg-border/50 after:content-[" "] after:block after:h-[1px] after:w-full after:bg-border/50'
+                    : 'mt-3 mb-1 text-[10px]',
+                ].join(' ')}>
                   {row.volBreak}
                 </p>
               )}
@@ -50,7 +55,7 @@ export default function ChapterNav({
                 href={href}
                 className={[
                   'block px-3 rounded-md transition-colors',
-                  size === 'base' ? 'py-3 text-base' : 'py-2 text-sm',
+                  size === 'base' ? 'py-4 text-xl font-serif text-center' : 'py-2 text-sm',
                   isActive
                     ? 'bg-subtle text-fg font-medium'
                     : 'text-muted hover:text-fg hover:bg-subtle',

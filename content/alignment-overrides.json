@@ -1,6 +1,18 @@
 {
   "rowOverrides": [
     {
+      "alignmentKey": "chletter-iv-p28",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Letter IV: 'Such words, you may imagine, strongly excited my curiosity...' inserted with no 1818 counterpart"
+    },
+    {
+      "alignmentKey": "chletter-iv-p29",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Letter IV: 'Having conquered the violence of his feelings...' inserted with no 1818 counterpart"
+    },
+    {
       "alignmentKey": "ch23-p21",
       "edition": "1818",
       "paragraphIndex": null,
@@ -86,6 +98,13 @@
     }
   ],
   "chapterShifts": [
+    {
+      "chapter": "letter-iv",
+      "edition": "1818",
+      "fromRow": 30,
+      "shift": -2,
+      "note": "1831 Letter IV: two extra paragraphs inserted at rows 28-29; shift 1818 back by 2 from row 30 onwards"
+    },
     {
       "chapter": "3",
       "edition": "1818",

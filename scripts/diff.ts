@@ -252,8 +252,8 @@ const FULL_REPLACEMENT = (a: string, b: string): DiffOp[] => [
  * diff isn't providing enough shared context to anchor the reader, and a
  * plain full-replacement is cleaner.
  */
-const MIN_EQUAL_FRACTION = 0.20   // at least 20 % of chars must be equal
-const MIN_INPUT_DICE     = 0.50   // fast pre-filter: skip backtracking when clearly too different
+const MIN_EQUAL_FRACTION = 0.05   // at least 5 % of chars must be equal after cleanup
+const MIN_INPUT_DICE     = 0.20   // fast pre-filter: skip backtracking when clearly too different
 
 /** Compute a word-level diff between two texts. */
 export function computeDiff(textA: string, textB: string): DiffOp[] {
