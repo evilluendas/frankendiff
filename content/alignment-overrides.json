@@ -1,6 +1,84 @@
 {
   "rowOverrides": [
     {
+      "alignmentKey": "ch23-p21",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch23: 'My manner, as I thus addressed him, was impressive...' inserted with no 1818 counterpart"
+    },
+    {
+      "alignmentKey": "ch22-p25",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch22: 'Soon after my arrival my father spoke of my immediate marriage...' was cut from 1831; leave row 25 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch22-p9",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch22: letter header '\"*To* Victor Frankenstein.' has no 1831 counterpart; leave row 9 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch21-p46",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch21: 'I remember, as I quitted the prison...' has no 1831 counterpart; leave row 46 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch18-p12",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch18: '\"I am content,\" I replied...' was cut from 1831 (absorbed into surrounding narrative); leave row 12 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch16-p35",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch16: inserted 'The sleeper stirred; a thrill of terror ran through me...' at row 35 with no 1818 counterpart"
+    },
+    {
+      "alignmentKey": "ch11-p9",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch11 printing error: 'overcome by fatigue, I lay down...' was a stray sentence fragment on its own line; 1831 correctly merged it into the preceding paragraph"
+    },
+    {
+      "alignmentKey": "ch9-p11",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch9: 1831 inserted 'Sometimes I could cope with the sullen despair...' with no 1818 counterpart"
+    },
+    {
+      "alignmentKey": "ch8-p25",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch8: 1818 has 'I will try to comfort you...' with no 1831 counterpart (1831 condensed 3 paragraphs into 1)"
+    },
+    {
+      "alignmentKey": "ch8-p26",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch8: 1818 has 'Justine smiled languidly...' with no 1831 counterpart"
+    },
+    {
+      "alignmentKey": "ch3-p4",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 inserted a new paragraph at p4 ('She indeed veiled her grief...') with no 1818 counterpart"
+    },
+    {
+      "alignmentKey": "ch3-p17",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 inserted a second new paragraph at p17 ('I closed not my eyes that night...') with no 1818 counterpart"
+    },
+    {
+      "alignmentKey": "ch6-p1",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart; leave row 1 as 1818-only"
+    },
+    {
       "alignmentKey": "ch7-p1",
       "edition": "1831",
       "paragraphIndex": null,
@@ -8,6 +86,90 @@
     }
   ],
   "chapterShifts": [
+    {
+      "chapter": "3",
+      "edition": "1818",
+      "fromRow": 5,
+      "shift": -1,
+      "note": "1831 Ch3: extra paragraph at row 4; shift 1818 index back by 1 from row 5 onwards"
+    },
+    {
+      "chapter": "3",
+      "edition": "1818",
+      "fromRow": 18,
+      "shift": -1,
+      "note": "1831 Ch3: second extra paragraph at row 17; cumulates with the first shift to -2 total from row 18 onwards"
+    },
+    {
+      "chapter": "23",
+      "edition": "1818",
+      "fromRow": 22,
+      "shift": -1,
+      "note": "1831 Ch23: extra paragraph at row 21; shift 1818 back by 1 from row 22 onwards"
+    },
+    {
+      "chapter": "22",
+      "edition": "1831",
+      "fromRow": 10,
+      "shift": -1,
+      "note": "1818 Ch22: extra letter header at row 9 removed in 1831; shift 1831 back by 1 from row 10 onwards"
+    },
+    {
+      "chapter": "22",
+      "edition": "1831",
+      "fromRow": 26,
+      "shift": -1,
+      "note": "1818 Ch22: second extra paragraph at row 25 ('Soon after my arrival...'); cumulates with first shift to -2 total from row 26"
+    },
+    {
+      "chapter": "21",
+      "edition": "1831",
+      "fromRow": 47,
+      "shift": -1,
+      "note": "1818 Ch21: extra paragraph at row 46; shift 1831 back by 1 so the closing 'Ever since my recovery...' paragraphs align"
+    },
+    {
+      "chapter": "18",
+      "edition": "1831",
+      "fromRow": 13,
+      "shift": -1,
+      "note": "1818 Ch18: extra paragraph at row 12 ('I am content...'); shift 1831 back by 1 from row 13 onwards"
+    },
+    {
+      "chapter": "16",
+      "edition": "1818",
+      "fromRow": 36,
+      "shift": -1,
+      "note": "1831 Ch16: extra paragraph at row 35; shift 1818 back by 1 so the final paragraph aligns"
+    },
+    {
+      "chapter": "11",
+      "edition": "1831",
+      "fromRow": 10,
+      "shift": -1,
+      "note": "1818 Ch11: printing error created an extra paragraph at row 9; shift 1831 back by 1 from row 10 onwards"
+    },
+    {
+      "chapter": "9",
+      "edition": "1818",
+      "fromRow": 12,
+      "shift": -1,
+      "note": "1831 Ch9: extra paragraph at row 11; shift 1818 index back by 1 from row 12 so the bridge paragraphs align"
+    },
+    {
+      "chapter": "8",
+      "edition": "1831",
+      "fromRow": 27,
+      "shift": -2,
+      "note": "1818 Ch8: 1831 condensed 3 dialogue paragraphs (rows 24-26) into 1, shifting 1831 index by -2 from row 27 onwards"
+    },
+    {
+      "chapter": "6",
+      "edition": "1831",
+      "fromRow": 2,
+      "shift": -1,
+      "note": "1818 Chapter VI has an extra letter header at p1 that was removed in 1831, shifting all subsequent 1831 paragraphs by -1"
+    },
     {
       "chapter": "7",
       "edition": "1831",

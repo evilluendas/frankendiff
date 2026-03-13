@@ -89,12 +89,29 @@ export function alignChapter(
   // Chapter shifts applicable to this chapter
   const shifts = chapterShifts.filter((s) => s.chapter === slug)
 
-  // Find the maximum paragraph count across all editions for this chapter
   const editions = Object.keys(paragraphsByEdition) as Edition[]
-  const maxLen = Math.max(
+
+  // Base maxLen: the largest paragraph count across all editions.
+  let maxLen = Math.max(
     0,
     ...editions.map((e) => paragraphsByEdition[e]?.length ?? 0),
   )
+
+  // A negative shift pushes an edition's paragraphs to higher display rows.
+  // For example, shift=-2 from row 27 means the last paragraph of that edition
+  // (say index 32) appears at display row 34 rather than 32.  Extend maxLen so
+  // those paragraphs are not silently dropped.
+  for (const s of shifts) {
+    if (s.shift < 0) {
+      const edCount = paragraphsByEdition[s.edition]?.length ?? 0
+      if (edCount > 0) {
+        // Last paragraph (idx edCount-1) sits at display row (edCount-1) - s.shift
+        // (subtracting a negative shift = adding its absolute value).
+        const lastDisplayRow = (edCount - 1) - s.shift
+        maxLen = Math.max(maxLen, lastDisplayRow + 1)
+      }
+    }
+  }
 
   const groups: AlignedParagraphGroup[] = []
 
@@ -116,9 +133,13 @@ export function alignChapter(
       if (overrideMap.has(rowKey)) {
         idx = overrideMap.get(rowKey)!  // may be null (explicit skip)
       } else {
-        // Apply the first matching chapter shift for this edition/row
-        const shift = shifts.find((s) => s.edition === edition && i >= s.fromRow)
-        idx = shift ? i + shift.shift : i
+        // Accumulate all chapter shifts that apply to this edition and row.
+        // Multiple shifts with different fromRow values stack (e.g. two separate
+        // paragraph insertions in the same chapter each contribute −1).
+        const totalShift = shifts
+          .filter((s) => s.edition === edition && i >= s.fromRow)
+          .reduce((acc, s) => acc + s.shift, 0)
+        idx = i + totalShift
       }
 
       if (idx !== null && idx >= 0 && idx < edParas.length) {

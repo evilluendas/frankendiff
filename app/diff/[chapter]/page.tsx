@@ -6,6 +6,7 @@ import SiteHeader from '@/components/SiteHeader'
 import ChapterNav from '@/components/ChapterNav'
 import DiffView from '@/components/DiffView'
 import InlineTitle from '@/components/InlineTitle'
+import ChapterNavFAB from '@/components/ChapterNavFAB'
 import {
   readChapterList,
   readChapter,
@@ -70,6 +71,20 @@ export default async function DiffPage({ params }: PageProps) {
             />
           </aside>
 
+          {/* FAB chapter nav — visible below lg */}
+          <div className="lg:hidden">
+            <ChapterNavFAB>
+              <ChapterNav
+                chapters={chapters}
+                structure={structure.rows}
+                activeSlug={slug}
+                activeEdition="1831"
+                mode="diff"
+                size="base"
+              />
+            </ChapterNavFAB>
+          </div>
+
           {/* Main content */}
           <div className="flex-1 min-w-0 max-w-2xl">
             <div className="mb-8 pb-6 border-b border-border">
@@ -77,7 +92,7 @@ export default async function DiffPage({ params }: PageProps) {
                 Diff
               </p>
               <h1 className="font-serif text-3xl font-medium"><InlineTitle text={meta.title} /></h1>
-              <div className="flex justify-between items-center mt-3">
+              <div className="flex flex-col gap-3 sm:flex-row justify-start sm:justify-between items-start sm:items-center mt-3">
                 {label1818 && label1831 ? (
                   <p className="font-sans text-xs text-muted">
                     <span className="inline-block align-middle bg-subtle px-2 py-1 rounded">{label1818} (1818)</span> <ArrowRight size={12} className="inline-block align-middle" /> <span className="inline-block align-middle bg-subtle px-2 py-1 rounded">{label1831} (1831)</span>
