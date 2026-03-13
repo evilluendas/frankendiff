@@ -19,6 +19,8 @@ export interface ChapterStructureRow {
   label1831: string | null
   /** Volume group header to render before this row in the 1818 column (e.g. "Volume II") */
   volBreak?: string
+  /** Explains when a 1831 chapter was created by splitting an 1818 chapter (label1818 will be null). */
+  splitNote?: string
 }
 
 export interface ChapterStructure {
