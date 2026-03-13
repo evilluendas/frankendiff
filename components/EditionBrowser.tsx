@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { BookOpen, GitCompare } from 'lucide-react'
 import { Edition, EDITION_LABELS } from '@/lib/types'
 import { ChapterStructureRow } from '@/lib/data'
+import InlineTitle from '@/components/InlineTitle'
 
 const EDITION_DESCRIPTIONS: Record<Edition, string> = {
-  '1818': 'Published anonymously. Three volumes with per-volume chapter numbering. Percy Shelley contributed the preface.',
-  '1831': 'Substantially revised. Mary Shelley added a new introduction, replaced the preface, and rewrote significant passages throughout.',
+  '1818': 'The novel as it first appeared in 1818. Published anonymously in three volumes, with a preface written by Percy Bysshe Shelley. This text presents the story in its earliest form.',
+  '1831': 'Mary Shelley substantially revised the novel for this edition, rewriting many passages and adding a new introduction describing the book’s origin. It became the version most widely read in the nineteenth century.',
 }
 
 interface EditionBrowserProps {
@@ -35,24 +36,35 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
           The two editions
         </h2>
         <div className="grid sm:grid-cols-2 gap-6">
-          {(['1818', '1831'] as Edition[]).map((ed) => (
-            <button
-              key={ed}
-              onClick={() => setEdition(ed)}
-              className={[
-                'p-5 rounded-lg border text-left transition-colors',
-                edition === ed
-                  ? 'border-fg bg-border/50'
-                  : 'border-border bg-subtle hover:border-muted',
-              ].join(' ')}
-            >
-              <p className="font-serif text-3xl font-medium mb-1">{ed}</p>
-              <p className="font-sans text-xs text-muted mb-3">{EDITION_LABELS[ed]}</p>
-              <p className="font-serif text-sm text-muted leading-relaxed text-pretty">
-                {EDITION_DESCRIPTIONS[ed]}
-              </p>
-            </button>
-          ))}
+          {(['1818', '1831'] as Edition[]).map((ed) => {
+            const firstChapter = structure.find((row) =>
+              ed === '1818' ? row.label1818 !== null : row.label1831 !== null,
+            )
+            return (
+              <Link
+                key={ed}
+                href={firstChapter ? `/chapter/${firstChapter.slug}?edition=${ed}` : '#'}
+                onClick={(e) => {
+                  if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+                    e.preventDefault()
+                    setEdition(ed)
+                  }
+                }}
+                className={[
+                  'p-5 rounded-lg border text-left transition-colors',
+                  edition === ed
+                    ? 'border-fg bg-border/50'
+                    : 'border-border bg-subtle hover:border-muted',
+                ].join(' ')}
+              >
+                <p className="font-serif text-3xl font-medium mb-1">{ed}</p>
+                <p className="font-sans text-xs text-muted mb-3">{EDITION_LABELS[ed]}</p>
+                <p className="font-serif text-sm text-muted leading-relaxed text-pretty">
+                  {EDITION_DESCRIPTIONS[ed]}
+                </p>
+              </Link>
+            )
+          })}
         </div>
       </section>
 
@@ -68,7 +80,7 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
               <div key={row.slug}>
                 {/* Volume break header — only meaningful for 1818 */}
                 {row.volBreak && edition === '1818' && (
-                  <div className="py-2 border-b border-border">
+                  <div className="pt-12 pb-2 border-b border-border">
                     <span className="font-sans text-[10px] tracking-widest uppercase text-muted font-medium">
                       {row.volBreak}
                     </span>
@@ -79,7 +91,7 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
                     href={`/chapter/${row.slug}?edition=${edition}`}
                     className="font-serif text-base hover:text-muted transition-colors"
                   >
-                    {label}
+                    <InlineTitle text={label} />
                   </Link>
                   <div className="flex items-center gap-2 shrink-0">
                     <Link

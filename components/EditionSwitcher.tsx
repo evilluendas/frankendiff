@@ -37,7 +37,7 @@ export default function EditionSwitcher({ activeEdition, links }: EditionSwitche
             <span className="font-display text-4xl leading-none tracking-tight">
               {edition}
             </span>
-            <span className="font-sans text-[10px] tracking-[0.18em] uppercase text-muted">
+            <span className="hidden sm:inline font-sans text-[10px] tracking-[0.18em] uppercase text-muted">
               {EDITION_SUBTITLE[edition]}
             </span>
           </Link>

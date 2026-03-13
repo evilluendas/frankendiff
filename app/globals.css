@@ -5,11 +5,11 @@
 
 /* ── Color tokens ─────────────────────────────────── */
 :root {
-  --bg:           #faf8f4;
-  --fg:           #1c1916;
-  --muted:        #7a7267;
-  --subtle:       #f0ece5;
-  --border:       #ddd8cf;
+  --bg:           #fafafa;
+  --fg:           #1a1a1a;
+  --muted:        #767676;
+  --subtle:       #f0f0ef;
+  --border:       #dcdcda;
   --ins-text:     #166534;
   --ins-bg:       #dcfce7;
   --del-text:     #991b1b;

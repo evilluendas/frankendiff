@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ChapterMeta, Edition } from '@/lib/types'
 import { ChapterStructureRow } from '@/lib/data'
+import InlineTitle from '@/components/InlineTitle'
 
 interface ChapterNavProps {
   chapters: ChapterMeta[]
@@ -52,7 +53,7 @@ export default function ChapterNav({
                     : 'text-muted hover:text-fg hover:bg-subtle',
                 ].join(' ')}
               >
-                {label}
+                <InlineTitle text={label} />
               </Link>
             </li>
           )

@@ -3,8 +3,8 @@ export type Edition = '1818' | '1831'
 export const EDITIONS: Edition[] = ['1818', '1831']
 
 export const EDITION_LABELS: Record<Edition, string> = {
-  '1818': '1818 First Edition',
-  '1831': '1831 Revised Edition',
+  '1818': 'First Edition',
+  '1831': 'Revised Edition',
 }
 
 export type DiffOpType = 'equal' | 'insert' | 'delete'
