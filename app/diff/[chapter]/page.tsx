@@ -57,7 +57,7 @@ export default async function DiffPage({ params }: PageProps) {
   return (
     <>
       <SiteHeader mode="diff" activeSlug={slug} activeEdition={activeEdition} />
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="flex gap-10">
           {/* Sidebar */}
           <aside className="hidden lg:block w-44 shrink-0 pt-2">
