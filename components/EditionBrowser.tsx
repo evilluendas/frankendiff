@@ -57,9 +57,9 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
                     : 'border-border bg-subtle hover:border-muted',
                 ].join(' ')}
               >
-                <p className="font-serif text-3xl font-medium mb-1">{ed}</p>
-                <p className="font-sans text-xs text-muted mb-3">{EDITION_LABELS[ed]}</p>
-                <p className="font-serif text-sm text-muted leading-relaxed text-pretty">
+                <p className="font-serif text-3xl">{ed}</p>
+                <p className="font-sans text-muted text-[10px] tracking-[0.18em] uppercase mb-3">{EDITION_LABELS[ed]}</p>
+                <p className="font-serif leading-relaxed text-pretty text-sm">
                   {EDITION_DESCRIPTIONS[ed]}
                 </p>
               </Link>
