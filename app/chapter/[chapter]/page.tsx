@@ -107,31 +107,17 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
         {/* Global edition switcher — spans full width above sidebar + content */}
         <EditionSwitcher activeEdition={activeEdition} links={editionLinks} />
 
-        <div className="relative px-6 flex">
-          {/* Sidebar */}
-          <aside className="absolute hidden xl:block w-44 shrink-0">
+        <div className="px-6 flex">
+          <ChapterNavFAB>
             <ChapterNav
               chapters={chapters}
               structure={structure.rows}
               activeSlug={slug}
               activeEdition={activeEdition}
               mode="read"
+              size="base"
             />
-          </aside>
-
-          {/* FAB chapter nav — visible below xl */}
-          <div className="xl:hidden">
-            <ChapterNavFAB>
-              <ChapterNav
-                chapters={chapters}
-                structure={structure.rows}
-                activeSlug={slug}
-                activeEdition={activeEdition}
-                mode="read"
-                size="base"
-              />
-            </ChapterNavFAB>
-          </div>
+          </ChapterNavFAB>
 
           {/* Main content */}
           <div className="flex-1 min-w-0 flex justify-center">

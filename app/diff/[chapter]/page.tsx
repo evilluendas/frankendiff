@@ -7,6 +7,7 @@ import ChapterNav from '@/components/ChapterNav'
 import DiffView from '@/components/DiffView'
 import InlineTitle from '@/components/InlineTitle'
 import ChapterNavFAB from '@/components/ChapterNavFAB'
+import StickyChapterNav from '@/components/StickyChapterNav'
 import {
   readChapterList,
   readChapter,
@@ -58,10 +59,10 @@ export default async function DiffPage({ params }: PageProps) {
   return (
     <>
       <SiteHeader mode="diff" activeSlug={slug} activeEdition={activeEdition} />
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-14">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex">
           {/* Sidebar */}
-          <aside className="hidden lg:block w-54 shrink-0 pt-2 pr-4 border-r border-border">
+          <StickyChapterNav className="hidden lg:block w-54 shrink-0 py-14 pr-5 border-r border-border">
             <ChapterNav
               chapters={chapters}
               structure={structure.rows}
@@ -69,7 +70,7 @@ export default async function DiffPage({ params }: PageProps) {
               activeEdition="1831"
               mode="diff"
             />
-          </aside>
+          </StickyChapterNav>
 
           {/* FAB chapter nav — visible below lg */}
           <div className="lg:hidden">
@@ -86,15 +87,15 @@ export default async function DiffPage({ params }: PageProps) {
           </div>
 
           {/* Main content */}
-          <div className="flex-1 min-w-0 max-w-2xl">
+          <div className="flex-1 min-w-0 max-w-2xl py-8 sm:px-6 lg:pl-14">
             <div className="mb-8 pb-6 border-b border-border">
               <p className="font-sans text-xs tracking-widest text-muted uppercase mb-2">
                 Diff
               </p>
               <h1 className="font-serif text-3xl font-medium"><InlineTitle text={meta.title} /></h1>
-              <div className="flex flex-col gap-3 sm:flex-row justify-start sm:justify-between items-start sm:items-center mt-3">
+              <div className="flex gap-3 justify-start sm:justify-between items-start sm:items-center mt-3">
                 {label1818 && label1831 ? (
-                  <p className="font-sans text-xs text-muted">
+                  <p className="font-sans text-xs text-muted flex-1 shrink-0 whitespace-nowrap">
                     <span className="inline-block align-middle bg-subtle px-2 py-1 rounded">{label1818} (1818)</span> <ArrowRight size={12} className="inline-block align-middle" /> <span className="inline-block align-middle bg-subtle px-2 py-1 rounded">{label1831} (1831)</span>
                   </p>
                 ) : !label1818 && label1831 ? (
@@ -103,13 +104,13 @@ export default async function DiffPage({ params }: PageProps) {
                   </p>
                 ) : null}
                 {/* Legend */}
-                <div className="flex items-center gap-4 font-sans text-xs text-muted">
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-3 rounded-sm bg-ins-bg" />
+                <div className="flex items-center gap-4 font-sans text-xs text-muted hidden sm:flex">
+                  <span className="flex items-center gap-1.5 text-nowrap">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-ins-bg shrink-0" />
                     Added in 1831
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="inline-block w-3 h-3 rounded-sm bg-del-bg" />
+                  <span className="flex items-center gap-1.5 text-nowrap">
+                    <span className="inline-block w-3 h-3 rounded-sm bg-del-bg shrink-0" />
                     Removed from 1818
                   </span>
                 </div>

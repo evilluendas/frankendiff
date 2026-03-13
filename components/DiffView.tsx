@@ -51,7 +51,7 @@ export default function DiffView({ groups }: DiffViewProps) {
             paraA?.elementType ?? paraB?.elementType ?? 'body'
 
           return (
-            <div key={group.alignmentKey} className="pb-8 border-b border-border last:border-0">
+            <div key={group.alignmentKey} className="pb-8 border-b border-dashed border-border last:border-0">
               <DiffDisplay ops={ops} elementType={elementType} />
             </div>
           )
