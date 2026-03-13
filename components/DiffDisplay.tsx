@@ -1,5 +1,5 @@
 import { DiffOp, ParagraphElementType } from '@/lib/types'
-import { renderText } from '@/lib/utils'
+import { renderDiffOps } from '@/lib/utils'
 
 interface DiffDisplayProps {
   ops: DiffOp[]
@@ -51,29 +51,5 @@ export default function DiffDisplay({ ops, elementType = 'body' }: DiffDisplayPr
 }
 
 function renderOps(ops: DiffOp[]) {
-  return ops.map((op, i) => {
-    if (op.type === 'equal') {
-      return <span key={i}>{renderText(op.text)}</span>
-    }
-    if (op.type === 'insert') {
-      return (
-        <ins
-          key={i}
-          className="no-underline bg-ins-bg text-ins-text rounded-sm px-0.5"
-          title="Added in this edition"
-        >
-          {renderText(op.text)}
-        </ins>
-      )
-    }
-    return (
-      <del
-        key={i}
-        className="bg-del-bg text-del-text rounded-sm px-0.5"
-        title="Removed in this edition"
-      >
-        {renderText(op.text)}
-      </del>
-    )
-  })
+  return renderDiffOps(ops)
 }
