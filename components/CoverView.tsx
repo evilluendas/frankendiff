@@ -59,7 +59,7 @@ function Cover1818() {
         <p className="font-display text-fg text-sm uppercase italic font-semibold [font-variant:small-caps] mb-2">
           Printed for
         </p>
-        <p className="font-serif uppercase tracking-widest">
+        <p className="font-serif uppercase tracking-widest text-pretty">
           Lackington, Hughes, Harding, Mayor, & Jones,<br />
           Finsbury Square.
         </p>
