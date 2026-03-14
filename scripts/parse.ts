@@ -55,6 +55,7 @@ function toOrder(slug: string): number {
   }
   const n = parseInt(slug, 10)
   if (!isNaN(n)) return n
+  if (slug === 'cover') return -4
   if (slug === 'introduction') return -3
   if (slug === 'preface') return -2
   if (slug.startsWith('letter')) return -1
@@ -92,9 +93,10 @@ const KNOWN_ELEMENT_TAGS: ParagraphElementType[] = [
   'closing',
   'signature',
   'poem',
+  'book-title',
 ]
 
-const ELEMENT_TAG_RE = /^\[([a-z]+)\]\s*\n?/
+const ELEMENT_TAG_RE = /^\[([a-z][a-z-]*)\]\s*\n?/
 
 function detectElement(raw: string): {
   elementType: ParagraphElementType

@@ -39,14 +39,14 @@ export default async function HomePage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/chapter/preface?edition=1818"
+              href="/chapter/cover?edition=1818"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-fg text-bg rounded-md font-sans text-sm font-medium hover:opacity-90 transition-opacity"
             >
               <BookOpen size={15} />
               Start reading
             </Link>
             <Link
-              href="/diff/preface"
+              href="/diff/cover"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-subtle text-fg rounded-md font-sans text-sm font-medium hover:bg-border transition-colors"
             >
               <GitCompare size={15} />

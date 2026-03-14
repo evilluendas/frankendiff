@@ -52,6 +52,23 @@ function ElementParagraph({ para, id, dropCap }: { para: BookParagraph; id: stri
         </div>
       )
 
+    case 'book-title': {
+      const [mainTitle, ...subtitleParts] = para.text.split(/;\s*/)
+      const subtitle = subtitleParts.join('; ')
+      return (
+        <div id={id} className="text-center pt-4 pb-2">
+          <p className="font-display text-4xl sm:text-5xl font-medium uppercase tracking-wide leading-tight text-fg">
+            {mainTitle}
+          </p>
+          {subtitle && (
+            <p className="font-display text-xl sm:text-2xl font-normal uppercase tracking-widest text-muted mt-3">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      )
+    }
+
     case 'poem':
       return (
         <figure id={id} className="my-8">

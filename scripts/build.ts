@@ -102,6 +102,7 @@ function main() {
       const canonicalOrder = (() => {
         const n = parseInt(canonical, 10)
         if (!isNaN(n)) return n
+        if (canonical === 'cover') return -4
         if (canonical === 'introduction') return -3
         if (canonical === 'preface') return -2
         if (canonical.startsWith('letter')) return -1

@@ -22,6 +22,7 @@ export type ParagraphElementType =
   | 'closing'
   | 'signature'
   | 'poem'
+  | 'book-title'
 
 export interface BookParagraph {
   id: string                        // e.g. "1818-ch1-p3"
