@@ -51,6 +51,29 @@ export function readChapterStructure(): ChapterStructure {
   return JSON.parse(raw) as ChapterStructure
 }
 
+/**
+ * Returns the plain text of the first body paragraph for a chapter,
+ * truncated to `maxLen` characters (with an ellipsis if trimmed).
+ * Falls back across editions in the order supplied.
+ */
+export function getChapterFirstParagraph(
+  slug: string,
+  preferEditions: string[] = ['1831', '1818'],
+  maxLen = 200,
+): string | undefined {
+  const groups = readChapter(slug)
+  for (const edition of preferEditions) {
+    for (const group of groups) {
+      const para = group.paragraphs[edition as '1818' | '1831']
+      if (para && para.elementType === 'body' && para.text.trim()) {
+        const text = para.text.trim()
+        return text.length > maxLen ? text.slice(0, maxLen).trimEnd() + '…' : text
+      }
+    }
+  }
+  return undefined
+}
+
 /** Adjacent chapter slugs for prev/next navigation. */
 export function getAdjacentChapters(
   slug: string,
