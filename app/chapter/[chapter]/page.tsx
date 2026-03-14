@@ -123,7 +123,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
           <div className="flex-1 min-w-0 flex justify-center">
             <div className="max-w-[68ch]">
               <div className="mb-16">
-                <h1 className="pt-8 pb-16 font-display text-3xl sm:text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg"><InlineTitle text={chapterLabel} />.</h1>
+                <h1 className="pt-8 pb-16 font-display text-pretty text-3xl sm:text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg"><InlineTitle text={chapterLabel} />.</h1>
               </div>
 
               <ChapterView groups={groups} edition={activeEdition} />

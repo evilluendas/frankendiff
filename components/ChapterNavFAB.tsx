@@ -11,6 +11,7 @@ interface ChapterNavFABProps {
 export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
   const [open, setOpen] = useState(false)
   const [navigating, setNavigating] = useState(false)
+  const [fabVisible, setFabVisible] = useState(true)
   const pathname = usePathname()
 
   // Close only when navigation has completed (pathname changed)
@@ -38,13 +39,33 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
+  // Hide FAB on scroll down, show on scroll up (mobile only — JS runs always,
+  // but the visibility classes are only applied below the sm breakpoint)
+  useEffect(() => {
+    let lastY = window.scrollY
+    const onScroll = () => {
+      const currentY = window.scrollY
+      if (currentY > lastY && currentY > 60) {
+        setFabVisible(false)
+      } else {
+        setFabVisible(true)
+      }
+      lastY = currentY
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
     <>
       {/* FAB */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Open chapter navigation"
-        className="fixed bottom-6 right-6 z-40 flex items-center justify-center w-13 h-13 rounded-full bg-fg text-bg shadow-lg hover:opacity-90 active:scale-95 transition-all"
+        className={[
+          'fixed bottom-6 right-6 z-40 flex items-center justify-center w-13 h-13 rounded-full bg-fg text-bg shadow-lg hover:opacity-90 active:scale-95 transition-all duration-250 ease-in-out',
+          !fabVisible ? 'max-sm:opacity-0 max-sm:pointer-events-none' : 'max-sm:opacity-100',
+        ].join(' ')}
       >
         <BookOpen size={22} />
       </button>
