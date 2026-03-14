@@ -53,6 +53,7 @@ export default function ChapterNav({
               )}
               <Link
                 href={href}
+                aria-current={isActive ? 'page' : undefined}
                 className={[
                   'block px-3 rounded-md transition-colors',
                   size === 'base' ? 'py-4 text-xl font-serif text-center' : 'py-2 text-sm',
