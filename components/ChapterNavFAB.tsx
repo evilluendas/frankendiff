@@ -70,11 +70,12 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
         onClick={() => setOpen(true)}
         aria-label="Open chapter navigation"
         className={[
-          'fixed bottom-6 right-6 z-40 flex items-center justify-center w-13 h-13 rounded-full bg-fg text-bg shadow-lg hover:opacity-90 active:scale-95 transition-all duration-250 ease-in-out',
+          'fixed bottom-4 sm:bottom-6 right-6 z-40 flex gap-2 px-5 sm:px-0 items-center justify-center h-14 sm:w-13 sm:h-13 rounded-full bg-fg text-bg shadow-lg hover:opacity-90 active:scale-95 transition-all duration-250 ease-in-out',
           atBottom ? 'opacity-0 pointer-events-none' : !fabVisible ? 'max-sm:opacity-0 max-sm:pointer-events-none' : '',
         ].join(' ')}
       >
         <BookOpen size={22} />
+        <span className="text-sm font-medium sm:hidden">Chapters</span>
       </button>
 
       {/* Overlay */}
