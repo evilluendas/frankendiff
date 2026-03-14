@@ -12,6 +12,7 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
   const [open, setOpen] = useState(false)
   const [navigating, setNavigating] = useState(false)
   const [fabVisible, setFabVisible] = useState(true)
+  const [atBottom, setAtBottom] = useState(false)
   const pathname = usePathname()
 
   // Close only when navigation has completed (pathname changed)
@@ -40,17 +41,23 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
   }, [open])
 
   // Hide FAB on scroll down, show on scroll up (mobile only — JS runs always,
-  // but the visibility classes are only applied below the sm breakpoint)
+  // but the visibility classes are only applied below the sm breakpoint).
+  // Uses a 20px dead zone so small jitters don't trigger the toggle.
   useEffect(() => {
-    let lastY = window.scrollY
+    const THRESHOLD = 100
+    let anchorY = window.scrollY
+    let visible = true
     const onScroll = () => {
       const currentY = window.scrollY
-      if (currentY > lastY && currentY > 60) {
-        setFabVisible(false)
-      } else {
-        setFabVisible(true)
+      setAtBottom(currentY + window.innerHeight >= document.documentElement.scrollHeight - 32)
+      const delta = currentY - anchorY
+      if (delta > THRESHOLD && currentY > 60) {
+        anchorY = currentY
+        if (visible) { visible = false; setFabVisible(false) }
+      } else if (delta < -THRESHOLD) {
+        anchorY = currentY
+        if (!visible) { visible = true; setFabVisible(true) }
       }
-      lastY = currentY
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -64,7 +71,7 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
         aria-label="Open chapter navigation"
         className={[
           'fixed bottom-6 right-6 z-40 flex items-center justify-center w-13 h-13 rounded-full bg-fg text-bg shadow-lg hover:opacity-90 active:scale-95 transition-all duration-250 ease-in-out',
-          !fabVisible ? 'max-sm:opacity-0 max-sm:pointer-events-none' : 'max-sm:opacity-100',
+          atBottom ? 'opacity-0 pointer-events-none' : !fabVisible ? 'max-sm:opacity-0 max-sm:pointer-events-none' : '',
         ].join(' ')}
       >
         <BookOpen size={22} />
