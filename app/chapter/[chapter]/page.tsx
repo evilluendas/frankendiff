@@ -15,6 +15,7 @@ import {
   readChapterMeta,
   readChapterStructure,
   getAdjacentChapters,
+  getChapterFirstParagraph,
   ChapterStructureRow,
 } from '@/lib/data'
 import { Edition, EDITIONS } from '@/lib/types'
@@ -29,11 +30,22 @@ export async function generateStaticParams() {
   return chapters.map((ch) => ({ chapter: ch.slug }))
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params, searchParams }: PageProps) {
   const { chapter } = await params
+  const { edition: editionParam } = await searchParams
   const meta = readChapterMeta(chapter)
+
+  // Prefer the requested edition for the description snippet, then fall back
+  const preferEditions =
+    editionParam === '1818' || editionParam === '1831'
+      ? [editionParam, editionParam === '1818' ? '1831' : '1818']
+      : ['1831', '1818']
+
+  const firstParagraph = getChapterFirstParagraph(chapter, preferEditions)
+
   return {
     title: meta ? `${meta.title} — Frankendiff` : 'Chapter — Frankendiff',
+    ...(firstParagraph && { description: firstParagraph }),
   }
 }
 

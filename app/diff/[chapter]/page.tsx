@@ -29,8 +29,25 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps) {
   const { chapter } = await params
   const meta = readChapterMeta(chapter)
+  if (!meta) return { title: 'Diff — Frankendiff' }
+
+  const structure = readChapterStructure()
+  const row = structure.rows.find((r) => r.slug === chapter)
+  const label1818 = meta.labelsByEdition?.['1818'] ?? row?.label1818 ?? null
+  const label1831 = meta.labelsByEdition?.['1831'] ?? row?.label1831 ?? null
+
+  let description: string
+  if (!label1818 && label1831) {
+    description = `${meta.title} was added to Frankenstein in the 1831 revised edition — read the full text and see how it fits into the new structure.`
+  } else if (label1818 && label1831 && label1818 !== label1831) {
+    description = `Compare "${label1818}" from the 1818 edition with "${label1831}" from the 1831 edition — explore every addition, deletion, and rewrite Shelley made to this chapter of Frankenstein.`
+  } else {
+    description = `Explore every addition and deletion in ${meta.title} between the original 1818 and revised 1831 editions of Mary Shelley's Frankenstein.`
+  }
+
   return {
-    title: meta ? `${meta.title} Diff — Frankendiff` : 'Diff — Frankendiff',
+    title: `${meta.title} Diff — Frankendiff`,
+    description,
   }
 }
 

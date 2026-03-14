@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { BookOpen, GitCompare } from 'lucide-react'
@@ -5,6 +6,12 @@ import SiteHeader from '@/components/SiteHeader'
 import EditionBrowser from '@/components/EditionBrowser'
 import { readChapterStructure } from '@/lib/data'
 import { Edition } from '@/lib/types'
+
+export const metadata: Metadata = {
+  title: 'Frankendiff — Frankenstein Editions Compared',
+  description:
+    "Mary Shelley's Frankenstein exists in two major versions: the original 1818 text, and an extensively revised 1831 edition. Read both and explore how the novel changed over time.",
+}
 
 export default async function HomePage() {
   const structure = readChapterStructure()
@@ -28,7 +35,7 @@ export default async function HomePage() {
             <span className="text-muted font-normal">Two Editions Compared</span>
           </h1>
           <p className="font-serif text-xl text-muted leading-relaxed max-w-2xl mb-8">
-            Mary Shelley’s <em>Frankenstein</em> exists in two major versions: the original 1818 text, and an extensively revised 1831 edition. This project lets you read them side by side and explore how the novel changed over time, from small wording changes to substantial rewrites.
+            Mary Shelley’s <em>Frankenstein</em> exists in two major versions: the original 1818 text, and an extensively revised 1831 edition. This project lets you read both of them and explore how the novel changed over time, from small wording changes to substantial rewrites.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
