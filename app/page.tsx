@@ -14,7 +14,7 @@ export default async function HomePage() {
   const structure = readChapterStructure()
   const cookieStore = await cookies()
   const raw = cookieStore.get('frankendiff_edition')?.value
-  const initialEdition: Edition = raw === '1818' || raw === '1831' ? raw : '1831'
+  const initialEdition: Edition = raw === '1818' || raw === '1831' ? raw : '1818'
 
   return <HomepageContent structure={structure.rows} initialEdition={initialEdition} />
 }

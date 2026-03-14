@@ -42,7 +42,7 @@ export async function generateMetadata({ params, searchParams }: PageProps) {
   const meta = readChapterMeta(chapter)
 
   const activeEdition: Edition =
-    editionParam === '1818' || editionParam === '1831' ? editionParam : '1831'
+    editionParam === '1818' || editionParam === '1831' ? editionParam : '1818'
 
   // Prefer the requested edition for the description snippet, then fall back
   const preferEditions: Edition[] =
@@ -102,11 +102,11 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
 
   const available = meta.editions as Edition[]
 
-  // Resolve the active edition from the URL param, defaulting to 1831
+  // Resolve the active edition from the URL param, defaulting to 1818
   const activeEdition: Edition =
     EDITIONS.includes(editionParam as Edition) && available.includes(editionParam as Edition)
       ? (editionParam as Edition)
-      : available.includes('1831') ? '1831' : available[0]
+      : available.includes('1818') ? '1818' : available[0]
 
   const chapters  = readChapterList()
   const structure = readChapterStructure()
