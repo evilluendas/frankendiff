@@ -8,7 +8,6 @@ import CoverView from '@/components/CoverView'
 import EditionSwitcher, { EditionLink } from '@/components/EditionSwitcher'
 import InlineTitle from '@/components/InlineTitle'
 import EditionCookieSync from '@/components/EditionCookieSync'
-import ChapterCookieSync from '@/components/ChapterCookieSync'
 import ChapterNavFAB from '@/components/ChapterNavFAB'
 import StickyReveal from '@/components/StickyReveal'
 import {
@@ -32,21 +31,32 @@ export async function generateStaticParams() {
   return chapters.map((ch) => ({ chapter: ch.slug }))
 }
 
+const BOOK_TITLE: Record<Edition, string> = {
+  '1818': 'Frankenstein; or, The Modern Prometheus (1818)',
+  '1831': 'Frankenstein (1831)',
+}
+
 export async function generateMetadata({ params, searchParams }: PageProps) {
   const { chapter } = await params
   const { edition: editionParam } = await searchParams
   const meta = readChapterMeta(chapter)
 
+  const activeEdition: Edition =
+    editionParam === '1818' || editionParam === '1831' ? editionParam : '1831'
+
   // Prefer the requested edition for the description snippet, then fall back
-  const preferEditions =
-    editionParam === '1818' || editionParam === '1831'
-      ? [editionParam, editionParam === '1818' ? '1831' : '1818']
-      : ['1831', '1818']
+  const preferEditions: Edition[] =
+    activeEdition === '1818' ? ['1818', '1831'] : ['1831', '1818']
 
   const firstParagraph = getChapterFirstParagraph(chapter, preferEditions)
 
+  const chapterLabel = meta?.labelsByEdition?.[activeEdition] ?? meta?.title
+  const title = chapterLabel
+    ? `${chapterLabel} — ${BOOK_TITLE[activeEdition]} — Frankendiff`
+    : 'Chapter — Frankendiff'
+
   return {
-    title: meta ? `${meta.title} — Frankendiff` : 'Chapter — Frankendiff',
+    title,
     ...(firstParagraph && { description: firstParagraph }),
   }
 }
@@ -123,7 +133,6 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
     <>
       <SiteHeader mode="read" activeSlug={slug} activeEdition={activeEdition} />
       <EditionCookieSync edition={activeEdition} />
-      <ChapterCookieSync slug={slug} />
       <div className="view-read mx-auto pb-8">
         {/* Global edition switcher — spans full width above sidebar + content */}
         <StickyReveal>
