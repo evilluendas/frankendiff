@@ -96,7 +96,7 @@ function Cover1831() {
 
       <blockquote className="leading-tightest mb-12">
         <p className="font-calligraphic text-center text-base leading-[1.2] text-fg"
-        style={{ fontSize: 'clamp(1.5rem, 4vw, 1.9rem)' }}>
+        style={{ fontSize: 'clamp(1.45rem, 4vw, 1.9rem)' }}>
           "By the glimmer of the half-extinguished <br/>
           light, I saw the dull, yellow eye of the <br />
           creature open; it breathed hard, and a <br />
@@ -106,7 +106,7 @@ function Cover1831() {
         <span className="inline-block w-full font-serif italic text-[14px] text-right text-muted">Page 43.</span>
       </blockquote>
 
-      <p className="font-serif tracking-wider italic mb-12 text-pretty">London, Published by H Colburn and R Bentley, 1831.</p>
+      <p className="font-serif tracking-wider text-sm italic mb-12 text-pretty">London, Published by H Colburn and R Bentley, 1831.</p>
 
       <Ornament className="my-8" symbol=""/>
 
@@ -149,16 +149,16 @@ function Cover1831() {
       </blockquote>
 
       <div>
-        <p className="font-serif text mb-4 tracking-[0.3em] uppercase">London:</p>
-        <p className="font-serif text-2xl mb-4 font-semibold uppercase tracking-widest">
+        <p className="font-serif text-sm mb-2 tracking-widest uppercase">London:</p>
+        <p className="font-serif mb-2 text-xl font-semibold uppercase tracking-widest">
           Colburn and Bentley.
         </p>
-        <p className="font-serif uppercase tracking-[0.3em] mb-4">
+        <p className="font-serif text-sm uppercase tracking-widest mb-2">
           New Burlington Street
         </p>
       </div>
 
-      <p className="font-serif tracking-[0.2em]">1831.</p>
+      <p className="font-serif text-sm tracking-widest">1831.</p>
     </div>
   )
 }

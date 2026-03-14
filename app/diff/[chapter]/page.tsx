@@ -8,7 +8,6 @@ import DiffView from '@/components/DiffView'
 import InlineTitle from '@/components/InlineTitle'
 import ChapterNavFAB from '@/components/ChapterNavFAB'
 import StickyChapterNav from '@/components/StickyChapterNav'
-import ChapterCookieSync from '@/components/ChapterCookieSync'
 import {
   readChapterList,
   readChapter,
@@ -77,7 +76,6 @@ export default async function DiffPage({ params }: PageProps) {
   return (
     <>
       <SiteHeader mode="diff" activeSlug={slug} activeEdition={activeEdition} />
-      <ChapterCookieSync slug={slug} />
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex">
           {/* Sidebar */}

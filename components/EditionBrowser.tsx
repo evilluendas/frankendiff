@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BookOpen, GitCompare } from 'lucide-react'
 import { Edition, EDITION_LABELS } from '@/lib/types'
@@ -9,21 +8,16 @@ import InlineTitle from '@/components/InlineTitle'
 
 const EDITION_DESCRIPTIONS: Record<Edition, string> = {
   '1818': 'The novel as it first appeared in 1818. Published anonymously in three volumes, with a preface written by Percy Bysshe Shelley. This text presents the story in its earliest form.',
-  '1831': 'Mary Shelley substantially revised the novel for this edition, rewriting many passages and adding a new introduction describing the book’s origin. It became the version most widely read.',
+  '1831': 'Mary Shelley substantially revised the novel for this edition, rewriting many passages and adding a new introduction describing the book\u2019s origin. It became the version most widely read.',
 }
 
 interface EditionBrowserProps {
   structure: ChapterStructureRow[]
-  initialEdition: Edition
+  edition: Edition
+  onEditionChange: (ed: Edition) => void
 }
 
-export default function EditionBrowser({ structure, initialEdition }: EditionBrowserProps) {
-  const [edition, setEdition] = useState<Edition>(initialEdition)
-
-  useEffect(() => {
-    document.cookie = `frankendiff_edition=${edition}; path=/; max-age=31536000; SameSite=Lax`
-  }, [edition])
-
+export default function EditionBrowser({ structure, edition, onEditionChange }: EditionBrowserProps) {
   const rows = structure.filter((row) =>
     edition === '1818' ? row.label1818 !== null : row.label1831 !== null,
   )
@@ -47,7 +41,7 @@ export default function EditionBrowser({ structure, initialEdition }: EditionBro
                 onClick={(e) => {
                   if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
                     e.preventDefault()
-                    setEdition(ed)
+                    onEditionChange(ed)
                   }
                 }}
                 className={[
