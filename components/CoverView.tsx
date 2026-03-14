@@ -77,54 +77,88 @@ function Cover1831() {
   return (
     <div className="flex flex-col items-center text-center min-h-[60vh] pt-10 pb-4">
 
-      <div className="mb-8">
-        <h1
-          className="font-display font-medium uppercase leading-none text-fg"
-          style={{ fontSize: 'clamp(2.4rem, 7vw, 4.5rem)', letterSpacing: '0.12em' }}
-        >
-          Frankenstein
-        </h1>
-        <p
-          className="font-display font-normal mt-4 uppercase"
-          style={{ fontSize: 'clamp(0.8rem, 2.2vw, 1.1rem)', letterSpacing: '0.35em' }}
-        >
-          or, the Modern Prometheus
-        </p>
-      </div>
-
-      <Ornament className="my-8" />
-
-      <figure className="max-w-[26ch] mx-auto">
-        <blockquote className="font-serif italic text-fg leading-relaxed text-sm sm:text-base">
-          Did I request thee, Maker, from my clay<br />
-          To mould me Man, did I solicit thee<br />
-          From darkness to promote me?—<br />
-          <em>Paradise Lost.</em>
-        </blockquote>
-      </figure>
-
-      {/* ── Cover image — drop your file in public/ and update the src ── */}
-      <div className="mt-10 w-48">
+      <div className="mx-auto w-full max-w-[400px] mb-12">
         <Image
-          src="/cover-1831.jpg"
+          src="/cover-1831-01.jpg"
           alt="1831 edition cover"
-          width={400}
-          height={560}
+          width={500}
+          height={652}
           className="w-full h-auto"
         />
       </div>
 
-      <div className="flex-1 min-h-12" />
+      <h1
+        className="font-display font-medium uppercase leading-none text-fg mb-12"
+        style={{ fontSize: 'clamp(1.2rem, 7vw, 2.8rem)', letterSpacing: '0.12em' }}
+      >
+        Frankenstein.
+      </h1>
 
-      <div className="mt-8 flex flex-col items-center gap-2">
-        <p className="font-display text-fg uppercase" style={{ fontSize: '0.72rem', letterSpacing: '0.3em' }}>
-          Mary W. Shelley
+      <blockquote className="leading-tightest mb-12">
+        <p className="font-calligraphic text-center text-base leading-[1.2] text-fg"
+        style={{ fontSize: 'clamp(1.5rem, 4vw, 1.9rem)' }}>
+          "By the glimmer of the half-extinguished <br/>
+          light, I saw the dull, yellow eye of the <br />
+          creature open; it breathed hard, and a <br />
+          convulsive motion agitated its limbs. <br />
+          ... I rushed out of the room."
         </p>
-        <p className="font-sans text-muted" style={{ fontSize: '0.65rem', letterSpacing: '0.2em' }}>
-          London, 1831
+        <span className="inline-block w-full font-serif italic text-[14px] text-right text-muted">Page 43.</span>
+      </blockquote>
+
+      <p className="font-serif tracking-wider italic mb-12 text-pretty">London, Published by H Colburn and R Bentley, 1831.</p>
+
+      <Ornament className="my-8" symbol=""/>
+
+      <div className="mt-12 mb-12">
+        <h1
+          className="font-display font-medium uppercase leading-none text-fg"
+          style={{ fontSize: 'clamp(2.2rem, 7vw, 4.5rem)', letterSpacing: '0.12em' }}
+        >
+          Frankenstein,
+        </h1>
+        <p className="font-display text-lg font-normal mt-6 uppercase"
+          style={{ fontSize: 'clamp(0.8rem, 2.2vw, 1.1rem)', letterSpacing: '0.35em' }}
+        >
+          by
+        </p>
+        <p className="font-display text-2xl font-normal mt-6 uppercase"
+          style={{ fontSize: 'clamp(1.2rem, 2.2vw, 1.5rem)', letterSpacing: '0.35em' }}
+        >
+          Mary W. Shelley.
         </p>
       </div>
 
+      <div className="mx-auto w-full max-w-[400px] mb-12">
+        <Image
+          src="/cover-1831-02.png"
+          alt="1831 edition cover"
+          width={500}
+          height={652}
+          className="w-full h-auto"
+        />
+      </div>
+
+      <blockquote className="leading-tightest mb-12">
+        <p className="font-calligraphic text-left text-base leading-[1.2] text-fg"
+        style={{ fontSize: 'clamp(1.5rem, 4vw, 1.9rem)' }}>
+            The day of my departure <br />
+            at length arrived.
+        </p>
+        <span className="inline-block w-full font-serif italic text-[14px] text-right text-muted">Page 31.</span>
+      </blockquote>
+
+      <div>
+        <p className="font-serif text mb-4 tracking-[0.3em] uppercase">London:</p>
+        <p className="font-serif text-2xl mb-4 font-semibold uppercase tracking-widest">
+          Colburn and Bentley.
+        </p>
+        <p className="font-serif uppercase tracking-[0.3em] mb-4">
+          New Burlington Street
+        </p>
+      </div>
+
+      <p className="font-serif tracking-[0.2em]">1831.</p>
     </div>
   )
 }

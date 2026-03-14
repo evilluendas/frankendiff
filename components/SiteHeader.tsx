@@ -10,7 +10,7 @@ interface SiteHeaderProps {
 }
 
 export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }: SiteHeaderProps) {
-  const readHref  = activeSlug ? `/chapter/${activeSlug}?edition=${activeEdition}` : '/chapter/preface?edition=1818'
+  const readHref  = activeSlug ? `/chapter/${activeSlug}?edition=${activeEdition}` : `/chapter/cover?edition=${activeEdition}`
   const diffHref  = activeSlug ? `/diff/${activeSlug}` : '/diff/preface'
 
   return (

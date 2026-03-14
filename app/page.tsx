@@ -18,10 +18,11 @@ export default async function HomePage() {
   const cookieStore = await cookies()
   const raw = cookieStore.get('frankendiff_edition')?.value
   const initialEdition: Edition = raw === '1818' || raw === '1831' ? raw : '1818'
+  const lastChapter = cookieStore.get('frankendiff_chapter')?.value ?? undefined
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader activeEdition={initialEdition} activeSlug={lastChapter} />
 
       <main className="max-w-4xl mx-auto px-6 py-16">
         {/* Hero */}

@@ -8,6 +8,7 @@ import CoverView from '@/components/CoverView'
 import EditionSwitcher, { EditionLink } from '@/components/EditionSwitcher'
 import InlineTitle from '@/components/InlineTitle'
 import EditionCookieSync from '@/components/EditionCookieSync'
+import ChapterCookieSync from '@/components/ChapterCookieSync'
 import ChapterNavFAB from '@/components/ChapterNavFAB'
 import StickyReveal from '@/components/StickyReveal'
 import {
@@ -122,6 +123,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
     <>
       <SiteHeader mode="read" activeSlug={slug} activeEdition={activeEdition} />
       <EditionCookieSync edition={activeEdition} />
+      <ChapterCookieSync slug={slug} />
       <div className="view-read mx-auto pb-8">
         {/* Global edition switcher — spans full width above sidebar + content */}
         <StickyReveal>
