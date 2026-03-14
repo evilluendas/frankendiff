@@ -54,11 +54,8 @@ function ElementParagraph({ para, id, dropCap }: { para: BookParagraph; id: stri
 
     case 'poem':
       return (
-        <figure id={id} className="my-2 pl-4 border-l-2 border-border">
-          <span className="font-sans text-[10px] uppercase tracking-widest text-muted select-none block mb-1">
-            {ELEMENT_LABELS.poem}
-          </span>
-          <blockquote className="prose-serif text-fg italic whitespace-pre-line leading-relaxed">
+        <figure id={id} className="my-8">
+          <blockquote className="prose-serif text-fg text-center whitespace-pre-line">
             {renderText(para.text)}
           </blockquote>
         </figure>

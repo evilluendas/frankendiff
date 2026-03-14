@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { BookOpen, X } from 'lucide-react'
 
@@ -14,6 +14,7 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
   const [fabVisible, setFabVisible] = useState(true)
   const [atBottom, setAtBottom] = useState(false)
   const pathname = usePathname()
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   // Close only when navigation has completed (pathname changed)
   useEffect(() => {
@@ -23,6 +24,18 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
+
+  // Scroll active chapter into view when overlay opens
+  useEffect(() => {
+    if (!open) return
+    const container = scrollRef.current
+    if (!container) return
+    const active = container.querySelector<HTMLElement>('[aria-current="page"]')
+    if (!active) return
+    const containerMid = container.clientHeight / 2
+    const itemMid = active.offsetTop + active.offsetHeight / 2
+    container.scrollTop = itemMid - containerMid
+  }, [open])
 
   // Close on Escape
   useEffect(() => {
@@ -101,11 +114,21 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
           {/* Nav list — mark as navigating when a link is tapped; overlay stays
               open until the pathname change confirms the new page is ready */}
           <div
+            ref={scrollRef}
             className={[
               'flex-1 overflow-y-auto px-3 py-3',
               navigating ? 'opacity-40 pointer-events-none' : '',
             ].join(' ')}
-            onClick={() => setNavigating(true)}
+            onClick={(e) => {
+              const anchor = (e.target as HTMLElement).closest('a')
+              if (!anchor) return
+              const href = anchor.getAttribute('href')
+              if (href && new URL(href, window.location.origin).pathname === pathname) {
+                setOpen(false)
+              } else {
+                setNavigating(true)
+              }
+            }}
           >
             {children}
           </div>
