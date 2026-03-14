@@ -1,5 +1,6 @@
 {
   "rows": [
+    { "slug": "cover",                  "label1818": "Cover",                    "label1831": "Cover" },
     { "slug": "introduction",           "label1818": null,                       "label1831": "Introduction" },
     { "slug": "preface",                "label1818": "Preface",                  "label1831": "Preface" },
     { "slug": "letter-i",               "label1818": "Letter I",                 "label1831": "Letter I",                "volBreak": "Volume I" },

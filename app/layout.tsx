@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Lora, Inter } from 'next/font/google'
+import { Lora, Inter, Manufacturing_Consent, Pinyon_Script } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 
@@ -11,6 +11,20 @@ const lora = Lora({
 
 const inter = Inter({
   variable: '--font-inter',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const manufacturingConsent = Manufacturing_Consent({
+  variable: '--font-manufacturing-consent',
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const pinyonScript = Pinyon_Script({
+  variable: '--font-pinyon',
+  weight: '400',
   subsets: ['latin'],
   display: 'swap',
 })
@@ -42,7 +56,7 @@ export default function RootLayout({
         window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
         plausible.init()
       `}</Script>
-      <body className={`${lora.variable} ${inter.variable} bg-bg text-fg`}>
+      <body className={`${lora.variable} ${inter.variable} ${manufacturingConsent.variable} ${pinyonScript.variable} bg-bg text-fg`}>
         {children}
       </body>
     </html>

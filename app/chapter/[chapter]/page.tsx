@@ -4,6 +4,7 @@ import Link from 'next/link'
 import SiteHeader from '@/components/SiteHeader'
 import ChapterNav from '@/components/ChapterNav'
 import ChapterView from '@/components/ChapterView'
+import CoverView from '@/components/CoverView'
 import EditionSwitcher, { EditionLink } from '@/components/EditionSwitcher'
 import InlineTitle from '@/components/InlineTitle'
 import EditionCookieSync from '@/components/EditionCookieSync'
@@ -88,11 +89,6 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
   const meta = readChapterMeta(slug)
   if (!meta) notFound()
 
-  const chapters  = readChapterList()
-  const structure = readChapterStructure()
-  const groups    = readChapter(slug)
-  const { prev, next } = getAdjacentChapters(slug)
-
   const available = meta.editions as Edition[]
 
   // Resolve the active edition from the URL param, defaulting to 1831
@@ -100,6 +96,11 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
     EDITIONS.includes(editionParam as Edition) && available.includes(editionParam as Edition)
       ? (editionParam as Edition)
       : available.includes('1831') ? '1831' : available[0]
+
+  const chapters  = readChapterList()
+  const structure = readChapterStructure()
+  const groups    = readChapter(slug)
+  const { prev, next } = getAdjacentChapters(slug, activeEdition)
 
   // Build switcher links — each edition navigates to the correct corresponding chapter
   const editionLinks: EditionLink[] = EDITIONS.map((ed) => ({
@@ -111,6 +112,11 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
   const chapterLabel = meta.labelsByEdition?.[activeEdition] ?? meta.title
   const prevLabel    = prev ? (prev.labelsByEdition?.[activeEdition] ?? prev.title) : null
   const nextLabel    = next ? (next.labelsByEdition?.[activeEdition] ?? next.title) : null
+
+  // Hide the chapter H1 when the content opens with a book-title element (e.g. Cover)
+  const hasBookTitle = groups.some(
+    (g) => g.paragraphs[activeEdition]?.elementType === 'book-title',
+  )
 
   return (
     <>
@@ -136,12 +142,17 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
 
           {/* Main content */}
           <div className="flex-1 min-w-0 flex justify-center">
-            <div className="max-w-[68ch]">
-              <div className="mb-16">
-                <h1 className="pt-8 pb-16 font-display text-pretty text-3xl sm:text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg"><InlineTitle text={chapterLabel} />.</h1>
-              </div>
-
-              <ChapterView groups={groups} edition={activeEdition} />
+            <div className={hasBookTitle ? 'w-full max-w-md sm:max-w-3xl' : 'max-w-[68ch]'}>
+              {hasBookTitle ? (
+                <CoverView edition={activeEdition} />
+              ) : (
+                <>
+                  <div className="mb-16">
+                    <h1 className="pt-8 pb-16 font-display text-pretty text-3xl sm:text-5xl text-center font-medium uppercase leading-tight relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-[1px] after:w-[100px] after:bg-fg"><InlineTitle text={chapterLabel} />.</h1>
+                  </div>
+                  <ChapterView groups={groups} edition={activeEdition} />
+                </>
+              )}
 
               {/* Prev / Next */}
               <nav className="flex justify-between items-center mt-14 pt-8 border-t border-border">

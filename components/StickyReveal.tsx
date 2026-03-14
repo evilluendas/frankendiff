@@ -7,9 +7,15 @@ const HEADER_HEIGHT = 56
 // Minimum scroll distance (px) in one direction before reveal/hide triggers
 const SCROLL_THRESHOLD = 40
 
+// Tailwind's sm breakpoint
+const SM_BREAKPOINT = 640
+
 export default function StickyReveal({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState(0)
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(`(max-width: ${SM_BREAKPOINT - 1}px)`).matches
+  )
   const docTop = useRef(0)
   const stickyThreshold = useRef(0) // scrollY at which CSS sticky activates
   const lastY = useRef(0)
@@ -17,6 +23,7 @@ export default function StickyReveal({ children }: { children: React.ReactNode }
   // Accumulated signed scroll (positive = up) since last direction change or action
   const scrollDelta = useRef(0)
 
+  // Measure element geometry once on mount
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -29,8 +36,26 @@ export default function StickyReveal({ children }: { children: React.ReactNode }
     lastY.current = window.scrollY
   }, [])
 
+  // Track mobile breakpoint; reset any in-progress transform when crossing it
   useEffect(() => {
-    if (!height) return
+    const mq = window.matchMedia(`(max-width: ${SM_BREAKPOINT - 1}px)`)
+    const onChange = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches)
+      const el = ref.current
+      if (el) {
+        isRevealed.current = false
+        scrollDelta.current = 0
+        el.style.transition = 'none'
+        el.style.transform = 'translateY(0)'
+      }
+    }
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  // Scroll-driven reveal/hide — desktop only
+  useEffect(() => {
+    if (!height || isMobile) return
     const el = ref.current
     if (!el) return
 
@@ -85,16 +110,17 @@ export default function StickyReveal({ children }: { children: React.ReactNode }
 
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [height])
+  }, [height, isMobile])
 
   return (
     <div
       ref={ref}
       className="sticky bg-bg"
       style={{
-        // Park the element just above the viewport when sticky kicks in.
-        // Use -9999 before height is measured so it just scrolls naturally.
-        top: height > 0 ? -height : -9999,
+        // Mobile: always pinned just below the header.
+        // Desktop: parked above the viewport until revealed by scroll-up.
+        // Use -9999 before height is measured so it scrolls naturally (no premature sticking).
+        top: isMobile ? HEADER_HEIGHT : height > 0 ? -height : -9999,
         willChange: 'transform',
         zIndex: 9,
       }}

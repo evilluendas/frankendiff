@@ -74,14 +74,30 @@ export function getChapterFirstParagraph(
   return undefined
 }
 
-/** Adjacent chapter slugs for prev/next navigation. */
+/**
+ * Adjacent chapters for prev/next navigation.
+ * When `edition` is supplied, chapters not available in that edition are
+ * skipped so the nav never points to a chapter the reader can't view.
+ */
 export function getAdjacentChapters(
   slug: string,
+  edition?: string,
 ): { prev: ChapterMeta | null; next: ChapterMeta | null } {
   const chapters = readChapterList()
   const idx = chapters.findIndex((c) => c.slug === slug)
-  return {
-    prev: idx > 0 ? chapters[idx - 1] : null,
-    next: idx < chapters.length - 1 ? chapters[idx + 1] : null,
+
+  const inEdition = (c: ChapterMeta) =>
+    !edition || (c.editions as string[]).includes(edition)
+
+  let prev: ChapterMeta | null = null
+  for (let i = idx - 1; i >= 0; i--) {
+    if (inEdition(chapters[i])) { prev = chapters[i]; break }
   }
+
+  let next: ChapterMeta | null = null
+  for (let i = idx + 1; i < chapters.length; i++) {
+    if (inEdition(chapters[i])) { next = chapters[i]; break }
+  }
+
+  return { prev, next }
 }
