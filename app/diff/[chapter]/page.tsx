@@ -71,7 +71,7 @@ export default async function DiffPage({ params }: PageProps) {
 
   const cookieStore = await cookies()
   const rawEdition = cookieStore.get('frankendiff_edition')?.value
-  const activeEdition: Edition = rawEdition === '1818' || rawEdition === '1831' ? rawEdition : '1831'
+  const activeEdition: Edition = rawEdition === '1818' || rawEdition === '1831' ? rawEdition : '1818'
 
   return (
     <>
