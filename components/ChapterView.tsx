@@ -7,13 +7,21 @@ interface ChapterViewProps {
 }
 
 export default function ChapterView({ groups, edition }: ChapterViewProps) {
+  const filtered = groups.filter((group) => group.paragraphs[edition] != null)
+  const firstBodyKey = filtered.find(
+    (group) => (group.paragraphs[edition]?.elementType ?? 'body') === 'body',
+  )?.alignmentKey
+
   return (
     <div className="flex flex-col gap-6">
-      {groups
-        .filter((group) => group.paragraphs[edition] != null)
-        .map((group) => (
-          <ParagraphGroup key={group.alignmentKey} group={group} edition={edition} />
-        ))}
+      {filtered.map((group) => (
+        <ParagraphGroup
+          key={group.alignmentKey}
+          group={group}
+          edition={edition}
+          dropCap={group.alignmentKey === firstBodyKey}
+        />
+      ))}
     </div>
   )
 }

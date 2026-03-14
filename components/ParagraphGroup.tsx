@@ -4,11 +4,12 @@ import { renderText } from '@/lib/utils'
 interface ParagraphGroupProps {
   group: AlignedParagraphGroup
   edition: Edition
+  dropCap?: boolean
 }
 
-export default function ParagraphGroup({ group, edition }: ParagraphGroupProps) {
+export default function ParagraphGroup({ group, edition, dropCap }: ParagraphGroupProps) {
   const para = group.paragraphs[edition]!
-  return <ElementParagraph para={para} id={`${edition}-${group.alignmentKey}`} />
+  return <ElementParagraph para={para} id={`${edition}-${group.alignmentKey}`} dropCap={dropCap} />
 }
 
 const ELEMENT_LABELS: Partial<Record<ParagraphElementType, string>> = {
@@ -19,7 +20,7 @@ const ELEMENT_LABELS: Partial<Record<ParagraphElementType, string>> = {
   poem: 'Verse',
 }
 
-function ElementParagraph({ para, id }: { para: BookParagraph; id: string }) {
+function ElementParagraph({ para, id, dropCap }: { para: BookParagraph; id: string; dropCap?: boolean }) {
   const type = para.elementType ?? 'body'
 
   switch (type) {
@@ -65,7 +66,7 @@ function ElementParagraph({ para, id }: { para: BookParagraph; id: string }) {
 
     default:
       return (
-        <p className="prose-serif text-fg text-pretty indent-10" id={id}>
+        <p className={`prose-serif text-fg text-pretty ${dropCap ? 'drop-cap' : 'indent-10'}`} id={id}>
           {renderText(para.text)}
         </p>
       )

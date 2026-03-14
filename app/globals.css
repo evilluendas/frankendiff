@@ -70,3 +70,12 @@ del {
   line-height: 1.82;
   font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
 }
+
+/* Drop cap for the first body paragraph of each chapter */
+.drop-cap::first-letter {
+  float: left;
+  font-size: 4.2em;
+  line-height: 0.78;
+  padding-right: 0.08em;
+  padding-top: 0.06em;
+}
