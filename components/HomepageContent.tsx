@@ -65,8 +65,8 @@ export default function HomepageContent({ structure, initialEdition }: HomepageC
         <EditionBrowser structure={structure} edition={edition} onEditionChange={setEdition} />
 
         {/* Footer note */}
-        <footer className="mt-20 pt-8 border-t border-border">
-          <p className="font-sans text-xs text-muted leading-relaxed max-w-lg">
+        <footer className="mt-20 pt-8 border-t border-border flex items-center justify-between gap-4 flex-wrap">
+          <p className="font-sans text-xs text-muted leading-relaxed">
             All texts are in the public domain. Source texts from{' '}
             <a
               href="https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus"
@@ -78,6 +78,12 @@ export default function HomepageContent({ structure, initialEdition }: HomepageC
             </a>
             .
           </p>
+          <Link
+            href="/about"
+            className="font-sans text-xs text-muted hover:text-fg transition-colors shrink-0"
+          >
+            About
+          </Link>
         </footer>
       </main>
     </>
