@@ -21,6 +21,7 @@ const manufacturingConsent = Manufacturing_Consent({
   weight: '400',
   subsets: ['latin'],
   display: 'swap',
+  adjustFontFallback: false,
 })
 
 const pinyonScript = Pinyon_Script({

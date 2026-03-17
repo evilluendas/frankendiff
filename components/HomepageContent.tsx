@@ -35,8 +35,8 @@ export default function HomepageContent({ structure, initialEdition }: HomepageC
             <br />
             <span className="text-muted font-normal">Two Editions Compared</span>
           </h1>
-          <p className="font-serif text-xl text-muted leading-relaxed max-w-2xl mb-8">
-            Mary Shelley&apos;s <em>Frankenstein</em> exists in two major versions: the original
+          <p className="font-serif text-xl leading-relaxed max-w-2xl mb-8">
+            Mary Shelley’s <em>Frankenstein</em> exists in two major versions: the original
             1818 text, and an extensively revised 1831 edition. This project lets you read both
             of them and explore how the novel changed over time, from small wording changes to
             substantial rewrites.
@@ -65,8 +65,8 @@ export default function HomepageContent({ structure, initialEdition }: HomepageC
         <EditionBrowser structure={structure} edition={edition} onEditionChange={setEdition} />
 
         {/* Footer note */}
-        <footer className="mt-20 pt-8 border-t border-border flex items-center justify-between gap-4 flex-wrap">
-          <p className="font-sans text-xs text-muted leading-relaxed">
+        <footer className="mt-20 pt-8 border-t border-border flex items-center justify-between gap-4 flex-wrap font-sans text-sm text-muted leading-relaxed">
+          <p>
             All texts are in the public domain. Source texts from{' '}
             <a
               href="https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus"
@@ -80,9 +80,9 @@ export default function HomepageContent({ structure, initialEdition }: HomepageC
           </p>
           <Link
             href="/about"
-            className="font-sans text-xs text-muted hover:text-fg transition-colors shrink-0"
+            className="hover:text-fg transition-colors"
           >
-            About
+            About this project
           </Link>
         </footer>
       </main>
