@@ -41,7 +41,7 @@ export default function AboutPage() {
           <div className="mb-12 border border-border rounded-lg p-8 md:-mx-8">
             <h3 className="flex justify-between items-center mb-6 pb-5 border-b border-dotted border-border">
                 <span className="text-3xl font-medium">1818 </span>
-                <span className="font-sans text-xs tracking-widest text-muted uppercase">— The original text</span>
+                <span className="font-sans text-xs tracking-widest text-muted uppercase">The original text</span>
               </h3>
             <div className="flex flex-col md:flex-row gap-10 relative items-start">
               <p className="prose-serif text-fg">
@@ -50,7 +50,7 @@ export default function AboutPage() {
                 Bysshe Shelley. It is often regarded as the more radical version of the novel:
                 politically sharper, less overtly moralizing, and closer in spirit to the intellectual circle of Godwin, Wollstonecraft, and the Shelleys in which it was conceived. Mary Shelley was twenty years old when the novel first appeared.
               </p>
-              <div className="mx-auto mt-2 w-full max-w-80 md:max-w-40 mb-12 shrink-0 shadow-lg">
+              <div className="mx-auto mt-2 w-full max-w-80 md:max-w-40 shrink-0 shadow-lg">
                 <Image
                   src="/frankenstein-1818-cover.jpg"
                   alt="1831 edition cover"
@@ -65,7 +65,7 @@ export default function AboutPage() {
           <div className="mb-12 border border-border rounded-lg p-8 md:-mx-8">
             <h3 className="flex justify-between items-center mb-6 pb-5 border-b border-dotted border-border">
                 <span className="text-3xl font-medium">1831 </span>
-                <span className="font-sans text-xs tracking-widest text-muted uppercase">— The revised edition</span>
+                <span className="font-sans text-xs tracking-widest text-muted uppercase">The revised edition</span>
               </h3>
             <div className="flex flex-col md:flex-row gap-10 relative items-start">
               <p>
@@ -77,7 +77,7 @@ export default function AboutPage() {
               how she came to write the story during the &ldquo;wet, ungenial summer&rdquo; at
               the Villa Diodati in 1816.
               </p>
-              <div className="mx-auto mt-2 w-full max-w-80 md:max-w-40 mb-12 shrink-0 shadow-lg">
+              <div className="mx-auto mt-2 w-full max-w-80 md:max-w-40 shrink-0 shadow-lg">
                 <Image
                   src="/frankenstein-1831-cover.jpg"
                   alt="1831 edition cover"
@@ -116,7 +116,7 @@ export default function AboutPage() {
 
 
           <p>
-          <strong className="font-semibold">Frankendiff</strong> is a small personal project by <a href="https://www.linkedin.com/in/evilluendas/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 decoration-1 hover:text-muted transition-colors inline-flex items-baseline gap-1">Eduardo Villuendas <ExternalLink size={14} className="self-center text-muted" /></a>, built mostly for fun. It started after I realized how surprisingly difficult it can be to tell which version of <em>Frankenstein</em> one is reading. Many editions quietly follow the 1831 text, while others reproduce the 1818 version, and the differences between them are not always easy to spot.
+          <strong className="font-semibold">Frankendiff</strong> is a personal project by <span className="text-nowrap"><a href="https://www.linkedin.com/in/evilluendas/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 decoration-1 hover:text-muted transition-colors inline-flex items-baseline gap-1">Eduardo Villuendas <ExternalLink size={14} className="self-center text-muted" /></a>,</span> built mostly for fun. It started after I realized how surprisingly difficult it can be to tell which version of <em>Frankenstein</em> one is reading. Many editions quietly follow the 1831 text, while others reproduce the 1818 version, and the differences between them are not always easy to spot.
           </p>
           <p>
           I thought it might be useful to make those changes easier to see while reading, so I put this site together.
@@ -185,7 +185,7 @@ export default function AboutPage() {
           </ul>
         </section>
         <section className="prose-serif text-right text-fg mt-80 mb-8 space-y-8">
-          <p>Thanks for your time! <br />
+          <p>Thank you for your time! <br />
             <span className="text-muted italic">— New York City, March 2026</span>
           </p>
         </section>
