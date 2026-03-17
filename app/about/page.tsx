@@ -27,7 +27,7 @@ export default function AboutPage() {
           </p>
 
           <p>
-          Frankendiff makes it possible to read these editions side by side in spirit, moving easily between them and seeing exactly where the text changed. A <a href="https://en.wikipedia.org/wiki/File_comparison" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 decoration-1 hover:text-muted transition-colors inline-flex items-baseline gap-1">diff view<ExternalLink size={14} className="self-center text-muted" /></a> marks every insertion and deletion inline, allowing the revisions to appear directly within the flow of the novel.
+          <span className="font-semibold">Frankendiff</span> makes it possible to read these editions side by side in spirit, moving easily between them and seeing exactly where the text changed. A <a href="https://en.wikipedia.org/wiki/File_comparison" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 decoration-1 hover:text-muted transition-colors inline-flex items-baseline gap-1">diff view<ExternalLink size={14} className="self-center text-muted" /></a> marks every insertion and deletion inline, allowing the revisions to appear directly within the flow of the novel.
           </p>
           <p>
           The relationship between the 1818 and 1831 texts has long been studied and documented in scholarly editions. <strong className="font-semibold">Frankendiff</strong> approaches that history in a simpler way: by making the changes visible within the text itself, and freely accessible to anyone who wishes to explore them while reading.
