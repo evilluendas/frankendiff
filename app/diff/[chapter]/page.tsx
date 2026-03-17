@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: `${meta.title} Diff — Frankendiff`,
+    title: `${meta.title.replace(/\*/g, '')} Diff — Frankendiff`,
     description,
   }
 }
