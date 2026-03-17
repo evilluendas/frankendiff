@@ -47,9 +47,8 @@ export default function AboutPage() {
               <p className="prose-serif text-fg">
                 The first edition was published anonymously in three volumes on 1 January 1818 by
                 Lackington, Hughes, Harding, Mavor &amp; Jones, with a preface written by Percy
-                Bysshe Shelley. It is widely regarded as the more radical version of the novel:
-                politically sharper, more theologically irreverent, and closer in spirit to the
-                Godwin–Wollstonecraft–Shelley circle in which it was conceived.
+                Bysshe Shelley. It is often regarded as the more radical version of the novel:
+                politically sharper, less overtly moralizing, and closer in spirit to the intellectual circle of Godwin, Wollstonecraft, and the Shelleys in which it was conceived. Mary Shelley was twenty years old when the novel first appeared.
               </p>
               <div className="mx-auto mt-2 w-full max-w-80 md:max-w-40 mb-12 shrink-0 shadow-lg">
                 <Image
@@ -70,11 +69,11 @@ export default function AboutPage() {
               </h3>
             <div className="flex flex-col md:flex-row gap-10 relative items-start">
               <p>
-              The 1831 edition was published as part of Bentley’s Standard Novels series.
-              Shelley revised it extensively: she softened some of the more provocative passages,
-              expanded Victor Frankenstein’s backstory and childhood, and shifted the
+              The 1831 edition was published as part of Bentley’s <em>Standard Novels</em> series.
+              Shelley revised the text extensively: she softened some of the more provocative passages,
+              expanded Victor Frankenstein’s childhood and backstory, and shifted the
               novel’s framing toward a more fatalistic, providential tone. She also added a
-              new author’s introduction — now almost as famous as the novel itself — describing
+              new author’s introduction —now almost as famous as the novel itself— describing
               how she came to write the story during the &ldquo;wet, ungenial summer&rdquo; at
               the Villa Diodati in 1816.
               </p>
