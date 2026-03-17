@@ -7,7 +7,7 @@ import Ornament from '@/components/Ornament'
 export const metadata: Metadata = {
   title: 'About — Frankendiff',
   description:
-    "About Frankendiff — a project comparing the 1818 and 1831 editions of Mary Shelley's Frankenstein.",
+    "Frankendiff is a reading tool for Mary Shelley's Frankenstein. Read the 1818 and 1831 editions and explore the differences between them.",
 }
 
 export default function AboutPage() {
