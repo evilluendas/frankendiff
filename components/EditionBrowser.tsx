@@ -8,7 +8,7 @@ import InlineTitle from '@/components/InlineTitle'
 
 const EDITION_DESCRIPTIONS: Record<Edition, string> = {
   '1818': 'The novel as it first appeared in 1818. Published anonymously in three volumes, with a preface written by Percy Bysshe Shelley. This text presents the story in its earliest form.',
-  '1831': 'Mary Shelley substantially revised the novel for this edition, rewriting many passages and adding a new introduction describing the book\u2019s origin. It became the version most widely read.',
+  '1831': 'Mary Shelley substantially revised the novel for this edition, rewriting many passages and adding a new introduction describing the book’s origin. It became the version most widely read.',
 }
 
 interface EditionBrowserProps {
