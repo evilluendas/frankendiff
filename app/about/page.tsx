@@ -143,8 +143,8 @@ export default function AboutPage() {
           <ul className="space-y-6 font-sans text-base">
             <li className="flex flex-col gap-0.5 items-start">
               <span className="text-xs tracking-widest uppercase text-muted">1818 — transcription</span>
-              <a href="https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus_(1818)" target="_blank" rel="noopener noreferrer" className="items-baseline underline underline-offset-4 decoration-1 hover:text-muted transition-colors">
-                Wikisource — <em>Frankenstein</em>, 1818 edition<ExternalLink size={12} className="self-baseline inline-block text-muted shrink-0 ml-1" />
+              <a href="https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus_(First_Edition,_1818)" target="_blank" rel="noopener noreferrer" className="items-baseline underline underline-offset-4 decoration-1 hover:text-muted transition-colors">
+                Wikisource — <em>Frankenstein, or the Modern Prometheus</em>, (First Edition, 1818)<ExternalLink size={12} className="self-baseline inline-block text-muted shrink-0 ml-1" />
               </a>
             </li>
             <li className="flex flex-col gap-0.5 items-start">
@@ -167,8 +167,8 @@ export default function AboutPage() {
             </li>
             <li className="flex flex-col gap-0.5 items-start">
               <span className="text-xs tracking-widest uppercase text-muted">1831 — transcription</span>
-              <a href="https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus" target="_blank" rel="noopener noreferrer" className="items-baseline underline underline-offset-4 decoration-1 hover:text-muted transition-colors">
-                Wikisource — <em>Frankenstein</em>, 1831 edition<ExternalLink size={12} className="self-baseline inline-block text-muted shrink-0 ml-1" />
+              <a href="https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus_(Revised_Edition,_1831)" target="_blank" rel="noopener noreferrer" className="items-baseline underline underline-offset-4 decoration-1 hover:text-muted transition-colors">
+                Wikisource — <em>Frankenstein, or the Modern Prometheus</em>, (Revised Edition, 1831)<ExternalLink size={12} className="self-baseline inline-block text-muted shrink-0 ml-1" />
               </a>
             </li>
             <li className="flex flex-col gap-0.5 items-start">
