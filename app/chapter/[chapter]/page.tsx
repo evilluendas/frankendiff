@@ -52,7 +52,7 @@ export async function generateMetadata({ params, searchParams }: PageProps) {
 
   const chapterLabel = meta?.labelsByEdition?.[activeEdition] ?? meta?.title
   const title = chapterLabel
-    ? `${chapterLabel} — ${BOOK_TITLE[activeEdition]} — Frankendiff`
+    ? `${chapterLabel.replace(/\*/g, '')} — ${BOOK_TITLE[activeEdition]} — Frankendiff`
     : 'Chapter — Frankendiff'
 
   return {
