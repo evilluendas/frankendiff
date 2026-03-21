@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Lora, Inter, Manufacturing_Consent, Pinyon_Script } from 'next/font/google'
 import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const lora = Lora({
@@ -62,6 +63,7 @@ export default function RootLayout({
       <body className={`${lora.variable} ${inter.variable} ${manufacturingConsent.variable} ${pinyonScript.variable} bg-bg text-fg`}>
         {children}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
