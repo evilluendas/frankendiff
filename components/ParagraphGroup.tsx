@@ -27,14 +27,16 @@ const ELEMENT_LABELS: Partial<Record<ParagraphElementType, string>> = {
  *
  * The link box inherits the paragraph's font size and line-height and sits at
  * top-0, so it coincides with the first line; the glyph inside is a smaller
- * Inter span, which therefore shares that line's baseline.
+ * Inter span, which therefore shares that line's baseline. text-indent is
+ * inherited, so it is reset here or the paragraph's indent would push the
+ * glyph out of the box.
  */
 function ParagraphAnchor({ id }: { id: string }) {
   return (
     <a
       href={`#${id}`}
       aria-label="Link to this paragraph"
-      className="hidden md:block absolute top-0 -left-16 w-8 text-center not-italic no-underline select-none text-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-fg transition-opacity"
+      className="hidden md:block absolute top-0 -left-16 w-8 text-center indent-0 not-italic no-underline select-none text-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-fg transition-opacity"
     >
       <span className="font-sans text-[0.8em]">¶</span>
     </a>
