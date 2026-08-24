@@ -7,6 +7,7 @@ import ChapterNav from '@/components/ChapterNav'
 import DiffView from '@/components/DiffView'
 import InlineTitle from '@/components/InlineTitle'
 import ChapterNavFAB from '@/components/ChapterNavFAB'
+import EditionSelect from '@/components/EditionSelect'
 import StickyChapterNav from '@/components/StickyChapterNav'
 import { sectionAnchor } from '@/components/SectionStartMarker'
 import {
@@ -95,11 +96,13 @@ export default async function DiffPage({ params }: PageProps) {
         <div className="flex">
           {/* Sidebar */}
           <StickyChapterNav className="hidden lg:block w-54 shrink-0 py-14 pr-5 border-r border-border">
+            {/* The chapter list follows whichever edition's structure is chosen here */}
+            <EditionSelect value={activeEdition} className="mb-6" />
             <ChapterNav
               chapters={chapters}
               structure={structure.rows}
               activeSlug={slug}
-              activeEdition="1831"
+              activeEdition={activeEdition}
               mode="diff"
             />
           </StickyChapterNav>
@@ -107,11 +110,12 @@ export default async function DiffPage({ params }: PageProps) {
           {/* FAB chapter nav — visible below lg */}
           <div className="lg:hidden">
             <ChapterNavFAB>
+              <EditionSelect value={activeEdition} className="mb-4 max-w-xs mx-auto" />
               <ChapterNav
                 chapters={chapters}
                 structure={structure.rows}
                 activeSlug={slug}
-                activeEdition="1831"
+                activeEdition={activeEdition}
                 mode="diff"
                 size="base"
               />
