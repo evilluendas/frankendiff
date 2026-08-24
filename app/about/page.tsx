@@ -132,6 +132,11 @@ export default function AboutPage() {
           <span dangerouslySetInnerHTML={{__html: '<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#104;&#101;&#108;&#108;&#111;&#64;&#102;&#114;&#97;&#110;&#107;&#101;&#110;&#100;&#105;&#102;&#102;&#46;&#99;&#111;&#109;" class="underline underline-offset-4 decoration-1 hover:text-muted transition-colors">&#104;&#101;&#108;&#108;&#111;&#64;&#102;&#114;&#97;&#110;&#107;&#101;&#110;&#100;&#105;&#102;&#102;&#46;&#99;&#111;&#109;</a>'}} />.
           </p>
 
+          <p>
+          The code is open source. You can browse it, report a problem, or propose a fix on{' '}
+          <span className="text-nowrap"><a href="https://github.com/evilluendas/frankendiff" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 decoration-1 hover:text-muted transition-colors inline-flex items-baseline gap-1">GitHub <ExternalLink size={14} className="self-center text-muted" /></a></span>.
+          </p>
+
 
         </section>
 
