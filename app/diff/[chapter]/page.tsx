@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
@@ -8,14 +8,15 @@ import DiffView from '@/components/DiffView'
 import InlineTitle from '@/components/InlineTitle'
 import ChapterNavFAB from '@/components/ChapterNavFAB'
 import StickyChapterNav from '@/components/StickyChapterNav'
+import { sectionAnchor } from '@/components/SectionStartMarker'
 import {
   readChapterList,
   readChapter,
   readChapterMeta,
   readChapterStructure,
-  getAdjacentChapters,
+  getAdjacentDiffUnits,
 } from '@/lib/data'
-import { Edition } from '@/lib/types'
+import { ChapterMeta, Edition, EDITIONS } from '@/lib/types'
 
 interface PageProps {
   params: Promise<{ chapter: string }>
@@ -23,7 +24,20 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const chapters = readChapterList()
-  return chapters.map((ch) => ({ chapter: ch.slug }))
+  // Chapters diffed inside another unit redirect there; no page to build
+  return chapters.filter((ch) => !ch.diffUnit).map((ch) => ({ chapter: ch.slug }))
+}
+
+/** Diff-view heading per edition, e.g. "Volume I, Chapter I" → "Chapters I–II". */
+function diffLabel(meta: ChapterMeta, edition: Edition, fallback: string | null | undefined): string | null {
+  return meta.diffLabelsByEdition?.[edition] ?? meta.labelsByEdition?.[edition] ?? fallback ?? null
+}
+
+/** Where a chapter absorbed into a diff unit should send the reader. */
+function unitHref(meta: ChapterMeta): string {
+  const unit = readChapterMeta(meta.diffUnit!)
+  const edition = EDITIONS.find((e) => unit?.unitSections?.[e]?.includes(meta.slug))
+  return edition ? `/diff/${meta.diffUnit}#${sectionAnchor(edition, meta.slug)}` : `/diff/${meta.diffUnit}`
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -33,8 +47,8 @@ export async function generateMetadata({ params }: PageProps) {
 
   const structure = readChapterStructure()
   const row = structure.rows.find((r) => r.slug === chapter)
-  const label1818 = meta.labelsByEdition?.['1818'] ?? row?.label1818 ?? null
-  const label1831 = meta.labelsByEdition?.['1831'] ?? row?.label1831 ?? null
+  const label1818 = diffLabel(meta, '1818', row?.label1818)
+  const label1831 = diffLabel(meta, '1831', row?.label1831)
 
   let description: string
   if (!label1818 && label1831) {
@@ -56,18 +70,19 @@ export default async function DiffPage({ params }: PageProps) {
 
   const meta = readChapterMeta(slug)
   if (!meta) notFound()
+  if (meta.diffUnit) redirect(unitHref(meta))
 
   const chapters  = readChapterList()
   const structure = readChapterStructure()
   const groups    = readChapter(slug)
-  const { prev, next } = getAdjacentChapters(slug)
+  const { prev, next } = getAdjacentDiffUnits(slug)
 
   const available = meta.editions as Edition[]
   const structureRow = structure.rows.find((r) => r.slug === slug)
   const splitNote = structureRow?.splitNote
 
-  const label1818 = meta.labelsByEdition?.['1818'] ?? structureRow?.label1818 ?? null
-  const label1831 = meta.labelsByEdition?.['1831'] ?? structureRow?.label1831 ?? null
+  const label1818 = diffLabel(meta, '1818', structureRow?.label1818)
+  const label1831 = diffLabel(meta, '1831', structureRow?.label1831)
 
   const cookieStore = await cookies()
   const rawEdition = cookieStore.get('frankendiff_edition')?.value
@@ -150,7 +165,7 @@ export default async function DiffPage({ params }: PageProps) {
                   className="flex items-center gap-1.5 font-sans text-sm text-muted hover:text-fg transition-colors"
                 >
                   <ChevronLeft size={16} />
-                  <InlineTitle text={prev.title} />
+                  <InlineTitle text={prev.diffLabelsByEdition?.['1831'] ?? prev.title} />
                 </Link>
               ) : (
                 <div />
@@ -160,7 +175,7 @@ export default async function DiffPage({ params }: PageProps) {
                   href={`/diff/${next.slug}`}
                   className="flex items-center gap-1.5 font-sans text-sm text-muted hover:text-fg transition-colors"
                 >
-                  <InlineTitle text={next.title} />
+                  <InlineTitle text={next.diffLabelsByEdition?.['1831'] ?? next.title} />
                   <ChevronRight size={16} />
                 </Link>
               ) : (

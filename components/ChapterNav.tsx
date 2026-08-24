@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ChapterMeta, Edition } from '@/lib/types'
 import { ChapterStructureRow } from '@/lib/data'
 import InlineTitle from '@/components/InlineTitle'
+import { sectionAnchor } from '@/components/SectionStartMarker'
 
 interface ChapterNavProps {
   chapters: ChapterMeta[]
@@ -33,8 +34,11 @@ export default function ChapterNav({
           const ch = chapterBySlug.get(row.slug)
           if (!ch) return null
 
+          // A chapter diffed inside another unit links to its marker on that page
           const href = mode === 'diff'
-            ? `/diff/${ch.slug}`
+            ? ch.diffUnit
+              ? `/diff/${ch.diffUnit}#${sectionAnchor(activeEdition, ch.slug)}`
+              : `/diff/${ch.slug}`
             : `/chapter/${ch.slug}?edition=${activeEdition}`
           const isActive = ch.slug === activeSlug
 

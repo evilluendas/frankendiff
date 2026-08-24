@@ -1,5 +1,6 @@
 import { AlignedParagraphGroup, Edition, DiffOp, ParagraphElementType } from '@/lib/types'
 import DiffDisplay from './DiffDisplay'
+import SectionStartMarker from './SectionStartMarker'
 
 interface DiffViewProps {
   groups: AlignedParagraphGroup[]
@@ -50,8 +51,13 @@ export default function DiffView({ groups }: DiffViewProps) {
           const elementType: ParagraphElementType =
             paraA?.elementType ?? paraB?.elementType ?? 'body'
 
+          const starts = Object.entries(group.sectionStart ?? {}) as [Edition, NonNullable<AlignedParagraphGroup['sectionStart']>[Edition]][]
+
           return (
             <div key={group.alignmentKey} className="pb-8 border-b border-dashed border-border text-pretty last:border-0">
+              {starts.map(([edition, start]) =>
+                start ? <SectionStartMarker key={edition} edition={edition} start={start} variant="diff" /> : null,
+              )}
               <DiffDisplay ops={ops} elementType={elementType} />
             </div>
           )
