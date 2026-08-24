@@ -13,8 +13,9 @@ export function sectionAnchor(edition: Edition, slug: string): string {
 }
 
 /**
- * A quiet editorial divider marking where one edition starts a new chapter
- * in the middle of the other edition's chapter.
+ * A note marking where one edition starts a new chapter in the middle of the
+ * other edition's chapter. Styled like the chapter-level notes (the former
+ * "This chapter was created in 1831…" box) so it reads as the same device.
  */
 export default function SectionStartMarker({ edition, start, variant }: SectionStartMarkerProps) {
   const text =
@@ -26,9 +27,9 @@ export default function SectionStartMarker({ edition, start, variant }: SectionS
     <div
       id={sectionAnchor(edition, start.slug)}
       role="note"
-      className="scroll-mt-24 my-4 flex items-center gap-4 font-sans text-xs tracking-widest uppercase text-muted select-none before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border"
+      className="scroll-mt-24 my-6 px-4 py-3 rounded-md border border-border bg-subtle"
     >
-      <span className="text-center text-balance shrink">{text}</span>
+      <p className="font-sans text-muted leading-relaxed">{text}</p>
     </div>
   )
 }
