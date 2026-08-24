@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { BookOpen, X } from 'lucide-react'
 
@@ -15,6 +15,13 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
   const [atBottom, setAtBottom] = useState(false)
   const pathname = usePathname()
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  // The label reveal animates the wrapper's real width (0 → label width) so the
+  // easing curve — overshoot included — is visible. Measure once on mount and
+  // hand the value to CSS; no state, no re-render.
+  const measureLabel = useCallback((el: HTMLSpanElement | null) => {
+    if (el) el.parentElement?.style.setProperty('--label-w', `${el.scrollWidth}px`)
+  }, [])
 
   // Close only when navigation has completed (pathname changed)
   useEffect(() => {
@@ -79,16 +86,21 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
   return (
     <>
       {/* FAB */}
+      {/* On desktop the pill is a circle that widens on hover/focus to reveal
+          its label; on mobile the label is always shown. The label wrapper's
+          width is what animates — the button's width follows its content. */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Open chapter navigation"
         className={[
-          'fixed bottom-4 sm:bottom-6 will-change-transform right-1/2 translate-x-1/2 sm:right-6 sm:translate-x-0 z-40 flex gap-2 px-5 sm:px-0 items-center justify-center h-14 sm:w-13 sm:h-13 rounded-full bg-fg text-bg shadow-lg hover:opacity-90 active:scale-95 transition-all duration-250 ease-in-out',
+          'group fixed bottom-4 sm:bottom-6 will-change-transform right-1/2 translate-x-1/2 sm:right-6 sm:translate-x-0 z-40 flex items-center justify-center h-14 px-5 sm:h-13 sm:px-[15px] rounded-full bg-fg text-bg shadow-lg cursor-pointer hover:opacity-90 active:scale-95 transition-all duration-250 ease-in-out',
           atBottom ? 'opacity-0 pointer-events-none' : !fabVisible ? 'max-sm:opacity-0 scale-90 max-sm:pointer-events-none' : '',
         ].join(' ')}
       >
-        <BookOpen size={22} />
-        <span className="text-sm font-medium sm:hidden">Chapters</span>
+        <BookOpen size={22} className="shrink-0" />
+        <span className="overflow-hidden whitespace-nowrap sm:w-0 sm:opacity-0 sm:group-hover:w-[var(--label-w,6rem)] sm:group-hover:opacity-100 sm:group-focus-visible:w-[var(--label-w,6rem)] sm:group-focus-visible:opacity-100 transition-[width,opacity] duration-300 ease-spring">
+          <span ref={measureLabel} className="block pl-2 text-sm font-medium">Chapters</span>
+        </span>
       </button>
 
       {/* Overlay */}
@@ -105,7 +117,7 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
             <button
               onClick={() => setOpen(false)}
               aria-label="Close chapter navigation"
-              className="flex items-center justify-center w-8 h-8 rounded-md text-muted hover:text-fg hover:bg-subtle transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-md cursor-pointer text-muted hover:text-fg hover:bg-subtle transition-colors"
             >
               <X size={18} />
             </button>

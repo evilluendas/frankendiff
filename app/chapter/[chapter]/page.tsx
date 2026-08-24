@@ -12,7 +12,7 @@ import ChapterNavFAB from '@/components/ChapterNavFAB'
 import StickyReveal from '@/components/StickyReveal'
 import {
   readChapterList,
-  readChapter,
+  readChapterForEdition,
   readChapterMeta,
   readChapterStructure,
   getAdjacentChapters,
@@ -110,7 +110,7 @@ export default async function ChapterPage({ params, searchParams }: PageProps) {
 
   const chapters  = readChapterList()
   const structure = readChapterStructure()
-  const groups    = readChapter(slug)
+  const groups    = readChapterForEdition(slug, activeEdition)
   const { prev, next } = getAdjacentChapters(slug, activeEdition)
 
   // Build switcher links — each edition navigates to the correct corresponding chapter

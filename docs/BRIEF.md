@@ -37,7 +37,10 @@ content/raw/{1818,1831}.md             CURATED SOURCE OF TRUTH — hand-correcte
         │  scripts/parse.ts             sections → BookParagraph[] (elementType from [tag] markers)
         │  scripts/align.ts             positional alignment + content/alignment-overrides.json
         │                               (rowOverrides, chapterShifts); 1818 volume slugs → canonical
-        │                               slugs via content/edition-alignment.json
+        │                               slugs via content/edition-alignment.json; content/diff-units.json
+        │                               diffs a chapter against several sections of the other edition
+        │                               (1818 Ch I vs 1831 Ch I–II) and marks where each section begins
+        │  scripts/align-report.ts      `npm run align:report` — flags likely misaligned rows
         │  scripts/diff.ts              word-level LCS diff → DiffOp[] (equal | insert | delete)
         │  scripts/build.ts             orchestrates; builds ChapterMeta index
         ▼

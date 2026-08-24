@@ -101,6 +101,60 @@
       "edition": "1831",
       "paragraphIndex": null,
       "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart; leave row 1 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch1-p5",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch1: 'There was a considerable difference between the ages of my parents...' is new; leave row 5 as 1831-only"
+    },
+    {
+      "alignmentKey": "ch1-p11",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch2 [0] 'We were brought up together...' opens Chapter II; its matter was folded out of 1818's 'Every one adored Elizabeth' (row 10), so leave row 11 as 1831-only"
+    },
+    {
+      "alignmentKey": "ch1-p14",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch2 [3] 'My temper was sometimes violent...' is new; leave row 14 as 1831-only"
+    },
+    {
+      "alignmentKey": "ch1-p20",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch2 [9] 'The untaught peasant beheld the elements...' is new; leave row 20 as 1831-only"
+    },
+    {
+      "alignmentKey": "ch1-p23",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch1 'The natural phaenomena that take place every day...' (distillation, the air-pump) was cut from 1831; leave row 23 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch1-p24",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch1 'The ignorance of the early philosophers...' was cut from 1831; leave row 24 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch1-p26",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch1 'The catastrophe of this tree excited my extreme astonishment' (father explains electricity) has no separate 1831 counterpart — 1831 merged it into the 'man of great research' paragraph paired at row 27; leave row 26 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch1-p28",
+      "edition": "1831",
+      "paragraphIndex": null,
+      "note": "1818 Ch1 'My father expressed a wish that I should attend a course of lectures' was dropped from 1831 Chapter II; leave row 28 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch1-p30",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch2 [15] 'It was a strong effort of the spirit of good; but it was ineffectual' is new and closes Chapter II; leave row 30 as 1831-only"
     }
   ],
   "chapterShifts": [
@@ -208,6 +262,62 @@
       "fromRow": 2,
       "shift": -1,
       "note": "1818 Cover has 'IN THREE VOLUMES.' at p1 with no 1831 counterpart, shifting all subsequent 1831 paragraphs by -1"
+    },
+    {
+      "chapter": "1",
+      "edition": "1818",
+      "fromRow": 6,
+      "shift": -1,
+      "note": "1831 Ch1: Elizabeth's origin rewritten in 5 paragraphs vs 4 in 1818; shift 1818 back by 1 from row 6 so 'Every one adored/loved Elizabeth' pair at row 10"
+    },
+    {
+      "chapter": "1",
+      "edition": "1818",
+      "fromRow": 12,
+      "shift": -1,
+      "note": "1831 Ch2: after the 1831-only opener at row 11, 1818 'My brothers were considerably younger' pairs with 'On the birth of a second son' (both introduce Clerval); cumulative 1818 shift -2 from row 12"
+    },
+    {
+      "chapter": "1",
+      "edition": "1818",
+      "fromRow": 15,
+      "shift": -1,
+      "note": "1831 Ch2: after the new paragraph at row 14, 1818 'In this description of our domestic circle' pairs with 'Meanwhile Clerval occupied himself'; anchors 'I feel pleasure in dwelling' (96%), 'Natural philosophy is the genius' (89%) follow; cumulative -3 from row 15"
+    },
+    {
+      "chapter": "1",
+      "edition": "1818",
+      "fromRow": 21,
+      "shift": -1,
+      "note": "1831 Ch2: after the new paragraph at row 20, 1818 'It may appear very strange, that a disciple of Albertus Magnus' pairs with 'But here were books' (60%) and 'Nor were these my only visions' aligns (69%); cumulative -4 from row 21"
+    },
+    {
+      "chapter": "1",
+      "edition": "1831",
+      "fromRow": 23,
+      "shift": -2,
+      "note": "1818 Ch1: two paragraphs cut from 1831 at rows 23-24; shift 1831 back by 2 so 'When I was about fifteen years old' aligns at row 25 (99%)"
+    },
+    {
+      "chapter": "1",
+      "edition": "1831",
+      "fromRow": 26,
+      "shift": -1,
+      "note": "1818 Ch1: 1818-only row 26; shift 1831 back by 1 so 'This last stroke completed the overthrow of Cornelius Agrippa' pairs with 'Before this I was not unacquainted with the more obvious laws of electricity'; cumulative -3 from row 26"
+    },
+    {
+      "chapter": "1",
+      "edition": "1831",
+      "fromRow": 28,
+      "shift": -1,
+      "note": "1818 Ch1: 1818-only row 28; shift 1831 back by 1 so 'My occupations at this age were principally the mathematics' pairs with 'Thus strangely are our souls constructed... I betook myself to the mathematics'; cumulative -4 from row 28"
+    },
+    {
+      "chapter": "1",
+      "edition": "1818",
+      "fromRow": 31,
+      "shift": -1,
+      "note": "1818 Ch1: after the 1831-only closing paragraph at row 30, the last two 1818 paragraphs ('Another task also devolved upon me', 'Such was our domestic circle') are 1818-only; cumulative -5 from row 31"
     }
   ]
 }

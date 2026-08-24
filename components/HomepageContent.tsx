@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { BookOpen, GitCompare } from 'lucide-react'
 import { Edition } from '@/lib/types'
@@ -27,9 +28,14 @@ export default function HomepageContent({ structure, initialEdition }: HomepageC
       <main className="max-w-4xl mx-auto px-6 py-16">
         {/* Hero */}
         <section className="mb-8">
-          <p className="font-sans text-xs tracking-widest text-muted uppercase mb-4">
-            A textual comparison
-          </p>
+          <Image
+            src="/hero.png"
+            alt=""
+            width={120}
+            height={120}
+            priority
+            className="rounded-full mb-6"
+          />
           <h1 className="font-serif text-4xl sm:text-5xl font-medium leading-tight mb-6">
             Frankenstein
             <br />
