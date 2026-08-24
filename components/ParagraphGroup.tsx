@@ -25,18 +25,18 @@ const ELEMENT_LABELS: Partial<Record<ParagraphElementType, string>> = {
  * so a reader can copy a URL that lands on this paragraph. Desktop only —
  * there is no hover on touch screens and no gutter to put it in.
  *
- * It inherits the paragraph's font and line-height and sits at top-0, so its
- * line box coincides with the paragraph's first line and the glyph centres on
- * it whatever the text size.
+ * The link box inherits the paragraph's font size and line-height and sits at
+ * top-0, so it coincides with the first line; the glyph inside is a smaller
+ * Inter span, which therefore shares that line's baseline.
  */
 function ParagraphAnchor({ id }: { id: string }) {
   return (
     <a
       href={`#${id}`}
       aria-label="Link to this paragraph"
-      className="hidden md:block absolute top-0 -left-14 w-8 text-center text-[1.15em] not-italic no-underline select-none text-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-fg transition-opacity"
+      className="hidden md:block absolute top-0 -left-16 w-8 text-center not-italic no-underline select-none text-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-fg transition-opacity"
     >
-      ¶
+      <span className="font-sans text-[0.8em]">¶</span>
     </a>
   )
 }
