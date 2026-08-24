@@ -39,10 +39,10 @@ export default function ChapterNav({
   function scrollWithinPage(hash: string | undefined) {
     setTimeout(() => {
       if (hash) {
-        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        document.getElementById(hash)?.scrollIntoView({ behavior: 'instant', block: 'start' })
         window.history.replaceState(null, '', `#${hash}`)
       } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        window.scrollTo({ top: 0, behavior: 'instant' })
         window.history.replaceState(null, '', pathname)
       }
     }, 0)
