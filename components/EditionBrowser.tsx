@@ -34,6 +34,7 @@ export default function EditionBrowser({ structure, edition, onEditionChange }: 
             const firstChapter = structure.find((row) =>
               ed === '1818' ? row.label1818 !== null : row.label1831 !== null,
             )
+            const selected = edition === ed
             return (
               <Link
                 key={ed}
@@ -46,14 +47,15 @@ export default function EditionBrowser({ structure, edition, onEditionChange }: 
                 }}
                 className={[
                   'p-5 rounded-lg border text-left transition-colors',
-                  edition === ed
-                    ? 'border-fg bg-border/50'
-                    : 'border-border bg-subtle hover:border-muted',
+                  // Selected card inverts (like the chapters pill); the other is just an outline
+                  selected
+                    ? 'border-fg bg-fg text-bg'
+                    : 'border-border bg-transparent hover:border-muted',
                 ].join(' ')}
               >
                 <p className="font-serif text-3xl">{ed}</p>
-                <p className="font-sans text-muted text-[10px] tracking-[0.18em] uppercase mb-3">{EDITION_LABELS[ed]}</p>
-                <p className="font-serif text-muted tracking-[0.01em] leading-relaxed text-pretty">
+                <p className={`font-sans text-[10px] tracking-[0.18em] uppercase mb-3 ${selected ? 'text-bg/70' : 'text-muted'}`}>{EDITION_LABELS[ed]}</p>
+                <p className={`font-serif tracking-[0.01em] leading-relaxed text-pretty ${selected ? 'text-bg/80' : 'text-muted'}`}>
                   {EDITION_DESCRIPTIONS[ed]}
                 </p>
               </Link>
