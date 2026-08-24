@@ -44,7 +44,9 @@ These rules apply to every action Claude takes on this project. Do not violate t
 
 - `content/raw/1818.md` and `content/raw/1831.md` are the **curated source of truth**. They were extracted once from Wikisource XHTML (`content/original/`) by `scripts/extract-html.ts` and have been hand-corrected since. **Never re-run `extract-html.ts` over them** without diffing the result against the current files and re-applying the hand edits.
 - Structural roles are expressed with `[tag]` markers in the raw Markdown (`[poem]`, `[salutation]`, `[dateline]`, `[closing]`, `[signature]`, `[book-title]`). Use those rather than ad-hoc formatting.
-- Cross-edition mapping lives in three JSON files under `content/`: `edition-alignment.json` (1818 volume-scoped slugs such as `v2-1` → canonical 1831 chapter numbers), `chapter-structure.json` (navigation rows and per-edition labels), `alignment-overrides.json` (`rowOverrides` and `chapterShifts` for paragraph alignment, each with a `note`). Fix alignment there, not by editing the text to force a match.
+- Cross-edition mapping lives in four JSON files under `content/`: `edition-alignment.json` (1818 volume-scoped slugs such as `v2-1` → canonical 1831 chapter numbers), `chapter-structure.json` (navigation rows and per-edition labels), `alignment-overrides.json` (`rowOverrides` and `chapterShifts` for paragraph alignment, each with a `note`), and `diff-units.json` (when one edition split a chapter the other kept whole, list the sections to diff together as one unit — e.g. 1818 Chapter I vs 1831 Chapters I–II). Fix alignment there, not by editing the text to force a match.
+- Paragraphs are never split, merged, or reworded to make an alignment work. A paragraph is either paired whole with one paragraph of the other edition or shown whole as edition-only.
+- After touching alignment data, run `npm run align:report` (optionally `--chapter <slug> --window 8`): it flags weak or one-sided rows that have a clearly better neighbour, the signature of an off-by-one.
 - `content/processed/` is generated and gitignored. Never edit it; never commit it.
 - Text fidelity beats tidiness: reproduce the editions' spelling, punctuation, and italics faithfully; only fix genuine transcription errors, and say so in the commit message.
 
@@ -86,7 +88,7 @@ This section is dynamic. Update it via `/wrap` at the end of each session.
 
 Existing project, adopted 2026-08-24. 43 commits on `trunk` since 2026-03-12; last commit `dd1e07c` "Merge pull request #3 from evilluendas/add/vercel-analytics". Working tree clean. Site is live with Read and Diff modes, custom covers, About page, light/dark theme, analytics.
 
-Housekeeping worth knowing: three already-merged branches still exist on `origin` (`add/about`, `add/vercel-analytics`, `add/vercel-speed-insights`) and can be deleted; `README.md` predates the current pipeline (still describes purely positional alignment and a flat overrides file) and `instructions.md` is the original scaffold prompt — both are candidates for a `docs/` cleanup.
+Housekeeping worth knowing: `README.md` predates the current pipeline (still describes purely positional alignment and a flat overrides file) and `instructions.md` is the original scaffold prompt — both are candidates for a `docs/` cleanup.
 
 ### What's next
 
