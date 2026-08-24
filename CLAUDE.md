@@ -103,7 +103,7 @@ Decisions that currently shape how the project works. Each entry: date, decision
 When a decision is superseded, reverted, or no longer applies, move the entry to `docs/DECISIONS.md` with a status note rather than deleting it. If this list grows past ~15 entries, review and archive.
 
 - **2026-08-24 — Compare 1818 and 1831 only; 1823 is excluded.** The 1823 edition mostly fixes typography; the editorial story is 1818 vs 1831. Explained on the About page. *(codified during adoption — predates this entry)*
-- **2026-08-24 — Two reading modes only: Read (`/chapter/[slug]`) and Diff (`/diff/[slug]`).** A side-by-side view was built and removed on 2026-03-13 as not useful. *(codified during adoption — predates this entry)*
+- **2026-08-24 — Two reading modes only: Read (`/[edition]/chapter/[slug]`) and Diff (`/diff/[slug]`).** A side-by-side view was built and removed on 2026-03-13 as not useful. *(codified during adoption — predates this entry)*
 - **2026-08-24 — Everything is precomputed at build time; no database, no runtime diffing.** The text never changes, so static generation gives the fastest, simplest site. *(codified during adoption — predates this entry)*
 - **2026-08-24 — `content/raw/*.md` is the hand-curated source of truth, not the Wikisource XHTML.** Extraction was a one-time bootstrap; corrections since then live only in the Markdown. *(codified during adoption — predates this entry)*
 - **2026-08-24 — Canonical chapter slugs follow the 1831 numbering; 1818 volume chapters map onto them via `edition-alignment.json`.** Gives one URL per chapter across both editions. *(codified during adoption — predates this entry)*
