@@ -86,15 +86,17 @@ This section is dynamic. Update it via `/wrap` at the end of each session.
 
 ### Current state
 
-2026-08-24: PR #5 (`feature/diff-units`, 28 commits) squash-merged to `trunk`. It answered reader feedback on `/diff/1`: chapter-1 alignment fixed; diff units (`content/diff-units.json`) compare 1818 Chapter I against 1831 Chapters I–II on one page with a yellow "Chapter II begins here" note (and the same note in the 1818 Read view); `/diff/2` 308s to that anchor; the Diff sidebar has an edition dropdown (shared cookie) and a scroll-spy that highlights the chapter under the reader; `npm run align:report` flags likely misalignments. Also shipped: Read-view paragraph permalinks (hover ¶, desktop only), chapters FAB label reveal on hover, pointer cursors on buttons, homepage hero image and green selected-edition card, and a pipeline fix for stacked negative shifts.
+2026-08-24, later: PR #6 (`feature/edition-urls`) moved Read pages to `/<edition>/chapter/<slug>` — fully prerendered (SSG), legacy `/chapter/<slug>?edition=` 308s to the new shape — and made paragraph permalink ids stable (`#p12`). PR #7 removed Plausible; analytics are Vercel Analytics + Speed Insights only.
+
+Earlier the same day: PR #5 (`feature/diff-units`, 28 commits) squash-merged to `trunk`. It answered reader feedback on `/diff/1`: chapter-1 alignment fixed; diff units (`content/diff-units.json`) compare 1818 Chapter I against 1831 Chapters I–II on one page with a yellow "Chapter II begins here" note (and the same note in the 1818 Read view); `/diff/2` 308s to that anchor; the Diff sidebar has an edition dropdown (shared cookie) and a scroll-spy that highlights the chapter under the reader; `npm run align:report` flags likely misalignments. Also shipped: Read-view paragraph permalinks (hover ¶, desktop only), chapters FAB label reveal on hover, pointer cursors on buttons, homepage hero image and green selected-edition card, and a pipeline fix for stacked negative shifts.
 
 Housekeeping worth knowing: `README.md` predates the current pipeline (still describes purely positional alignment and a flat overrides file) and `instructions.md` is the original scaffold prompt — both are candidates for a `docs/` cleanup. `npm run lint` has 4 pre-existing errors (About page unescaped quotes, `ThemeToggle` setState-in-effect, `extract-html.ts` prefer-const).
 
 ### What's next
 
-1. **Read URLs → `/<edition>/chapter/<slug>`** (agreed 2026-08-24): move the page to `app/[edition]/chapter/[chapter]`, make it fully static, turn `app/chapter/[chapter]` into 308 redirects (`?edition=X` → `/X/…`, bare → `/1818/…`, no cookie dependence), update every Read link builder. Own branch + PR.
-2. Fix the misalignments `npm run align:report` flags with a better neighbour: Cover (rows 5/7), Chapter III (rows 16/17), Chapter XXIII (row 21).
-3. Smaller follow-ups: paragraph permalink ids are row-based (see gotchas); "adored/loved Elizabeth" still renders as a full replacement (diff.ts threshold); optional `:target` tint for linked paragraphs; README refresh; clear the 4 lint errors.
+1. Fix the misalignments `npm run align:report` flags with a better neighbour: Cover (rows 5/7), Chapter III (rows 16/17), Chapter XXIII (row 21). `content/` branch.
+2. Smaller follow-ups: "adored/loved Elizabeth" still renders as a full replacement (diff.ts threshold); optional `:target` tint for linked paragraphs; README refresh (pipeline, URLs); clear the 4 lint errors; delete the Plausible site on the Plausible side.
+3. The Diff view is still server-rendered per request because it reads the edition cookie for the sidebar; if that ever matters, the edition could move into the diff URL or the sidebar could read the cookie client-side so the page prerenders.
 
 ### Active decisions
 
@@ -112,6 +114,8 @@ When a decision is superseded, reverted, or no longer applies, move the entry to
 - **2026-08-24 — The Diff sidebar lists whichever edition's chapters the shared `frankendiff_edition` cookie says (dropdown at the top; default 1818 like the Read view); inside a unit the highlight follows scroll.** The diff itself is always 1818 → 1831.
 - **2026-08-24 — In-page navigation jumps instantly; no smooth scrolling.** Every other navigation on the site is an instant cut, and smooth scroll would give the same control two behaviours depending on invisible state.
 - **2026-08-24 — New theme tokens: `note-*` (highlighter yellow) for editorial notes, `ease-spring` for small reveals. Selected states reuse the diff's `ins` green rather than a new accent or a full inversion.**
+- **2026-08-24 — Read URLs carry the edition in the path (`/1818/chapter/22`); the diff stays edition-less (`/diff/22`).** Makes Read pages fully static and the URL readable. Legacy `/chapter/<slug>?edition=` URLs 308 to the new shape; bare/invalid → 1818, never cookie-dependent (browsers cache permanent redirects). All Read links go through `lib/routes.ts`.
+- **2026-08-24 — Paragraph permalinks are `#p<n>`, the 1-based position within the edition's section.** Stable across alignment changes; the URL already names edition and chapter.
 
 ### Active gotchas
 
@@ -124,5 +128,4 @@ When a gotcha is resolved, move the entry to `docs/GOTCHAS.md`. Same ~15-entry r
 - **2026-08-24 — A fresh clone has no `content/processed/`;** `npm run dev` and `npm run build` regenerate it, but ad-hoc scripts or tests that import `lib/data.ts` must run `npm run preprocess` first. *(inferred during adoption)*
 - **2026-08-24 — Running `npm run build` while `next dev` is up leaves the dev server serving stale Turbopack CSS** (new theme tokens missing, classes present in HTML but no rule). Both write under `.next/`. Fix: stop dev, `rm -rf .next`, `npm run dev`. Claude: check for a listening dev server (`lsof -iTCP:3000 -sTCP:LISTEN`) before building, and skip the build or ask.
 - **2026-08-24 — `next dev` warns "Failed to find font override values for font `Manufacturing Consent`"**: Next has no metrics for that Google font, so it can't synthesise a size-matched fallback. `adjustFontFallback: false` is already set in `app/layout.tsx`; the warning is cosmetic and safe to ignore.
-- **2026-08-24 — Paragraph permalink ids are row-based** (`<edition>-<alignmentKey>`, e.g. `1818-ch1-p12`), so an alignment override that shifts rows changes the ids and breaks shared links to later paragraphs. Switching the DOM id to the paragraph's own `BookParagraph.id` would make them stable; decide before links spread.
 - **2026-08-24 — On this machine `grep` is ugrep:** patterns starting with `--` are parsed as options and `{` is a regex metacharacter. Use `grep -F -e '<pattern>'` for literal strings, or Python, when checking compiled CSS.
