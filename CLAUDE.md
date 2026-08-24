@@ -24,6 +24,7 @@ These rules apply to every action Claude takes on this project. Do not violate t
 - `trunk` is always shippable — Vercel deploys it to production. Never commit directly to it. (History before adoption on 2026-08-24 contains direct commits and merge commits; leave it as is.)
 - Every change goes on a branch: `feature/<kebab>`, `fix/<kebab>`, `chore/<kebab>`, `docs/<kebab>`, `refactor/<kebab>`, `content/<kebab>` (for text/alignment edits).
 - One logical change per branch. Open a PR for every branch, even solo work. Merge via **squash-and-merge**.
+- Commits are authored as `hello@frankendiff.com` (repo-local `git config user.email`; the project address, not a personal one). The repository is public under the MIT License (`LICENSE`); the texts are public domain.
 - Commit messages: Conventional Commits (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, `content:`) adopted from 2026-08-24 onward. English, imperative mood. Body explains *why* when non-obvious. Examples:
   - `feat(diff): add changes-only toggle`
   - `fix(nav): keep sticky edition switcher above the chapter FAB`

@@ -78,3 +78,7 @@ The pipeline uses positional alignment by default (paragraph N in each edition m
 ## Deployment to Vercel
 
 Push to GitHub, then connect the repo in the [Vercel dashboard](https://vercel.com). The build command (`npm run build`) includes the preprocessing step — no additional configuration needed.
+
+## License
+
+The code is released under the [MIT License](LICENSE). The texts of *Frankenstein* (1818 and 1831) are in the public domain, sourced from [Wikisource](https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus); the cover images used are likewise public domain.
