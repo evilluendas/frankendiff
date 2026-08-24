@@ -87,6 +87,8 @@ This section is dynamic. Update it via `/wrap` at the end of each session.
 
 ### Current state
 
+2026-08-24, night: PR #10 linked the repository from the About page and rewrote the README to match the current site and pipeline. GitHub's About box points at frankendiff.com with a description and topics. `hello@frankendiff.com` is attached to the GitHub account, so commits are attributed and Vercel deploys them (the one blocked production deploy, `3f86b2b`, was superseded).
+
 2026-08-24, evening: the repository is **public** under the MIT License. History was rewritten so every commit is authored as `hello@frankendiff.com` (short SHAs quoted below and in `docs/GOTCHAS.md` predate the rewrite and no longer resolve; PR numbers still do). A `trunk` ruleset is active: PR-only, squash-only, Vercel check required (with "require branches up to date"), no bypass actors.
 
 2026-08-24, later: PR #6 (`feature/edition-urls`) moved Read pages to `/<edition>/chapter/<slug>` — fully prerendered (SSG), legacy `/chapter/<slug>?edition=` 308s to the new shape — and made paragraph permalink ids stable (`#p12`). PR #7 removed Plausible; analytics are Vercel Analytics + Speed Insights only.
@@ -97,9 +99,18 @@ Housekeeping worth knowing: `README.md` predates the current pipeline (still des
 
 ### What's next
 
-1. Fix the misalignments `npm run align:report` flags with a better neighbour: Cover (rows 5/7), Chapter III (rows 16/17), Chapter XXIII (row 21). `content/` branch.
-2. Smaller follow-ups: "adored/loved Elizabeth" still renders as a full replacement (diff.ts threshold); optional `:target` tint for linked paragraphs; README refresh (pipeline, URLs); clear the 4 lint errors; delete the Plausible site on the Plausible side.
-3. The Diff view is still server-rendered per request because it reads the edition cookie for the sidebar; if that ever matters, the edition could move into the diff URL or the sidebar could read the cookie client-side so the page prerenders.
+Pipeline hardening, in order (each is a day or less; assessed 2026-08-24):
+
+1. **Tests for the pipeline invariants** — no paragraph dropped or duplicated per edition/section, every diff-unit section start marked, processed trees stable for unchanged input. The pipeline is pure; today's throwaway verification scripts are the tests, just not checked in. Test framework to be chosen (none yet).
+2. **Anchor alignment overrides to paragraph identity, not row numbers.** `ch1-p14` means "row 14", so an earlier override renumbers everything after it (the cumulative-shift bug was a symptom). Express pairs as `1818 <section> ¶n ↔ 1831 <section> ¶m` and edition-only paragraphs by identity; derive rows.
+3. **Similarity-based aligner.** Dynamic programming over the report's similarity score (Needleman–Wunsch / Gale–Church shape) to produce pairings automatically; overrides remain for judgment calls only.
+4. **Sentence-anchored diff pre-filter.** "Every one adored/loved Elizabeth" is a full replacement because whole-paragraph Dice is low; anchor on shared sentence-initial runs before the Dice check so the shared opening still diffs word by word.
+
+Content and smaller items:
+
+5. Fix the misalignments `npm run align:report` flags with a better neighbour: Cover (rows 5/7), Chapter III (rows 16/17), Chapter XXIII (row 21). `content/` branch.
+6. Optional `:target` tint for permalinked paragraphs; clear the 4 lint errors; delete the Plausible site on the Plausible side; consider a "How it works" write-up (text never altered; alignment as an editorial layer with stated reasons; diff units; output-judged diff cleanup).
+7. The Diff view is still server-rendered per request because it reads the edition cookie for the sidebar; if that ever matters, move the edition into the diff URL or read the cookie client-side so the page prerenders.
 
 ### Active decisions
 
