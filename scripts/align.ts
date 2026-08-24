@@ -136,15 +136,20 @@ export function alignChapter(
   // A negative shift pushes an edition's paragraphs to higher display rows.
   // For example, shift=-2 from row 27 means the last paragraph of that edition
   // (say index 32) appears at display row 34 rather than 32.  Extend maxLen so
-  // those paragraphs are not silently dropped.
-  for (const s of shifts) {
-    if (s.shift < 0) {
-      const edCount = paragraphsByEdition[s.edition]?.length ?? 0
-      if (edCount > 0) {
-        // Last paragraph (idx edCount-1) sits at display row (edCount-1) - s.shift
-        // (subtracting a negative shift = adding its absolute value).
-        const lastDisplayRow = (edCount - 1) - s.shift
-        maxLen = Math.max(maxLen, lastDisplayRow + 1)
+  // those paragraphs are not silently dropped.  Shifts stack, so find the row
+  // at which the edition's last paragraph actually lands.
+  for (const edition of editions) {
+    const edCount = paragraphsByEdition[edition]?.length ?? 0
+    const edShifts = shifts.filter((s) => s.edition === edition)
+    if (edCount === 0 || !edShifts.some((s) => s.shift < 0)) continue
+    const bound = edCount + edShifts.reduce((acc, s) => acc + Math.abs(s.shift), 0)
+    for (let row = 0; row <= bound; row++) {
+      const total = edShifts
+        .filter((s) => row >= s.fromRow)
+        .reduce((acc, s) => acc + s.shift, 0)
+      if (row + total >= edCount - 1) {
+        maxLen = Math.max(maxLen, row + 1)
+        break
       }
     }
   }
