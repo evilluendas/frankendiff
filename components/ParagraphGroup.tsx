@@ -10,7 +10,10 @@ interface ParagraphGroupProps {
 
 export default function ParagraphGroup({ group, edition, dropCap }: ParagraphGroupProps) {
   const para = group.paragraphs[edition]!
-  return <ElementParagraph para={para} id={`${edition}-${group.alignmentKey}`} dropCap={dropCap} />
+  // Permalink id: the paragraph's 1-based position in its own edition's
+  // section (#p12). The page URL already names edition and chapter, and this
+  // never changes when alignment overrides shift rows — a row-based id would.
+  return <ElementParagraph para={para} id={`p${para.paragraphIndex + 1}`} dropCap={dropCap} />
 }
 
 const ELEMENT_LABELS: Partial<Record<ParagraphElementType, string>> = {

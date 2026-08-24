@@ -5,6 +5,7 @@ import { BookOpen, GitCompare } from 'lucide-react'
 import { Edition, EDITION_LABELS } from '@/lib/types'
 import { ChapterStructureRow } from '@/lib/data'
 import InlineTitle from '@/components/InlineTitle'
+import { readHref, diffHref } from '@/lib/routes'
 
 const EDITION_DESCRIPTIONS: Record<Edition, string> = {
   '1818': 'The novel as it first appeared in 1818. Published anonymously in three volumes, with a preface written by Percy Bysshe Shelley. This text presents the story in its earliest form.',
@@ -38,7 +39,7 @@ export default function EditionBrowser({ structure, edition, onEditionChange }: 
             return (
               <Link
                 key={ed}
-                href={firstChapter ? `/chapter/${firstChapter.slug}?edition=${ed}` : '#'}
+                href={firstChapter ? readHref(ed, firstChapter.slug) : '#'}
                 onClick={(e) => {
                   if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
                     e.preventDefault()
@@ -84,21 +85,21 @@ export default function EditionBrowser({ structure, edition, onEditionChange }: 
                 )}
                 <div className="flex items-center justify-between py-4 gap-4">
                   <Link
-                    href={`/chapter/${row.slug}?edition=${edition}`}
+                    href={readHref(edition, row.slug)}
                     className="font-serif text-base hover:text-muted transition-colors"
                   >
                     <InlineTitle text={label} />
                   </Link>
                   <div className="flex items-center gap-2 shrink-0">
                     <Link
-                      href={`/chapter/${row.slug}?edition=${edition}`}
+                      href={readHref(edition, row.slug)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-sans text-sm text-muted hover:text-fg hover:bg-subtle transition-colors"
                     >
                       <BookOpen size={12} />
                       Read
                     </Link>
                     <Link
-                      href={`/diff/${row.slug}`}
+                      href={diffHref(row.slug)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-sans text-sm text-muted hover:text-fg hover:bg-subtle transition-colors"
                     >
                       <GitCompare size={12} />

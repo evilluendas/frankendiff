@@ -1,0 +1,1 @@
+- **2026-08-24 — Paragraph permalink ids are row-based** (`<edition>-<alignmentKey>`, e.g. `1818-ch1-p12`), so an alignment override that shifts rows changes the ids and breaks shared links to later paragraphs. Switching the DOM id to the paragraph's own `BookParagraph.id` would make them stable; decide before links spread. *(resolved in f4ff46a, PR #6 — ids are now `#p<n>`)*
