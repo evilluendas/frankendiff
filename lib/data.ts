@@ -8,7 +8,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import { AlignedParagraphGroup, ChapterMeta } from './types'
+import { AlignedParagraphGroup, ChapterMeta, Edition } from './types'
 
 const PROCESSED_DIR  = path.join(process.cwd(), 'content', 'processed')
 const CONTENT_DIR    = path.join(process.cwd(), 'content')
@@ -45,6 +45,21 @@ export function readChapterMeta(slug: string): ChapterMeta | undefined {
   return chapters.find((c) => c.slug === slug)
 }
 
+/**
+ * Aligned groups for the Read view of one edition. Diff units concatenate
+ * several sections of an edition into one file (see content/diff-units.json);
+ * the Read view must show only the paragraphs of the requested section.
+ */
+export function readChapterForEdition(slug: string, edition: Edition): AlignedParagraphGroup[] {
+  const groups = readChapter(slug)
+  const meta = readChapterMeta(slug)
+  if (!meta?.unitSections?.[edition]) return groups
+  return groups.filter((g) => {
+    const para = g.paragraphs[edition]
+    return !para || para.chapter === slug
+  })
+}
+
 export function readChapterStructure(): ChapterStructure {
   const file = path.join(CONTENT_DIR, 'chapter-structure.json')
   const raw = fs.readFileSync(file, 'utf-8')
@@ -72,6 +87,21 @@ export function getChapterFirstParagraph(
     }
   }
   return undefined
+}
+
+/**
+ * Adjacent diff pages for prev/next navigation in the Diff view. Chapters
+ * whose diff is shown inside another unit are skipped.
+ */
+export function getAdjacentDiffUnits(
+  slug: string,
+): { prev: ChapterMeta | null; next: ChapterMeta | null } {
+  const units = readChapterList().filter((c) => !c.diffUnit)
+  const idx = units.findIndex((c) => c.slug === slug)
+  return {
+    prev: idx > 0 ? units[idx - 1] : null,
+    next: idx >= 0 && idx < units.length - 1 ? units[idx + 1] : null,
+  }
 }
 
 /**

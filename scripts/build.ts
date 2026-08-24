@@ -4,6 +4,8 @@
  *
  * Reads:  content/raw/{1818,1831}.md
  *         content/edition-alignment.json
+ *         content/alignment-overrides.json
+ *         content/diff-units.json
  * Writes: content/processed/chapters.json
  *         content/processed/ch{slug}.json
  */
@@ -11,7 +13,7 @@
 import fs from 'fs'
 import path from 'path'
 import { parseMarkdown, sectionsToParagraphs, ParsedSection } from './parse'
-import { alignAllChapters } from './align'
+import { alignAllChapters, loadDiffUnits } from './align'
 import { computePairDiffs } from './diff'
 import { Edition, EDITIONS, ChapterMeta, AlignedParagraphGroup, BookParagraph } from '../lib/types'
 
@@ -37,6 +39,15 @@ function loadEditionAlignment(): Record<string, string> {
   } catch {
     return {}
   }
+}
+
+/** "Chapter I" + "Chapter II" → "Chapters I–II"; anything else is joined with " / ". */
+function joinSectionLabels(labels: string[]): string {
+  const nums = labels.map((l) => l.match(/^Chapter\s+(\S+)$/)?.[1])
+  if (labels.length > 1 && nums.every(Boolean)) {
+    return `Chapters ${nums[0]}–${nums[nums.length - 1]}`
+  }
+  return labels.join(' / ')
 }
 
 function main() {
@@ -156,6 +167,35 @@ function main() {
       return ch
     })
     .sort((a, b) => a.order - b.order)
+
+  // ── 4b. Diff units ────────────────────────────────
+  // A unit page compares one chapter against several sections of the other
+  // edition; the absorbed sections point back to the unit for the Diff view
+  // (they keep their own Read pages).
+  const chapterBySlug = new Map(chapters.map((c) => [c.slug, c]))
+  for (const [unitSlug, perEdition] of Object.entries(loadDiffUnits(CONTENT_DIR))) {
+    const unit = chapterBySlug.get(unitSlug)
+    if (!unit) {
+      console.warn(`  ⚠  diff-units.json: unknown unit slug "${unitSlug}" — ignored`)
+      continue
+    }
+    for (const [edition, sections] of Object.entries(perEdition) as [Edition, string[]][]) {
+      const missing = sections.filter((s) => !chapterBySlug.get(s)?.editions.includes(edition))
+      if (missing.length) {
+        console.warn(`  ⚠  diff-units.json: unit "${unitSlug}" lists ${edition} section(s) ${missing.join(', ')} that do not exist in that edition — ignored`)
+        continue
+      }
+      unit.unitSections = { ...(unit.unitSections ?? {}), [edition]: sections }
+      unit.diffLabelsByEdition = {
+        ...(unit.diffLabelsByEdition ?? {}),
+        [edition]: joinSectionLabels(sections.map((s) => slugMeta.get(s)!.labelsByEdition[edition] ?? chapterBySlug.get(s)!.title)),
+      }
+      for (const s of sections) {
+        if (s !== unitSlug) chapterBySlug.get(s)!.diffUnit = unitSlug
+      }
+    }
+    console.log(`  ✓  Diff unit ${unitSlug}: ` + Object.entries(perEdition).map(([e, s]) => `${e} ${s!.join('+')}`).join(', '))
+  }
 
   fs.writeFileSync(
     path.join(OUT_DIR, 'chapters.json'),
