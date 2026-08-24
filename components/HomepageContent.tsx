@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BookOpen, GitCompare } from 'lucide-react'
 import { Edition } from '@/lib/types'
+import { readHref } from '@/lib/routes'
 import { ChapterStructureRow } from '@/lib/data'
 import SiteHeader from './SiteHeader'
 import EditionBrowser from './EditionBrowser'
@@ -52,7 +53,7 @@ export default function HomepageContent({ structure, initialEdition }: HomepageC
         {/* CTAs */}
         <div className="flex flex-wrap gap-3 mb-20">
           <Link
-            href={`/chapter/cover?edition=${edition}`}
+            href={readHref(edition, 'cover')}
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-fg text-bg rounded-md font-sans text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <BookOpen size={15} />

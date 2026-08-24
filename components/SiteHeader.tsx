@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { BookOpen, GitCompare } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 import { Edition } from '@/lib/types'
+import { readHref, diffHref } from '@/lib/routes'
 
 interface SiteHeaderProps {
   mode?: 'read' | 'diff'
@@ -10,8 +11,8 @@ interface SiteHeaderProps {
 }
 
 export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }: SiteHeaderProps) {
-  const readHref  = activeSlug ? `/chapter/${activeSlug}?edition=${activeEdition}` : `/chapter/cover?edition=${activeEdition}`
-  const diffHref  = activeSlug ? `/diff/${activeSlug}` : '/diff/cover'
+  const readTarget = readHref(activeEdition, activeSlug ?? 'cover')
+  const diffTarget = diffHref(activeSlug ?? 'cover')
 
   return (
     <header className="border-b border-border bg-bg sticky top-0 z-10 h-14">
@@ -25,7 +26,7 @@ export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }:
         <div className="flex items-center gap-4">
           <nav className="flex items-center gap-1 text-sm">
             <Link
-              href={readHref}
+              href={readTarget}
               className={[
                 'flex items-center gap-2 px-3 h-8 rounded-md font-sans transition-colors',
                 mode === 'read'
@@ -37,7 +38,7 @@ export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }:
               <span className="hidden sm:inline">Read</span>
             </Link>
             <Link
-              href={diffHref}
+              href={diffTarget}
               className={[
                 'flex items-center gap-2 px-3 h-8 rounded-md font-sans transition-colors',
                 mode === 'diff'
