@@ -39,8 +39,12 @@ export default function EditionSelect({ value, caption = 'Chapters as in', class
           disabled={pending}
           aria-label="Edition whose chapters to list"
           className={[
-            'w-full appearance-none cursor-pointer rounded-md bg-subtle pl-3 pr-8 py-2',
-            'font-sans text-sm text-fg hover:bg-border/60 focus:outline-none focus-visible:ring-1 focus-visible:ring-fg/40 transition-colors',
+            // A border (not a background) so it reads as a control, distinct from the
+            // selected chapter's filled row below. Focus is shown by darkening the
+            // border rather than a ring: the sidebar is a scroll container and would
+            // clip anything painted outside the box.
+            'w-full appearance-none cursor-pointer rounded-md border border-border bg-transparent pl-3 pr-8 py-2',
+            'font-sans text-sm text-fg hover:border-muted focus:outline-none focus-visible:border-fg transition-colors',
             pending ? 'opacity-50' : '',
           ].join(' ')}
         >
