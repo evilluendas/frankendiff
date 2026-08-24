@@ -8,6 +8,7 @@ import DiffView from '@/components/DiffView'
 import InlineTitle from '@/components/InlineTitle'
 import ChapterNavFAB from '@/components/ChapterNavFAB'
 import EditionSelect from '@/components/EditionSelect'
+import SectionScrollSpy, { ActiveSectionProvider, SpiedSection } from '@/components/ActiveSection'
 import StickyChapterNav from '@/components/StickyChapterNav'
 import { sectionAnchor } from '@/components/SectionStartMarker'
 import {
@@ -89,8 +90,16 @@ export default async function DiffPage({ params }: PageProps) {
   const rawEdition = cookieStore.get('frankendiff_edition')?.value
   const activeEdition: Edition = rawEdition === '1818' || rawEdition === '1831' ? rawEdition : '1818'
 
+  // Section markers of the edition whose chapters the sidebar lists, so the
+  // highlighted chapter follows the reader through a multi-chapter unit
+  const spiedSections: SpiedSection[] = groups.flatMap((g) => {
+    const start = g.sectionStart?.[activeEdition]
+    return start ? [{ slug: start.slug, anchorId: sectionAnchor(activeEdition, start.slug) }] : []
+  })
+
   return (
-    <>
+    <ActiveSectionProvider>
+      <SectionScrollSpy unitSlug={slug} sections={spiedSections} />
       <SiteHeader mode="diff" activeSlug={slug} activeEdition={activeEdition} />
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex">
@@ -189,6 +198,6 @@ export default async function DiffPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-    </>
+    </ActiveSectionProvider>
   )
 }

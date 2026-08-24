@@ -1,8 +1,11 @@
+'use client'
+
 import Link from 'next/link'
-import { ChapterMeta, Edition } from '@/lib/types'
-import { ChapterStructureRow } from '@/lib/data'
+import type { ChapterMeta, Edition } from '@/lib/types'
+import type { ChapterStructureRow } from '@/lib/data'
 import InlineTitle from '@/components/InlineTitle'
 import { sectionAnchor } from '@/components/SectionStartMarker'
+import { useActiveSlug } from '@/components/ActiveSection'
 
 interface ChapterNavProps {
   chapters: ChapterMeta[]
@@ -22,6 +25,8 @@ export default function ChapterNav({
   size = 'sm',
 }: ChapterNavProps) {
   const chapterBySlug = new Map(chapters.map((ch) => [ch.slug, ch]))
+  // Inside a multi-chapter diff unit the highlight follows the scroll position
+  const currentSlug = useActiveSlug(activeSlug)
 
   return (
     <nav aria-label="Chapters">
@@ -40,7 +45,7 @@ export default function ChapterNav({
               ? `/diff/${ch.diffUnit}#${sectionAnchor(activeEdition, ch.slug)}`
               : `/diff/${ch.slug}`
             : `/chapter/${ch.slug}?edition=${activeEdition}`
-          const isActive = ch.slug === activeSlug
+          const isActive = ch.slug === currentSlug
 
           return (
             <li key={ch.slug}>
