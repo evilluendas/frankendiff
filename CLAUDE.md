@@ -53,7 +53,7 @@ These rules apply to every action Claude takes on this project. Do not violate t
 ### Integration rules
 
 - Vercel builds with `npm run build`, which runs preprocessing first — no separate build step to configure. Preview deployments come from PRs.
-- Analytics are Plausible (script in `app/layout.tsx`), Vercel Analytics, and Vercel Speed Insights. Do not add further trackers or cookies; the only cookie is the edition preference.
+- Analytics are Vercel Analytics and Vercel Speed Insights (both in `app/layout.tsx`); Plausible was removed on 2026-08-24. Do not add further trackers or cookies; the only cookie is the edition preference.
 
 ### Dependencies
 

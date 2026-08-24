@@ -73,7 +73,7 @@ Canonical slugs follow 1831 numbering (`1`…`24`) plus shared sections (`cover`
 ### Deployment & observability
 
 - Vercel, production from `trunk`, previews from PRs. `npm run build` includes preprocessing.
-- Plausible, Vercel Analytics, Vercel Speed Insights.
+- Vercel Analytics and Vercel Speed Insights (Plausible dropped 2026-08-24).
 
 ## Future ideas (from the original prompt; none committed to)
 
