@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "preprocess": "tsx scripts/build.ts",
+    "align:report": "tsx scripts/align-report.ts",
     "dev": "npm run preprocess && next dev --turbopack",
     "build": "npm run preprocess && next build",
     "start": "next start",
