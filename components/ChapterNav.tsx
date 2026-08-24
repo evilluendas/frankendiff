@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import type { ChapterMeta, Edition } from '@/lib/types'
 import type { ChapterStructureRow } from '@/lib/data'
 import InlineTitle from '@/components/InlineTitle'
@@ -27,6 +28,25 @@ export default function ChapterNav({
   const chapterBySlug = new Map(chapters.map((ch) => [ch.slug, ch]))
   // Inside a multi-chapter diff unit the highlight follows the scroll position
   const currentSlug = useActiveSlug(activeSlug)
+  const pathname = usePathname()
+
+  /**
+   * The router ignores navigation to the URL we are already on, so links that
+   * point back into the current diff page scroll there directly: to a section
+   * marker, or to the top of the page. Deferred a tick so the mobile chapter
+   * overlay (which closes on the same click) has released the body scroll.
+   */
+  function scrollWithinPage(hash: string | undefined) {
+    setTimeout(() => {
+      if (hash) {
+        document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        window.history.replaceState(null, '', `#${hash}`)
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        window.history.replaceState(null, '', pathname)
+      }
+    }, 0)
+  }
 
   return (
     <nav aria-label="Chapters">
@@ -46,6 +66,8 @@ export default function ChapterNav({
               : `/diff/${ch.slug}`
             : `/chapter/${ch.slug}?edition=${activeEdition}`
           const isActive = ch.slug === currentSlug
+          const [hrefPath, hrefHash] = href.split('#')
+          const samePage = mode === 'diff' && hrefPath === pathname
 
           return (
             <li key={ch.slug}>
@@ -62,6 +84,7 @@ export default function ChapterNav({
               )}
               <Link
                 href={href}
+                onClick={samePage ? (e) => { e.preventDefault(); scrollWithinPage(hrefHash) } : undefined}
                 aria-current={isActive ? 'page' : undefined}
                 className={[
                   'block px-3 rounded-md transition-colors',
