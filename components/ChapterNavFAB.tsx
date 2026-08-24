@@ -91,7 +91,7 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
         ].join(' ')}
       >
         <BookOpen size={22} className="shrink-0" />
-        <span className="overflow-hidden whitespace-nowrap sm:max-w-0 sm:opacity-0 sm:group-hover:max-w-32 sm:group-hover:opacity-100 sm:group-focus-visible:max-w-32 sm:group-focus-visible:opacity-100 transition-[max-width,opacity] duration-300 ease-in-out">
+        <span className="overflow-hidden whitespace-nowrap sm:max-w-0 sm:opacity-0 sm:group-hover:max-w-32 sm:group-hover:opacity-100 sm:group-focus-visible:max-w-32 sm:group-focus-visible:opacity-100 transition-[max-width,opacity] duration-300 ease-spring">
           <span className="block pl-2 text-sm font-medium">Chapters</span>
         </span>
       </button>
