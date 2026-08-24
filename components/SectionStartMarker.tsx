@@ -27,9 +27,9 @@ export default function SectionStartMarker({ edition, start, variant }: SectionS
     <div
       id={sectionAnchor(edition, start.slug)}
       role="note"
-      className="scroll-mt-24 my-6 px-4 py-3 rounded-md border border-border bg-subtle"
+      className="scroll-mt-24 my-6 px-4 py-3 rounded-md border border-note-border bg-note-bg"
     >
-      <p className="font-sans text-muted leading-relaxed">{text}</p>
+      <p className="font-sans text-note-text leading-relaxed">{text}</p>
     </div>
   )
 }
