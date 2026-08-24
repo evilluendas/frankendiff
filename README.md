@@ -1,83 +1,84 @@
 # Frankendiff
 
-A statically-generated editorial site comparing the 1818 and 1831 editions of Mary Shelley's *Frankenstein*. Read either version chapter by chapter, switch between them at any point, and explore word-level differences in a dedicated diff view.
+**[frankendiff.com](https://frankendiff.com)** — read the 1818 and 1831 editions of Mary Shelley's *Frankenstein* and see every change between them, inline.
 
-Built with Next.js (App Router), TypeScript, Tailwind CSS v4, and a custom build-time preprocessing pipeline.
+Mary Shelley published *Frankenstein* anonymously in 1818 and revised it substantially for the 1831 Bentley edition. Frankendiff lets you read either text chapter by chapter, switch editions at any point, and open a diff view where every insertion and deletion is marked in the flow of the novel. Everything is computed at build time; the site is static.
 
-## How it works
+## Reading modes
 
-The site has two reading modes:
+- **Read** — `/1818/chapter/22`, `/1831/chapter/22`. One edition at a time. An edition switcher keeps you on the same chapter when you flip. Every paragraph has a permalink (hover it on desktop and click the ¶): `/1831/chapter/22#p12`.
+- **Diff** — `/diff/22`. Both editions merged paragraph by paragraph, always 1818 → 1831: green was added in 1831, red was removed. Where 1831 split a chapter, the diff compares the whole 1818 chapter against all its 1831 pieces on one page and marks where each new chapter begins (`/diff/1` covers 1831 Chapters I–II).
 
-- **Read** (`/chapter/[chapter]`) — displays one edition at a time. An edition switcher at the top of the page lets you flip between 1818 and 1831 while staying on the same chapter.
-- **Diff** (`/diff/[chapter]`) — shows the text of both editions merged into a single view with insertions and deletions highlighted inline, paragraph by paragraph. The comparison is always 1818 → 1831: green text was added in 1831, struck-through text was removed.
-
-The underlying pipeline aligns paragraphs across editions, then runs a word-level LCS diff to produce the change operations rendered on screen.
+Chapter slugs follow the 1831 numbering (`1`…`24`), plus `cover`, `introduction`, `preface`, `letter-i`…`letter-iv`, `walton-in-continuation`.
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev      # preprocesses + starts dev server
+npm run dev        # runs the preprocessing pipeline, then next dev
 ```
+
+Other scripts:
+
+```bash
+npm run preprocess     # content/raw → content/processed (parse, align, diff)
+npm run align:report   # flag paragraph rows that look misaligned
+npm run build          # preprocess + next build
+npm run lint
+```
+
+`content/processed/` is generated and gitignored; it's rebuilt by `dev` and `build`. Scripts or tests that import `lib/data.ts` need `npm run preprocess` first.
+
+## How the text gets on the page
+
+```
+content/original/{1818,1831}/*.xhtml   Wikisource exports — archival, used once
+        │  scripts/extract-html.ts      one-time bootstrap → Markdown
+        ▼
+content/raw/{1818,1831}.md             the curated source of truth (hand-corrected since)
+        │  scripts/parse.ts             sections → paragraphs; [tag] markers give structure
+        │  scripts/align.ts             pairs paragraphs across editions (see below)
+        │  scripts/diff.ts              word-level LCS diff → equal / insert / delete
+        │  scripts/build.ts             orchestrates; writes the chapter index
+        ▼
+content/processed/chapters.json, ch<slug>.json
+```
+
+**The Markdown is the text.** `content/raw/*.md` was extracted from Wikisource once and has been corrected by hand since; the extractor is not re-run. Structural roles are marked at the start of a paragraph — `[poem]`, `[salutation]`, `[dateline]`, `[closing]`, `[signature]`, `[book-title]` — and rendered accordingly.
+
+**Alignment is data, not code.** Paragraphs are paired positionally within a chapter, then corrected by four JSON files in `content/`:
+
+| File | What it does |
+|---|---|
+| `edition-alignment.json` | Maps 1818's volume-scoped chapters (`v2-1`) onto the canonical 1831 numbering (`9`). |
+| `chapter-structure.json` | The chapter table: per-edition labels, volume breaks, notes. |
+| `alignment-overrides.json` | `rowOverrides` (leave a row edition-only) and `chapterShifts` (shift one edition from a row onward). Each entry carries a `note` explaining the editorial reason. |
+| `diff-units.json` | Which sections to compare as a single diff page when one edition split a chapter. |
+
+Paragraphs are never split, merged, or reworded to make an alignment work: a paragraph is either paired whole with one paragraph of the other edition, or shown whole as edition-only.
+
+If you spot a misaligned pair, `npm run align:report -- --chapter <slug> --window 8` scores every row and points at likely off-by-one shifts; the fix is an entry in `alignment-overrides.json`.
 
 ## Project structure
 
 ```
-content/
-  raw/           # Source Markdown files — place full texts here
-    1818.md
-    1831.md
-  processed/     # Generated by the pipeline — do not edit manually
-    chapters.json
-    ch1.json, ch2.json, …
-
-scripts/
-  parse.ts       # Parses .md files → BookParagraph[]
-  align.ts       # Aligns paragraphs across editions
-  diff.ts        # Word-level LCS diff
-  build.ts       # Orchestrates the pipeline
-
-lib/
-  types.ts       # Shared TypeScript types
-  data.ts        # Helpers to read processed JSON at build time
-
 app/
-  page.tsx                    # Homepage — edition browser + chapter list
-  chapter/[chapter]/page.tsx  # Read a single edition
-  diff/[chapter]/page.tsx     # Diff view (1818 → 1831)
-
-components/
-  ChapterView.tsx    # Renders paragraphs for a single edition
-  EditionSwitcher.tsx  # Toggle between 1818 and 1831 in read mode
-  DiffView.tsx       # Diff rendering, paragraph by paragraph
-  DiffDisplay.tsx    # Renders DiffOp[] with colour highlights
-  EditionBrowser.tsx # Homepage edition cards + chapter list
-  ParagraphGroup.tsx
-  ChapterNav.tsx
-  SiteHeader.tsx
-  ThemeToggle.tsx
+  page.tsx                              homepage: edition cards + chapter table
+  [edition]/chapter/[chapter]/page.tsx  Read view (static, one page per edition × section)
+  chapter/[chapter]/page.tsx            legacy URLs → 308 redirect
+  diff/[chapter]/page.tsx               Diff view
+  about/page.tsx
+components/   ChapterView, DiffView, ChapterNav, EditionSwitcher, EditionSelect, SectionStartMarker, …
+lib/          types.ts · data.ts (reads processed JSON) · routes.ts (URL builders) · utils.tsx (rendering)
+scripts/      the pipeline above, plus align-report.ts and extract-html.ts
+content/      original/ · raw/ · processed/ · the four alignment files
 ```
 
-## Adding the full texts
+Built with Next.js (App Router), TypeScript, Tailwind CSS v4, and Lucide. Server Components by default; client code only for interaction (theme, edition switching, sticky nav, scroll-spy). Deployed on Vercel — `npm run build` includes preprocessing, no extra configuration.
 
-1. Download the plain-text versions from [Wikisource](https://en.wikisource.org/wiki/Frankenstein,_or_the_Modern_Prometheus)
-2. Format each file as Markdown with `## Chapter I` headings and blank-line paragraph breaks
-3. Save as `content/raw/1818.md` and `content/raw/1831.md`
-4. Run `npm run preprocess` (or just `npm run dev`)
+## Contributing
 
-## Manual alignment overrides
-
-The pipeline uses positional alignment by default (paragraph N in each edition maps to paragraph N). To override, create `content/alignment-overrides.json`:
-
-```json
-[
-  { "alignmentKey": "ch3-p7", "edition": "1831", "paragraphIndex": 9 }
-]
-```
-
-## Deployment to Vercel
-
-Push to GitHub, then connect the repo in the [Vercel dashboard](https://vercel.com). The build command (`npm run build`) includes the preprocessing step — no additional configuration needed.
+Corrections to the text and to paragraph alignment are the most useful contributions. Open an issue or a pull request; for text fixes, cite the source page so the change can be checked against the editions. Please keep the editions' spelling and punctuation as printed — only genuine transcription errors are fixed.
 
 ## License
 
