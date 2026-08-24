@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { BookOpen, X } from 'lucide-react'
 
@@ -15,6 +15,13 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
   const [atBottom, setAtBottom] = useState(false)
   const pathname = usePathname()
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  // The label reveal animates the wrapper's real width (0 → label width) so the
+  // easing curve — overshoot included — is visible. Measure once on mount and
+  // hand the value to CSS; no state, no re-render.
+  const measureLabel = useCallback((el: HTMLSpanElement | null) => {
+    if (el) el.parentElement?.style.setProperty('--label-w', `${el.scrollWidth}px`)
+  }, [])
 
   // Close only when navigation has completed (pathname changed)
   useEffect(() => {
@@ -80,8 +87,8 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
     <>
       {/* FAB */}
       {/* On desktop the pill is a circle that widens on hover/focus to reveal
-          its label; on mobile the label is always shown. The label's max-width
-          is what animates — the button's width simply follows its content. */}
+          its label; on mobile the label is always shown. The label wrapper's
+          width is what animates — the button's width follows its content. */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Open chapter navigation"
@@ -91,8 +98,8 @@ export default function ChapterNavFAB({ children }: ChapterNavFABProps) {
         ].join(' ')}
       >
         <BookOpen size={22} className="shrink-0" />
-        <span className="overflow-hidden whitespace-nowrap sm:max-w-0 sm:opacity-0 sm:group-hover:max-w-32 sm:group-hover:opacity-100 sm:group-focus-visible:max-w-32 sm:group-focus-visible:opacity-100 transition-[max-width,opacity] duration-300 ease-spring">
-          <span className="block pl-2 text-sm font-medium">Chapters</span>
+        <span className="overflow-hidden whitespace-nowrap sm:w-0 sm:opacity-0 sm:group-hover:w-[var(--label-w,6rem)] sm:group-hover:opacity-100 sm:group-focus-visible:w-[var(--label-w,6rem)] sm:group-focus-visible:opacity-100 transition-[width,opacity] duration-300 ease-spring">
+          <span ref={measureLabel} className="block pl-2 text-sm font-medium">Chapters</span>
         </span>
       </button>
 
