@@ -47,15 +47,15 @@ export default function EditionBrowser({ structure, edition, onEditionChange }: 
                 }}
                 className={[
                   'p-5 rounded-lg border text-left transition-colors',
-                  // Selected card inverts (like the chapters pill); the other is just an outline
+                  // Selected card uses the diff's "added" green; the other is just an outline
                   selected
-                    ? 'border-fg bg-fg text-bg'
+                    ? 'border-ins-text/40 bg-ins-bg text-ins-text'
                     : 'border-border bg-transparent hover:border-muted',
                 ].join(' ')}
               >
                 <p className="font-serif text-3xl">{ed}</p>
-                <p className={`font-sans text-[10px] tracking-[0.18em] uppercase mb-3 ${selected ? 'text-bg/70' : 'text-muted'}`}>{EDITION_LABELS[ed]}</p>
-                <p className={`font-serif tracking-[0.01em] leading-relaxed text-pretty ${selected ? 'text-bg/80' : 'text-muted'}`}>
+                <p className={`font-sans text-[10px] tracking-[0.18em] uppercase mb-3 ${selected ? 'text-ins-text/70' : 'text-muted'}`}>{EDITION_LABELS[ed]}</p>
+                <p className={`font-serif tracking-[0.01em] leading-relaxed text-pretty ${selected ? 'text-ins-text/85' : 'text-muted'}`}>
                   {EDITION_DESCRIPTIONS[ed]}
                 </p>
               </Link>
