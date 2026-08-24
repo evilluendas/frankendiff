@@ -101,6 +101,12 @@
       "edition": "1831",
       "paragraphIndex": null,
       "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart; leave row 1 as 1818-only"
+    },
+    {
+      "alignmentKey": "ch1-p5",
+      "edition": "1818",
+      "paragraphIndex": null,
+      "note": "1831 Ch1: 'There was a considerable difference between the ages of my parents...' is new; leave row 5 as 1831-only"
     }
   ],
   "chapterShifts": [
@@ -208,6 +214,13 @@
       "fromRow": 2,
       "shift": -1,
       "note": "1818 Cover has 'IN THREE VOLUMES.' at p1 with no 1831 counterpart, shifting all subsequent 1831 paragraphs by -1"
+    },
+    {
+      "chapter": "1",
+      "edition": "1818",
+      "fromRow": 6,
+      "shift": -1,
+      "note": "1831 Ch1: Elizabeth's origin rewritten in 5 paragraphs vs 4 in 1818; shift 1818 back by 1 from row 6 so 'Every one adored/loved Elizabeth' pair at row 10"
     }
   ]
 }
