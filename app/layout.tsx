@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Lora, Inter, Manufacturing_Consent, Pinyon_Script } from 'next/font/google'
-import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
@@ -52,14 +51,6 @@ export default function RootLayout({
           }}
         />
       </head>
-      <Script
-        src="https://plausible.io/js/pa-mt4xBf1uClaKgQcbHV35_.js"
-        strategy="afterInteractive"
-      />
-      <Script id="plausible-init" strategy="afterInteractive">{`
-        window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-        plausible.init()
-      `}</Script>
       <body className={`${lora.variable} ${inter.variable} ${manufacturingConsent.variable} ${pinyonScript.variable} bg-bg text-fg`}>
         {children}
         <SpeedInsights />
