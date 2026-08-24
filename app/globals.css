@@ -14,6 +14,10 @@
   --ins-bg:       #dcfce7;
   --del-text:     #991b1b;
   --del-bg:       #fee2e2;
+  /* editorial notes (e.g. "Chapter II begins here") — highlighter yellow */
+  --note-text:    #713f12;
+  --note-bg:      #fef9c3;
+  --note-border:  #fde68a;
 }
 
 .dark {
@@ -26,6 +30,9 @@
   --ins-bg:       #14532d;
   --del-text:     #fca5a5;
   --del-bg:       #7f1d1d;
+  --note-text:    #fde68a;
+  --note-bg:      #3b2a06;
+  --note-border:  #6b4c0f;
 }
 
 /* ── Tailwind theme mapping ───────────────────────── */
@@ -39,12 +46,18 @@
   --color-ins-bg:   var(--ins-bg);
   --color-del-text: var(--del-text);
   --color-del-bg:   var(--del-bg);
+  --color-note-text:   var(--note-text);
+  --color-note-bg:     var(--note-bg);
+  --color-note-border: var(--note-border);
 
   --font-serif:    var(--font-lora), Georgia, 'Times New Roman', serif;
   --font-display:  var(--font-lora), Georgia, 'Times New Roman', serif;
   --font-sans:     var(--font-inter), system-ui, sans-serif;
   --font-gothic:        var(--font-manufacturing-consent), 'Manufacturing Consent', cursive;
   --font-calligraphic:  var(--font-pinyon), 'Pinyon Script', cursive;
+
+  /* Slight overshoot then settle — for small reveals (e.g. the chapters pill) */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ── Base styles ──────────────────────────────────── */

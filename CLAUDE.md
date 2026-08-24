@@ -44,7 +44,9 @@ These rules apply to every action Claude takes on this project. Do not violate t
 
 - `content/raw/1818.md` and `content/raw/1831.md` are the **curated source of truth**. They were extracted once from Wikisource XHTML (`content/original/`) by `scripts/extract-html.ts` and have been hand-corrected since. **Never re-run `extract-html.ts` over them** without diffing the result against the current files and re-applying the hand edits.
 - Structural roles are expressed with `[tag]` markers in the raw Markdown (`[poem]`, `[salutation]`, `[dateline]`, `[closing]`, `[signature]`, `[book-title]`). Use those rather than ad-hoc formatting.
-- Cross-edition mapping lives in three JSON files under `content/`: `edition-alignment.json` (1818 volume-scoped slugs such as `v2-1` → canonical 1831 chapter numbers), `chapter-structure.json` (navigation rows and per-edition labels), `alignment-overrides.json` (`rowOverrides` and `chapterShifts` for paragraph alignment, each with a `note`). Fix alignment there, not by editing the text to force a match.
+- Cross-edition mapping lives in four JSON files under `content/`: `edition-alignment.json` (1818 volume-scoped slugs such as `v2-1` → canonical 1831 chapter numbers), `chapter-structure.json` (navigation rows and per-edition labels), `alignment-overrides.json` (`rowOverrides` and `chapterShifts` for paragraph alignment, each with a `note`), and `diff-units.json` (when one edition split a chapter the other kept whole, list the sections to diff together as one unit — e.g. 1818 Chapter I vs 1831 Chapters I–II). Fix alignment there, not by editing the text to force a match.
+- Paragraphs are never split, merged, or reworded to make an alignment work. A paragraph is either paired whole with one paragraph of the other edition or shown whole as edition-only.
+- After touching alignment data, run `npm run align:report` (optionally `--chapter <slug> --window 8`): it flags weak or one-sided rows that have a clearly better neighbour, the signature of an off-by-one.
 - `content/processed/` is generated and gitignored. Never edit it; never commit it.
 - Text fidelity beats tidiness: reproduce the editions' spelling, punctuation, and italics faithfully; only fix genuine transcription errors, and say so in the commit message.
 
@@ -84,13 +86,15 @@ This section is dynamic. Update it via `/wrap` at the end of each session.
 
 ### Current state
 
-Existing project, adopted 2026-08-24. 43 commits on `trunk` since 2026-03-12; last commit `dd1e07c` "Merge pull request #3 from evilluendas/add/vercel-analytics". Working tree clean. Site is live with Read and Diff modes, custom covers, About page, light/dark theme, analytics.
+2026-08-24: PR #5 (`feature/diff-units`, 28 commits) squash-merged to `trunk`. It answered reader feedback on `/diff/1`: chapter-1 alignment fixed; diff units (`content/diff-units.json`) compare 1818 Chapter I against 1831 Chapters I–II on one page with a yellow "Chapter II begins here" note (and the same note in the 1818 Read view); `/diff/2` 308s to that anchor; the Diff sidebar has an edition dropdown (shared cookie) and a scroll-spy that highlights the chapter under the reader; `npm run align:report` flags likely misalignments. Also shipped: Read-view paragraph permalinks (hover ¶, desktop only), chapters FAB label reveal on hover, pointer cursors on buttons, homepage hero image and green selected-edition card, and a pipeline fix for stacked negative shifts.
 
-Housekeeping worth knowing: three already-merged branches still exist on `origin` (`add/about`, `add/vercel-analytics`, `add/vercel-speed-insights`) and can be deleted; `README.md` predates the current pipeline (still describes purely positional alignment and a flat overrides file) and `instructions.md` is the original scaffold prompt — both are candidates for a `docs/` cleanup.
+Housekeeping worth knowing: `README.md` predates the current pipeline (still describes purely positional alignment and a flat overrides file) and `instructions.md` is the original scaffold prompt — both are candidates for a `docs/` cleanup. `npm run lint` has 4 pre-existing errors (About page unescaped quotes, `ThemeToggle` setState-in-effect, `extract-html.ts` prefer-const).
 
 ### What's next
 
-Confirm adoption, then resume normal work. Use `/catch-up` to get oriented in a future session.
+1. **Read URLs → `/<edition>/chapter/<slug>`** (agreed 2026-08-24): move the page to `app/[edition]/chapter/[chapter]`, make it fully static, turn `app/chapter/[chapter]` into 308 redirects (`?edition=X` → `/X/…`, bare → `/1818/…`, no cookie dependence), update every Read link builder. Own branch + PR.
+2. Fix the misalignments `npm run align:report` flags with a better neighbour: Cover (rows 5/7), Chapter III (rows 16/17), Chapter XXIII (row 21).
+3. Smaller follow-ups: paragraph permalink ids are row-based (see gotchas); "adored/loved Elizabeth" still renders as a full replacement (diff.ts threshold); optional `:target` tint for linked paragraphs; README refresh; clear the 4 lint errors.
 
 ### Active decisions
 
@@ -104,6 +108,10 @@ When a decision is superseded, reverted, or no longer applies, move the entry to
 - **2026-08-24 — `content/raw/*.md` is the hand-curated source of truth, not the Wikisource XHTML.** Extraction was a one-time bootstrap; corrections since then live only in the Markdown. *(codified during adoption — predates this entry)*
 - **2026-08-24 — Canonical chapter slugs follow the 1831 numbering; 1818 volume chapters map onto them via `edition-alignment.json`.** Gives one URL per chapter across both editions. *(codified during adoption — predates this entry)*
 - **2026-08-24 — Git conventions switched at adoption: squash-and-merge via PR only, Conventional Commits, `feature/`-style branches.** Earlier history used merge commits, direct commits, and `add/` branches; left untouched.
+- **2026-08-24 — When one edition split a chapter the other kept whole, diff the whole chapter against all its pieces as one unit (`content/diff-units.json`) and mark where each piece begins.** Chosen over splitting the 1818 chapter: no paragraph straddles a boundary, both Read views stay faithful, and the diff tells one continuous story. Paragraphs are never split or reworded to make alignment work.
+- **2026-08-24 — The Diff sidebar lists whichever edition's chapters the shared `frankendiff_edition` cookie says (dropdown at the top; default 1818 like the Read view); inside a unit the highlight follows scroll.** The diff itself is always 1818 → 1831.
+- **2026-08-24 — In-page navigation jumps instantly; no smooth scrolling.** Every other navigation on the site is an instant cut, and smooth scroll would give the same control two behaviours depending on invisible state.
+- **2026-08-24 — New theme tokens: `note-*` (highlighter yellow) for editorial notes, `ease-spring` for small reveals. Selected states reuse the diff's `ins` green rather than a new accent or a full inversion.**
 
 ### Active gotchas
 
@@ -114,3 +122,7 @@ When a gotcha is resolved, move the entry to `docs/GOTCHAS.md`. Same ~15-entry r
 - **2026-08-24 — Re-running `scripts/extract-html.ts` overwrites the hand-corrected `content/raw/*.md`.** Treat the extractor as archival; diff before ever using its output. *(inferred from git history during adoption)*
 - **2026-08-24 — `scripts/` is excluded from `tsconfig.json`, so type errors there only surface when `tsx` executes the script**, not from `next build` or the editor's project-wide check. Run `npm run preprocess` after any pipeline change. *(inferred during adoption)*
 - **2026-08-24 — A fresh clone has no `content/processed/`;** `npm run dev` and `npm run build` regenerate it, but ad-hoc scripts or tests that import `lib/data.ts` must run `npm run preprocess` first. *(inferred during adoption)*
+- **2026-08-24 — Running `npm run build` while `next dev` is up leaves the dev server serving stale Turbopack CSS** (new theme tokens missing, classes present in HTML but no rule). Both write under `.next/`. Fix: stop dev, `rm -rf .next`, `npm run dev`. Claude: check for a listening dev server (`lsof -iTCP:3000 -sTCP:LISTEN`) before building, and skip the build or ask.
+- **2026-08-24 — `next dev` warns "Failed to find font override values for font `Manufacturing Consent`"**: Next has no metrics for that Google font, so it can't synthesise a size-matched fallback. `adjustFontFallback: false` is already set in `app/layout.tsx`; the warning is cosmetic and safe to ignore.
+- **2026-08-24 — Paragraph permalink ids are row-based** (`<edition>-<alignmentKey>`, e.g. `1818-ch1-p12`), so an alignment override that shifts rows changes the ids and breaks shared links to later paragraphs. Switching the DOM id to the paragraph's own `BookParagraph.id` would make them stable; decide before links spread.
+- **2026-08-24 — On this machine `grep` is ugrep:** patterns starting with `--` are parsed as options and `{` is a regex metacharacter. Use `grep -F -e '<pattern>'` for literal strings, or Python, when checking compiled CSS.

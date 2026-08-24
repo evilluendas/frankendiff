@@ -33,6 +33,17 @@ export interface BookParagraph {
   elementType: ParagraphElementType
 }
 
+/**
+ * Marks that an edition's paragraph in a row opens a new section (chapter)
+ * of that edition. Only present inside diff units that span several sections
+ * of one edition (see content/diff-units.json).
+ */
+export interface SectionStart {
+  slug: string        // canonical slug of the section that begins here, e.g. "2"
+  label: string       // its heading, e.g. "Chapter II"
+  afterLabel: string  // heading of the section that ends here, e.g. "Chapter I"
+}
+
 export interface AlignedParagraphGroup {
   chapter: string      // slug
   paragraphIndex: number
@@ -40,6 +51,7 @@ export interface AlignedParagraphGroup {
   paragraphs: Partial<Record<Edition, BookParagraph>>
   // Keyed by "editionA_editionB", e.g. "1818_1831"
   diffs: Partial<Record<string, DiffOp[]>>
+  sectionStart?: Partial<Record<Edition, SectionStart>>
 }
 
 export interface ChapterMeta {
@@ -49,4 +61,13 @@ export interface ChapterMeta {
   editions: Edition[]
   /** Per-edition display label, e.g. { '1818': 'Volume II, Chapter I', '1831': 'Chapter VIII' } */
   labelsByEdition?: Partial<Record<Edition, string>>
+  /**
+   * Diff units. A chapter whose diff is shown as part of another chapter's
+   * page carries `diffUnit` (the slug of that page). The unit page itself
+   * carries `unitSections` — the sections each edition contributes, in order
+   * — and `diffLabelsByEdition` for headings such as "Chapters I–II".
+   */
+  diffUnit?: string
+  unitSections?: Partial<Record<Edition, string[]>>
+  diffLabelsByEdition?: Partial<Record<Edition, string>>
 }

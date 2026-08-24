@@ -16,9 +16,19 @@
  *   canonical slugs used for navigation and processed JSON filenames
  *   (e.g. "v2-1" → "8"). Sections without an entry (preface, letters,
  *   walton-in-continuation) share the same slug across editions.
+ *
+ * Diff units:
+ *   When one edition split a chapter that the other kept whole, the diff
+ *   should compare the whole chapter against all of its pieces at once.
+ *   content/diff-units.json lists, per unit slug, the sections each edition
+ *   contributes in order, e.g. { "1": { "1831": ["1", "2"] } }. The listed
+ *   sections' paragraphs are concatenated before alignment (paragraphs are
+ *   never split or altered) and the first paragraph of each later section
+ *   is marked with `sectionStart` so the views can show where it begins.
+ *   Absorbed sections still get their own processed file for the Read view.
  */
 
-import { AlignedParagraphGroup, BookParagraph, Edition } from '../lib/types'
+import { AlignedParagraphGroup, BookParagraph, Edition, SectionStart } from '../lib/types'
 import { ParsedSection } from './parse'
 import fs from 'fs'
 import path from 'path'
@@ -63,6 +73,32 @@ function loadOverrides(contentRoot: string): Overrides {
   }
 }
 
+export type DiffUnits = Record<string, Partial<Record<Edition, string[]>>>
+
+/** Load content/diff-units.json — unit slug → sections per edition. */
+export function loadDiffUnits(contentRoot: string): DiffUnits {
+  const p = path.join(contentRoot, 'diff-units.json')
+  if (!fs.existsSync(p)) return {}
+  try {
+    const raw = JSON.parse(fs.readFileSync(p, 'utf-8')) as Record<string, Record<string, unknown>>
+    const units: DiffUnits = {}
+    for (const [slug, entry] of Object.entries(raw)) {
+      units[slug] = {}
+      for (const [key, value] of Object.entries(entry)) {
+        if (key === 'note') continue
+        if (!Array.isArray(value) || value.length < 2) {
+          console.warn(`  ⚠  diff-units.json: unit "${slug}" edition ${key} must list at least two sections — ignored`)
+          continue
+        }
+        units[slug][key as Edition] = value.map(String)
+      }
+    }
+    return units
+  } catch {
+    return {}
+  }
+}
+
 /** Load content/edition-alignment.json — maps 1818 volume slugs to canonical slugs. */
 function loadEditionAlignment(contentRoot: string): Record<string, string> {
   const p = path.join(contentRoot, 'edition-alignment.json')
@@ -100,15 +136,20 @@ export function alignChapter(
   // A negative shift pushes an edition's paragraphs to higher display rows.
   // For example, shift=-2 from row 27 means the last paragraph of that edition
   // (say index 32) appears at display row 34 rather than 32.  Extend maxLen so
-  // those paragraphs are not silently dropped.
-  for (const s of shifts) {
-    if (s.shift < 0) {
-      const edCount = paragraphsByEdition[s.edition]?.length ?? 0
-      if (edCount > 0) {
-        // Last paragraph (idx edCount-1) sits at display row (edCount-1) - s.shift
-        // (subtracting a negative shift = adding its absolute value).
-        const lastDisplayRow = (edCount - 1) - s.shift
-        maxLen = Math.max(maxLen, lastDisplayRow + 1)
+  // those paragraphs are not silently dropped.  Shifts stack, so find the row
+  // at which the edition's last paragraph actually lands.
+  for (const edition of editions) {
+    const edCount = paragraphsByEdition[edition]?.length ?? 0
+    const edShifts = shifts.filter((s) => s.edition === edition)
+    if (edCount === 0 || !edShifts.some((s) => s.shift < 0)) continue
+    const bound = edCount + edShifts.reduce((acc, s) => acc + Math.abs(s.shift), 0)
+    for (let row = 0; row <= bound; row++) {
+      const total = edShifts
+        .filter((s) => row >= s.fromRow)
+        .reduce((acc, s) => acc + s.shift, 0)
+      if (row + total >= edCount - 1) {
+        maxLen = Math.max(maxLen, row + 1)
+        break
       }
     }
   }
@@ -160,6 +201,7 @@ export function alignAllChapters(
 ): Map<string, AlignedParagraphGroup[]> {
   const overrides: Overrides = loadOverrides(contentRoot)
   const editionAlignment = loadEditionAlignment(contentRoot)
+  const diffUnits = loadDiffUnits(contentRoot)
 
   // Build inverse map: canonical slug → set of edition-specific slugs
   // (used to find 1818 paragraphs that live under volume-scoped slugs)
@@ -183,23 +225,66 @@ export function alignAllChapters(
     }
   }
 
+  /** Paragraphs of one edition belonging to a canonical section slug. */
+  function sectionParagraphs(edition: Edition, canonical: string): BookParagraph[] {
+    const paras = paragraphsByEdition[edition] ?? []
+    if (edition === '1818') {
+      // Collect paragraphs from both the canonical slug (shared sections like letters)
+      // and any volume-scoped aliases (e.g. "v2-1" for canonical "8")
+      const aliases = inverseAlignment.get(canonical) ?? new Set<string>()
+      return paras.filter((p) => p.chapter === canonical || aliases.has(p.chapter))
+    }
+    return paras.filter((p) => p.chapter === canonical)
+  }
+
+  function sectionTitle(edition: Edition, canonical: string): string {
+    const sections = sectionsByEdition[edition] ?? []
+    const match = sections.find((s) => {
+      const c = (edition === '1818' && editionAlignment[s.slug]) ? editionAlignment[s.slug] : s.slug
+      return c === canonical
+    })
+    return match?.title ?? canonical
+  }
+
   const result = new Map<string, AlignedParagraphGroup[]>()
 
   for (const slug of slugSet) {
+    const unit = diffUnits[slug]
     const byEdition: Partial<Record<Edition, BookParagraph[]>> = {}
-    for (const [edition, paras] of Object.entries(paragraphsByEdition)) {
-      if (edition === '1818') {
-        // Collect paragraphs from both the canonical slug (shared sections like letters)
-        // and any volume-scoped aliases (e.g. "v2-1" for canonical "8")
-        const aliases = inverseAlignment.get(slug) ?? new Set<string>()
-        byEdition[edition as Edition] = paras.filter(
-          (p) => p.chapter === slug || aliases.has(p.chapter),
-        )
-      } else {
-        byEdition[edition as Edition] = paras.filter((p) => p.chapter === slug)
+    for (const edition of Object.keys(paragraphsByEdition) as Edition[]) {
+      const sections = unit?.[edition]
+      byEdition[edition] = sections
+        ? sections.flatMap((sec) => sectionParagraphs(edition, sec))
+        : sectionParagraphs(edition, slug)
+    }
+
+    const groups = alignChapter(slug, byEdition, overrides)
+
+    // Mark where each later section of a multi-section edition begins.
+    if (unit) {
+      for (const [edition, sections] of Object.entries(unit) as [Edition, string[]][]) {
+        for (let k = 1; k < sections.length; k++) {
+          const first = sectionParagraphs(edition, sections[k])[0]
+          if (!first) {
+            console.warn(`  ⚠  diff-units.json: unit "${slug}" lists ${edition} section "${sections[k]}" which has no paragraphs`)
+            continue
+          }
+          const group = groups.find((g) => g.paragraphs[edition]?.id === first.id)
+          if (!group) {
+            console.warn(`  ⚠  diff-units.json: first paragraph of ${edition} section "${sections[k]}" is not shown in unit "${slug}" (dropped by an override?)`)
+            continue
+          }
+          const start: SectionStart = {
+            slug: sections[k],
+            label: sectionTitle(edition, sections[k]),
+            afterLabel: sectionTitle(edition, sections[k - 1]),
+          }
+          group.sectionStart = { ...(group.sectionStart ?? {}), [edition]: start }
+        }
       }
     }
-    result.set(slug, alignChapter(slug, byEdition, overrides))
+
+    result.set(slug, groups)
   }
 
   return result
