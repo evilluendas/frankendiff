@@ -24,38 +24,39 @@ export default function DiffDisplay({ ops, elementType = 'body', group }: DiffDi
   const blocks = renderDiffBlocks(ops)
 
   return (
-    <>
-      {blocks.map((block, i) => (
-        <div key={i}>
-          {block.breakBefore && (
-            <>
-              {/* The chapter note is about the boundary; the ¶ marker is part of
-                  the change and belongs with the paragraph it opens, so it comes last. */}
-              {sectionStartsAt(group, block.breakBefore).map(([edition, start]) => (
+    <div className="space-y-5">
+      {blocks.map((block, i) => {
+        // The chapter note is about the boundary and stands on its own; the ¶
+        // marker is part of the change and opens the paragraph inline.
+        const marker = block.breakBefore ? <ParagraphBreakMarker type={block.breakBefore.type} /> : null
+        return (
+          <div key={i}>
+            {block.breakBefore &&
+              sectionStartsAt(group, block.breakBefore).map(([edition, start]) => (
                 <SectionStartMarker key={edition} edition={edition} start={start} variant="diff-within" />
               ))}
-              <ParagraphBreakMarker type={block.breakBefore.type} />
-            </>
-          )}
-          {elementType === 'poem' ? (
-            <blockquote className="prose-serif italic border-l-2 border-border pl-4 leading-relaxed whitespace-pre-line">
-              {block.nodes}
-            </blockquote>
-          ) : (
-            <p
-              className={[
-                'prose-serif leading-[1.85]',
-                elementType === 'signature' ? 'font-semibold [font-variant:small-caps]' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              {block.nodes}
-            </p>
-          )}
-        </div>
-      ))}
-    </>
+            {elementType === 'poem' ? (
+              <blockquote className="prose-serif italic border-l-2 border-border pl-4 leading-relaxed whitespace-pre-line">
+                {marker}
+                {block.nodes}
+              </blockquote>
+            ) : (
+              <p
+                className={[
+                  'prose-serif leading-[1.85]',
+                  elementType === 'signature' ? 'font-semibold [font-variant:small-caps]' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+              >
+                {marker}
+                {block.nodes}
+              </p>
+            )}
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
