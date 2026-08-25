@@ -95,7 +95,7 @@ This section is dynamic. Update it via `/wrap` at the end of each session.
 
 The user is replying to the reader (draft agreed in session; it says the tool is AI-built and links the repo). Light mode of the ¶ marker and the reordered note was checked only through markup, not by eye.
 
-Housekeeping still open: `instructions.md` is the original scaffold prompt (candidate for `docs/` cleanup); `npm run lint` keeps its 4 pre-existing errors (About page unescaped quotes, `ThemeToggle` setState-in-effect, `extract-html.ts` prefer-const).
+Housekeeping still open: `npm run lint` keeps its 4 pre-existing errors (About page unescaped quotes, `ThemeToggle` setState-in-effect, `extract-html.ts` prefer-const).
 
 ### What's next
 

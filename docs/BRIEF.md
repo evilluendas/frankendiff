@@ -1,7 +1,7 @@
 # Frankendiff — Product & architecture brief
 
 > **Note:** This brief was reconstructed during project adoption (2026-08-24) from existing
-> code, `README.md`, the About page, and the original scaffold prompt (`instructions.md`).
+> code, `README.md`, the About page, and the original scaffold prompt (`instructions.md`, removed on 2026-08-25; it is in the first commit of the repository).
 > It may be incomplete. Update as needed when the product vision becomes clearer.
 
 ## What it is
@@ -87,4 +87,3 @@ Canonical slugs follow 1831 numbering (`1`…`24`) plus shared sections (`cover`
 ## Open questions
 
 - Which of the future ideas, if any, is next?
-- Should `instructions.md` (the original scaffold prompt) be moved under `docs/` or deleted now that this brief exists?
