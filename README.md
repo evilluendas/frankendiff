@@ -52,12 +52,12 @@ content/processed/chapters.json, ch<slug>.json
 |---|---|
 | `edition-alignment.json` | Maps 1818's volume-scoped chapters (`v2-1`) onto the canonical 1831 numbering (`9`). |
 | `chapter-structure.json` | The chapter table: per-edition labels, volume breaks, notes. |
-| `alignment-overrides.json` | `rowOverrides` (leave a row edition-only) and `chapterShifts` (shift one edition from a row onward). Each entry carries a `note` explaining the editorial reason. |
+| `alignment-overrides.json` | `rows`: pins naming the paragraphs of one row by identity (`"1818": "v1-1/10", "1831": ["1/11", "2/1"]`; `null` leaves a row edition-only). Paragraphs pair off positionally between pins, so a pin only affects its neighbourhood. Each entry carries a `note` explaining the editorial reason. |
 | `diff-units.json` | Which sections to compare as a single diff page when one edition split a chapter. |
 
 Paragraphs are never split, merged, or reworded to make an alignment work: a paragraph is either paired whole with one paragraph of the other edition, or shown whole as edition-only.
 
-If you spot a misaligned pair, `npm run align:report -- --chapter <slug> --window 8` scores every row and points at likely off-by-one shifts; the fix is an entry in `alignment-overrides.json`.
+If you spot a misaligned pair, `npm run align:report -- --chapter <slug> --window 8` scores every row and points at likely off-by-one shifts; the fix is a pin in `alignment-overrides.json`.
 
 ## Project structure
 

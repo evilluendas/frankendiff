@@ -54,9 +54,14 @@ export function readChapterForEdition(slug: string, edition: Edition): AlignedPa
   const groups = readChapter(slug)
   const meta = readChapterMeta(slug)
   if (!meta?.unitSections?.[edition]) return groups
-  return groups.filter((g) => {
-    const para = g.paragraphs[edition]
-    return !para || para.chapter === slug
+  // A row may group paragraphs from two sections (the last of one and the
+  // first of the next); keep only this section's.
+  return groups.flatMap((g) => {
+    const paras = g.paragraphs[edition]
+    if (!paras) return [g]
+    const mine = paras.filter((p) => p.chapter === slug)
+    if (mine.length === 0) return []
+    return [{ ...g, paragraphs: { ...g.paragraphs, [edition]: mine } }]
   })
 }
 
@@ -79,7 +84,7 @@ export function getChapterFirstParagraph(
   const groups = readChapter(slug)
   for (const edition of preferEditions) {
     for (const group of groups) {
-      const para = group.paragraphs[edition as '1818' | '1831']
+      const para = group.paragraphs[edition as '1818' | '1831']?.[0]
       if (para && para.elementType === 'body' && para.text.trim()) {
         const text = para.text.trim()
         return text.length > maxLen ? text.slice(0, maxLen).trimEnd() + '…' : text

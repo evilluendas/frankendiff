@@ -1,5 +1,5 @@
 import { ReactNode, createElement, Fragment } from 'react'
-import type { DiffOp } from './types'
+import { PARAGRAPH_BREAK, type DiffOp, type DiffOpType, type Edition } from './types'
 
 /**
  * Convert straight quotation marks to their typographic (curly) equivalents.
@@ -39,9 +39,24 @@ export function renderText(text: string): ReactNode {
   )
 }
 
+/** A paragraph break inside a diffed row, and which edition(s) break there. */
+export interface DiffBreak {
+  type: DiffOpType
+  /** Index of the paragraph boundary in each edition that breaks here (0 = between its 1st and 2nd paragraph). */
+  boundary: Partial<Record<Edition, number>>
+}
+
+/** One paragraph's worth of rendered diff, preceded by the break that opened it (none for the first). */
+export interface DiffBlock {
+  breakBefore?: DiffBreak
+  nodes: ReactNode[]
+}
+
 /**
- * Renders a list of diff ops as React nodes, handling *italic* markdown spans
- * across op boundaries.
+ * Renders a list of diff ops as paragraph blocks, handling *italic* markdown
+ * spans across op boundaries.  A PARAGRAPH_BREAK inside an op starts a new
+ * block: in an insert op it is a break 1831 introduced, in a delete op one
+ * 1818 had, in an equal op one both editions share.
  *
  * Two italic cursors (one per edition) are tracked independently. A `*` in an
  * `equal` op toggles both; a `*` in a `delete` op toggles only 1818; a `*` in
@@ -51,60 +66,88 @@ export function renderText(text: string): ReactNode {
  * is emitted as a del/ins pair — consistent with how content changes are shown:
  *   - italic removed  → <del><em>word</em></del> <ins>word</ins>
  *   - italic added    → <del>word</del> <ins><em>word</em></ins>
+ *
+ * Whitespace-only edits (a space that became a paragraph break) are shown as
+ * plain whitespace rather than an empty coloured box.
  */
-export function renderDiffOps(ops: DiffOp[]): ReactNode {
+export function renderDiffBlocks(ops: DiffOp[]): DiffBlock[] {
   let i1818 = false
   let i1831 = false
-  const nodes: ReactNode[] = []
+  const blocks: DiffBlock[] = [{ nodes: [] }]
+  const boundary: Record<Edition, number> = { '1818': 0, '1831': 0 }
   let key = 0
 
   const DEL_CLS = 'bg-del-bg text-del-text rounded-sm px-0.5'
   const INS_CLS = 'no-underline bg-ins-bg text-ins-text rounded-sm px-0.5'
 
-  for (const op of ops) {
-    const parts = smartQuotes(op.text).split('*')
+  const push = (node: ReactNode) => blocks[blocks.length - 1].nodes.push(node)
 
-    for (let i = 0; i < parts.length; i++) {
-      // Every split point represents a `*` we crossed — toggle italic state(s)
-      if (i > 0) {
-        if (op.type === 'equal')        { i1818 = !i1818; i1831 = !i1831 }
-        else if (op.type === 'delete')  { i1818 = !i1818 }
-        else                            { i1831 = !i1831 }
+  for (const op of ops) {
+    const pieces = op.text.split(PARAGRAPH_BREAK)
+    for (let p = 0; p < pieces.length; p++) {
+      if (p > 0) {
+        const at: DiffBreak['boundary'] = {}
+        if (op.type !== 'insert') at['1818'] = boundary['1818']++
+        if (op.type !== 'delete') at['1831'] = boundary['1831']++
+        blocks.push({ breakBefore: { type: op.type, boundary: at }, nodes: [] })
+      }
+      const piece = pieces[p]
+      if (!piece) continue
+
+      if (/^\s+$/.test(piece)) {
+        push(<span key={key++}>{piece}</span>)
+        continue
       }
 
-      const text = parts[i]
-      if (!text) continue
+      const parts = smartQuotes(piece).split('*')
 
-      if (op.type === 'equal') {
-        if (i1818 && i1831) {
-          // Italic in both — plain <em>
-          nodes.push(<span key={key++}><em>{text}</em></span>)
-        } else if (i1818 && !i1831) {
-          // Italic removed in 1831 — del/ins pair
-          nodes.push(<del key={key++} className={DEL_CLS} title="Italicised in 1818"><em>{text}</em></del>)
-          nodes.push(<ins key={key++} className={INS_CLS} title="Plain in 1831">{text}</ins>)
-        } else if (!i1818 && i1831) {
-          // Italic added in 1831 — del/ins pair
-          nodes.push(<del key={key++} className={DEL_CLS} title="Plain in 1818">{text}</del>)
-          nodes.push(<ins key={key++} className={INS_CLS} title="Italicised in 1831"><em>{text}</em></ins>)
-        } else {
-          nodes.push(<span key={key++}>{text}</span>)
+      for (let i = 0; i < parts.length; i++) {
+        // Every split point represents a `*` we crossed — toggle italic state(s)
+        if (i > 0) {
+          if (op.type === 'equal')        { i1818 = !i1818; i1831 = !i1831 }
+          else if (op.type === 'delete')  { i1818 = !i1818 }
+          else                            { i1831 = !i1831 }
         }
-      } else if (op.type === 'insert') {
-        nodes.push(
-          <ins key={key++} className={INS_CLS} title="Added in 1831">
-            {i1831 ? <em>{text}</em> : text}
-          </ins>,
-        )
-      } else {
-        nodes.push(
-          <del key={key++} className={DEL_CLS} title="Removed in 1831">
-            {i1818 ? <em>{text}</em> : text}
-          </del>,
-        )
+
+        const text = parts[i]
+        if (!text) continue
+
+        if (op.type === 'equal') {
+          if (i1818 && i1831) {
+            // Italic in both — plain <em>
+            push(<span key={key++}><em>{text}</em></span>)
+          } else if (i1818 && !i1831) {
+            // Italic removed in 1831 — del/ins pair
+            push(<del key={key++} className={DEL_CLS} title="Italicised in 1818"><em>{text}</em></del>)
+            push(<ins key={key++} className={INS_CLS} title="Plain in 1831">{text}</ins>)
+          } else if (!i1818 && i1831) {
+            // Italic added in 1831 — del/ins pair
+            push(<del key={key++} className={DEL_CLS} title="Plain in 1818">{text}</del>)
+            push(<ins key={key++} className={INS_CLS} title="Italicised in 1831"><em>{text}</em></ins>)
+          } else {
+            push(<span key={key++}>{text}</span>)
+          }
+        } else if (op.type === 'insert') {
+          push(
+            <ins key={key++} className={INS_CLS} title="Added in 1831">
+              {i1831 ? <em>{text}</em> : text}
+            </ins>,
+          )
+        } else {
+          push(
+            <del key={key++} className={DEL_CLS} title="Removed in 1831">
+              {i1818 ? <em>{text}</em> : text}
+            </del>,
+          )
+        }
       }
     }
   }
 
-  return <>{nodes}</>
+  return blocks
+}
+
+/** Renders diff ops that contain no paragraph break as a single run of nodes. */
+export function renderDiffOps(ops: DiffOp[]): ReactNode {
+  return <>{renderDiffBlocks(ops).flatMap((b) => b.nodes)}</>
 }
