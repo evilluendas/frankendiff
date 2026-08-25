@@ -1,21 +1,27 @@
 /**
- * Aligns paragraphs across editions into AlignedParagraphGroup objects.
+ * Aligns paragraphs across editions into rows (AlignedParagraphGroup).
  *
- * Current strategy: positional — paragraph N in edition A aligns with
- * paragraph N in edition B within the same chapter.
+ * Strategy: positional, anchored by pins.  Within a section, paragraph N of
+ * 1818 is read against paragraph N of 1831 — until a pin says otherwise.
+ * A pin (content/alignment-overrides.json, `rows`) names the paragraphs of
+ * one row by identity:
  *
- * To override alignment in the future, create
- *   content/alignment-overrides.json
- * as an array of { alignmentKey, edition, paragraphIndex } entries.
- * The loader here will check for that file and apply overrides before
- * falling back to the positional strategy.
+ *   { "1818": "v1-1/10", "1831": ["1/10", "2/1"], "note": "…" }   a 1:2 row
+ *   { "1818": "v1-1/24", "1831": null,            "note": "…" }   1818-only
+ *
+ * A reference is `<section slug of that edition>/<1-based paragraph number>`
+ * — the number in the paragraph's Read-view permalink (#p10).  Between two
+ * pins the paragraphs pair off positionally again; whatever one side has
+ * left over becomes edition-only rows at the end of that stretch.  A pin
+ * therefore only affects its own neighbourhood: nothing renumbers when an
+ * earlier pin is added or removed.
  *
  * Cross-edition slug mapping:
- *   The 1818 source now uses volume-scoped chapter slugs ("v2-1" for
- *   Volume II, Chapter I). content/edition-alignment.json maps these to the
- *   canonical slugs used for navigation and processed JSON filenames
- *   (e.g. "v2-1" → "8"). Sections without an entry (preface, letters,
- *   walton-in-continuation) share the same slug across editions.
+ *   The 1818 source uses volume-scoped chapter slugs ("v2-1" for Volume II,
+ *   Chapter I). content/edition-alignment.json maps these to the canonical
+ *   slugs used for navigation and processed JSON filenames (e.g. "v2-1" →
+ *   "8"). Sections without an entry (preface, letters, walton-in-
+ *   continuation) share the same slug across editions.
  *
  * Diff units:
  *   When one edition split a chapter that the other kept whole, the diff
@@ -33,43 +39,25 @@ import { ParsedSection } from './parse'
 import fs from 'fs'
 import path from 'path'
 
-/** Override the paragraph index used for a specific (row, edition) pair.
- *  Set paragraphIndex to null to leave that edition empty for the row
- *  (useful when one edition has an extra paragraph with no counterpart). */
-interface AlignmentOverride {
-  alignmentKey: string
-  edition: Edition
-  paragraphIndex: number | null
+/** One pinned row, as written in alignment-overrides.json. */
+export interface RowPin {
+  '1818'?: string | string[] | null
+  '1831'?: string | string[] | null
+  note?: string
 }
 
-/** Shift one edition's paragraph index by `shift` for all rows >= fromRow
- *  within a given chapter.  Combine with a rowOverride (paragraphIndex: null)
- *  on the row just before fromRow to create a clean "1818-only" slot. */
-interface ChapterShift {
-  chapter: string
-  edition: Edition
-  fromRow: number
-  shift: number
+export interface Overrides {
+  rows: RowPin[]
 }
 
-interface Overrides {
-  rowOverrides: AlignmentOverride[]
-  chapterShifts: ChapterShift[]
-}
-
-function loadOverrides(contentRoot: string): Overrides {
+export function loadOverrides(contentRoot: string): Overrides {
   const p = path.join(contentRoot, 'alignment-overrides.json')
-  if (!fs.existsSync(p)) return { rowOverrides: [], chapterShifts: [] }
+  if (!fs.existsSync(p)) return { rows: [] }
   try {
     const raw = JSON.parse(fs.readFileSync(p, 'utf-8'))
-    // Support legacy format (plain array of row overrides)
-    if (Array.isArray(raw)) return { rowOverrides: raw, chapterShifts: [] }
-    return {
-      rowOverrides: raw.rowOverrides ?? [],
-      chapterShifts: raw.chapterShifts ?? [],
-    }
+    return { rows: Array.isArray(raw.rows) ? raw.rows : [] }
   } catch {
-    return { rowOverrides: [], chapterShifts: [] }
+    return { rows: [] }
   }
 }
 
@@ -110,98 +98,208 @@ function loadEditionAlignment(contentRoot: string): Record<string, string> {
   }
 }
 
-export function alignChapter(
-  slug: string,
-  paragraphsByEdition: Partial<Record<Edition, BookParagraph[]>>,
-  { rowOverrides, chapterShifts }: Overrides,
-): AlignedParagraphGroup[] {
-  // Build a lookup for row overrides keyed by "alignmentKey|edition"
-  // Value is number (use that index) or null (leave this edition empty for the row)
-  const overrideMap = new Map<string, number | null>()
-  for (const o of rowOverrides) {
-    overrideMap.set(`${o.alignmentKey}|${o.edition}`, o.paragraphIndex)
+/** "v1-1/10" → the paragraph's id as parse.ts builds it ("1818-chv1-1-p9"). */
+export function refToId(edition: Edition, ref: string): string | null {
+  const m = ref.match(/^(.+)\/(\d+)$/)
+  if (!m) return null
+  const n = parseInt(m[2], 10)
+  if (!(n >= 1)) return null
+  return `${edition}-ch${m[1]}-p${n - 1}`
+}
+
+/** The reference of a paragraph, as written in a pin. */
+export function paragraphRef(p: BookParagraph): string {
+  return `${p.chapter}/${p.paragraphIndex + 1}`
+}
+
+/** A pin resolved against the paragraph lists of one unit. */
+interface ResolvedPin {
+  /** Index ranges [start, end) into each edition's list; absent when the pin has no paragraph there. */
+  '1818'?: [number, number]
+  '1831'?: [number, number]
+}
+
+/** Warnings collected while aligning, so a caller (or test) can see them. */
+export interface AlignWarning { unit: string; message: string }
+
+function resolvePins(
+  unit: string,
+  pins: RowPin[],
+  byEdition: Partial<Record<Edition, BookParagraph[]>>,
+  warn: (message: string) => void,
+): ResolvedPin[] {
+  const index: Partial<Record<Edition, Map<string, number>>> = {}
+  for (const [edition, paras] of Object.entries(byEdition) as [Edition, BookParagraph[]][]) {
+    index[edition] = new Map(paras.map((p, i) => [p.id, i]))
   }
 
-  // Chapter shifts applicable to this chapter
-  const shifts = chapterShifts.filter((s) => s.chapter === slug)
-
-  const editions = Object.keys(paragraphsByEdition) as Edition[]
-
-  // Base maxLen: the largest paragraph count across all editions.
-  let maxLen = Math.max(
-    0,
-    ...editions.map((e) => paragraphsByEdition[e]?.length ?? 0),
-  )
-
-  // A negative shift pushes an edition's paragraphs to higher display rows.
-  // For example, shift=-2 from row 27 means the last paragraph of that edition
-  // (say index 32) appears at display row 34 rather than 32.  Extend maxLen so
-  // those paragraphs are not silently dropped.  Shifts stack, so find the row
-  // at which the edition's last paragraph actually lands.
-  for (const edition of editions) {
-    const edCount = paragraphsByEdition[edition]?.length ?? 0
-    const edShifts = shifts.filter((s) => s.edition === edition)
-    if (edCount === 0 || !edShifts.some((s) => s.shift < 0)) continue
-    const bound = edCount + edShifts.reduce((acc, s) => acc + Math.abs(s.shift), 0)
-    for (let row = 0; row <= bound; row++) {
-      const total = edShifts
-        .filter((s) => row >= s.fromRow)
-        .reduce((acc, s) => acc + s.shift, 0)
-      if (row + total >= edCount - 1) {
-        maxLen = Math.max(maxLen, row + 1)
+  const resolved: ResolvedPin[] = []
+  for (const pin of pins) {
+    const out: ResolvedPin = {}
+    let hasRefs = false
+    let broken = false
+    for (const edition of ['1818', '1831'] as Edition[]) {
+      const value = pin[edition]
+      if (value == null) continue
+      const refs = Array.isArray(value) ? value : [value]
+      const ids = refs.map((r) => refToId(edition, r))
+      const positions = ids.map((id) => (id ? index[edition]?.get(id) : undefined))
+      hasRefs = true
+      if (positions.some((p) => p === undefined)) {
+        warn(`pin ${JSON.stringify(pin)}: ${edition} reference(s) ${refs.join(', ')} not all found — pin ignored`)
+        broken = true
         break
       }
+      const sorted = positions as number[]
+      for (let k = 1; k < sorted.length; k++) {
+        if (sorted[k] !== sorted[k - 1] + 1) {
+          warn(`pin ${JSON.stringify(pin)}: ${edition} paragraphs must be consecutive — pin ignored`)
+          broken = true
+        }
+      }
+      if (broken) break
+      out[edition] = [sorted[0], sorted[sorted.length - 1] + 1]
+    }
+    if (hasRefs && !broken) resolved.push(out)
+  }
+
+  // Pins must not overlap, and must keep the same order in both editions.
+  const claimed: Partial<Record<Edition, Set<number>>> = { '1818': new Set(), '1831': new Set() }
+  const ok: ResolvedPin[] = []
+  for (const pin of resolved) {
+    let overlap = false
+    for (const edition of ['1818', '1831'] as Edition[]) {
+      const range = pin[edition]
+      if (!range) continue
+      for (let i = range[0]; i < range[1]; i++) if (claimed[edition]!.has(i)) overlap = true
+    }
+    if (overlap) {
+      warn(`pin covering ${describePin(pin, byEdition)} overlaps another pin — ignored`)
+      continue
+    }
+    for (const edition of ['1818', '1831'] as Edition[]) {
+      const range = pin[edition]
+      if (!range) continue
+      for (let i = range[0]; i < range[1]; i++) claimed[edition]!.add(i)
+    }
+    ok.push(pin)
+  }
+  const paired = ok.filter((p) => p['1818'] && p['1831']).sort((x, y) => x['1818']![0] - y['1818']![0])
+  for (let k = 1; k < paired.length; k++) {
+    if (paired[k]['1831']![0] < paired[k - 1]['1831']![1]) {
+      warn(`pins ${describePin(paired[k - 1], byEdition)} and ${describePin(paired[k], byEdition)} cross — the second is ignored`)
+      const idx = ok.indexOf(paired[k])
+      ok.splice(idx, 1)
+    }
+  }
+  return ok
+}
+
+function describePin(pin: ResolvedPin, byEdition: Partial<Record<Edition, BookParagraph[]>>): string {
+  return (['1818', '1831'] as Edition[])
+    .filter((e) => pin[e])
+    .map((e) => `${e} ${paragraphRef(byEdition[e]![pin[e]![0]])}${pin[e]![1] - pin[e]![0] > 1 ? `–${paragraphRef(byEdition[e]![pin[e]![1] - 1])}` : ''}`)
+    .join(' ↔ ')
+}
+
+/**
+ * Build the rows of one unit: positional pairing, anchored by pins.
+ *
+ * Both lists are walked with a cursor.  While neither cursor is on a pinned
+ * paragraph, the two paragraphs pair off.  When a cursor reaches a pinned
+ * paragraph, the other edition's unpinned paragraphs up to that pin (if it
+ * has any on that side) are edition-only rows — the leftovers of the
+ * stretch — and then the pinned row is emitted.  1818's rows come first
+ * when both cursors sit on different edition-only pins.
+ */
+export function alignRows(
+  unit: string,
+  byEdition: Partial<Record<Edition, BookParagraph[]>>,
+  pins: RowPin[],
+  warn: (message: string) => void = () => {},
+): AlignedParagraphGroup[] {
+  const A = byEdition['1818'] ?? []
+  const B = byEdition['1831'] ?? []
+  const resolved = resolvePins(unit, pins, byEdition, warn)
+
+  const pinAt: Partial<Record<Edition, Map<number, ResolvedPin>>> = { '1818': new Map(), '1831': new Map() }
+  for (const pin of resolved) {
+    for (const edition of ['1818', '1831'] as Edition[]) {
+      const range = pin[edition]
+      if (range) for (let i = range[0]; i < range[1]; i++) pinAt[edition]!.set(i, pin)
     }
   }
 
-  const groups: AlignedParagraphGroup[] = []
-
-  for (let i = 0; i < maxLen; i++) {
-    const alignmentKey = `ch${slug}-p${i}`
+  const rows: AlignedParagraphGroup[] = []
+  const push = (a: BookParagraph[], b: BookParagraph[]) => {
+    const i = rows.length
     const group: AlignedParagraphGroup = {
-      chapter: slug,
+      chapter: unit,
       paragraphIndex: i,
-      alignmentKey,
+      alignmentKey: `ch${unit}-p${i}`,
       paragraphs: {},
       diffs: {},
     }
-
-    for (const edition of editions) {
-      const edParas = paragraphsByEdition[edition] ?? []
-      const rowKey = `${alignmentKey}|${edition}`
-
-      let idx: number | null
-      if (overrideMap.has(rowKey)) {
-        idx = overrideMap.get(rowKey)!  // may be null (explicit skip)
-      } else {
-        // Accumulate all chapter shifts that apply to this edition and row.
-        // Multiple shifts with different fromRow values stack (e.g. two separate
-        // paragraph insertions in the same chapter each contribute −1).
-        const totalShift = shifts
-          .filter((s) => s.edition === edition && i >= s.fromRow)
-          .reduce((acc, s) => acc + s.shift, 0)
-        idx = i + totalShift
-      }
-
-      if (idx !== null && idx >= 0 && idx < edParas.length) {
-        group.paragraphs[edition] = edParas[idx]
-      }
-    }
-
-    groups.push(group)
+    if (a.length) group.paragraphs['1818'] = a
+    if (b.length) group.paragraphs['1831'] = b
+    rows.push(group)
+  }
+  const emitPin = (pin: ResolvedPin) => {
+    const a = pin['1818'] ? A.slice(pin['1818'][0], pin['1818'][1]) : []
+    const b = pin['1831'] ? B.slice(pin['1831'][0], pin['1831'][1]) : []
+    push(a, b)
+    if (pin['1818']) ia = pin['1818'][1]
+    if (pin['1831']) ib = pin['1831'][1]
   }
 
-  return groups
+  let ia = 0
+  let ib = 0
+  while (ia < A.length || ib < B.length) {
+    const pinA = ia < A.length ? pinAt['1818']!.get(ia) : undefined
+    const pinB = ib < B.length ? pinAt['1831']!.get(ib) : undefined
+
+    if (pinA) {
+      // Flush 1831's leftovers up to this pin's 1831 block (edition-only, or their own 1831-only pins).
+      const stop = pinA['1831'] ? pinA['1831'][0] : (pinB && !pinB['1818'] ? ib : ib)
+      while (ib < stop) {
+        const other = pinAt['1831']!.get(ib)
+        if (other && !other['1818']) emitPin(other)
+        else push([], [B[ib++]])
+      }
+      emitPin(pinA)
+    } else if (pinB) {
+      const stop = pinB['1818'] ? pinB['1818'][0] : ia
+      while (ia < stop) {
+        const other = pinAt['1818']!.get(ia)
+        if (other && !other['1831']) emitPin(other)
+        else push([A[ia++]], [])
+      }
+      emitPin(pinB)
+    } else if (ia < A.length && ib < B.length) {
+      push([A[ia++]], [B[ib++]])
+    } else if (ia < A.length) {
+      push([A[ia++]], [])
+    } else {
+      push([], [B[ib++]])
+    }
+  }
+
+  return rows
 }
 
 export function alignAllChapters(
   sectionsByEdition: Partial<Record<Edition, ParsedSection[]>>,
   paragraphsByEdition: Partial<Record<Edition, BookParagraph[]>>,
   contentRoot: string,
+  warnings: AlignWarning[] = [],
 ): Map<string, AlignedParagraphGroup[]> {
-  const overrides: Overrides = loadOverrides(contentRoot)
+  const overrides = loadOverrides(contentRoot)
   const editionAlignment = loadEditionAlignment(contentRoot)
   const diffUnits = loadDiffUnits(contentRoot)
+  const warn = (unit: string, message: string) => {
+    warnings.push({ unit, message })
+    console.warn(`  ⚠  alignment ${unit}: ${message}`)
+  }
 
   // Build inverse map: canonical slug → set of edition-specific slugs
   // (used to find 1818 paragraphs that live under volume-scoped slugs)
@@ -246,8 +344,11 @@ export function alignAllChapters(
     return match?.title ?? canonical
   }
 
-  const result = new Map<string, AlignedParagraphGroup[]>()
-
+  // The paragraph lists of every unit, then each pin goes to the one unit
+  // where all of its references resolve (a pin may span two sections of an
+  // edition — the end of one chapter and the start of the next — which only
+  // resolve together inside their diff unit, not in the sections' own files).
+  const lists = new Map<string, Partial<Record<Edition, BookParagraph[]>>>()
   for (const slug of slugSet) {
     const unit = diffUnits[slug]
     const byEdition: Partial<Record<Edition, BookParagraph[]>> = {}
@@ -257,8 +358,38 @@ export function alignAllChapters(
         ? sections.flatMap((sec) => sectionParagraphs(edition, sec))
         : sectionParagraphs(edition, slug)
     }
+    lists.set(slug, byEdition)
+  }
 
-    const groups = alignChapter(slug, byEdition, overrides)
+  const pinsByUnit = new Map<string, RowPin[]>()
+  for (const pin of overrides.rows) {
+    const refs = (['1818', '1831'] as Edition[]).flatMap((e) => {
+      const v = pin[e]
+      return v == null ? [] : (Array.isArray(v) ? v : [v]).map((r) => refToId(e, r))
+    })
+    if (refs.length === 0 || refs.some((id) => id === null)) {
+      warn('-', `pin ${JSON.stringify(pin)} is malformed — ignored`)
+      continue
+    }
+    const home = [...lists.entries()].find(([, byEdition]) => {
+      const ids = new Set(Object.values(byEdition).flat().map((p) => p.id))
+      return refs.every((id) => ids.has(id!))
+    })
+    if (!home) {
+      warn('-', `pin ${JSON.stringify(pin)} names paragraphs that are not all in one unit — ignored`)
+      continue
+    }
+    pinsByUnit.set(home[0], [...(pinsByUnit.get(home[0]) ?? []), pin])
+  }
+
+  const result = new Map<string, AlignedParagraphGroup[]>()
+
+  for (const slug of slugSet) {
+    const unit = diffUnits[slug]
+    const byEdition = lists.get(slug)!
+    const pins = pinsByUnit.get(slug) ?? []
+
+    const groups = alignRows(slug, byEdition, pins, (m) => warn(slug, m))
 
     // Mark where each later section of a multi-section edition begins.
     if (unit) {
@@ -266,18 +397,19 @@ export function alignAllChapters(
         for (let k = 1; k < sections.length; k++) {
           const first = sectionParagraphs(edition, sections[k])[0]
           if (!first) {
-            console.warn(`  ⚠  diff-units.json: unit "${slug}" lists ${edition} section "${sections[k]}" which has no paragraphs`)
+            warn(slug, `diff-units.json lists ${edition} section "${sections[k]}" which has no paragraphs`)
             continue
           }
-          const group = groups.find((g) => g.paragraphs[edition]?.id === first.id)
+          const group = groups.find((g) => g.paragraphs[edition]?.some((p) => p.id === first.id))
           if (!group) {
-            console.warn(`  ⚠  diff-units.json: first paragraph of ${edition} section "${sections[k]}" is not shown in unit "${slug}" (dropped by an override?)`)
+            warn(slug, `first paragraph of ${edition} section "${sections[k]}" is not shown in the unit`)
             continue
           }
           const start: SectionStart = {
             slug: sections[k],
             label: sectionTitle(edition, sections[k]),
             afterLabel: sectionTitle(edition, sections[k - 1]),
+            paragraphId: first.id,
           }
           group.sectionStart = { ...(group.sectionStart ?? {}), [edition]: start }
         }

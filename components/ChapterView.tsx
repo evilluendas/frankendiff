@@ -9,32 +9,33 @@ interface ChapterViewProps {
 }
 
 export default function ChapterView({ groups, edition }: ChapterViewProps) {
-  const filtered = groups.filter((group) => group.paragraphs[edition] != null)
-  const firstBodyKey = filtered.find(
-    (group) => (group.paragraphs[edition]?.elementType ?? 'body') === 'body',
-  )?.alignmentKey
+  const paragraphs = groups.flatMap((group) => group.paragraphs[edition] ?? [])
+  const firstBodyId = paragraphs.find((p) => (p.elementType ?? 'body') === 'body')?.id
 
   // Where the *other* edition starts a new chapter inside this one, show a
   // note before the next paragraph of this edition. Rows without a paragraph
   // in this edition can carry a marker too, so markers are held until the
-  // next paragraph that is actually rendered.
+  // next paragraph that is actually rendered. When the other edition's
+  // chapter begins inside a row this edition covers with one paragraph, the
+  // note says so.
   const items: ReactNode[] = []
-  let pending: [Edition, SectionStart][] = []
+  let pending: [Edition, SectionStart, boolean][] = []
   for (const group of groups) {
     for (const [ed, start] of Object.entries(group.sectionStart ?? {}) as [Edition, SectionStart | undefined][]) {
-      if (start && ed !== edition) pending.push([ed, start])
+      if (!start || ed === edition) continue
+      const within = (group.paragraphs[ed]?.findIndex((p) => p.id === start.paragraphId) ?? 0) > 0
+      pending.push([ed, start, within])
     }
-    if (group.paragraphs[edition] == null) continue
+    const paras = group.paragraphs[edition]
+    if (!paras?.length) continue
     items.push(
       <Fragment key={group.alignmentKey}>
-        {pending.map(([ed, start]) => (
-          <SectionStartMarker key={`${ed}-${start.slug}`} edition={ed} start={start} variant="read" />
+        {pending.map(([ed, start, within]) => (
+          <SectionStartMarker key={`${ed}-${start.slug}`} edition={ed} start={start} variant={within ? 'read-within' : 'read'} />
         ))}
-        <ParagraphGroup
-          group={group}
-          edition={edition}
-          dropCap={group.alignmentKey === firstBodyKey}
-        />
+        {paras.map((para) => (
+          <ParagraphGroup key={para.id} para={para} dropCap={para.id === firstBodyId} />
+        ))}
       </Fragment>,
     )
     pending = []

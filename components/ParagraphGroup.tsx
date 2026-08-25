@@ -1,27 +1,18 @@
 import { Pilcrow } from 'lucide-react'
-import { AlignedParagraphGroup, BookParagraph, Edition, ParagraphElementType } from '@/lib/types'
+import { BookParagraph } from '@/lib/types'
 import { renderText } from '@/lib/utils'
 
 interface ParagraphGroupProps {
-  group: AlignedParagraphGroup
-  edition: Edition
+  para: BookParagraph
   dropCap?: boolean
 }
 
-export default function ParagraphGroup({ group, edition, dropCap }: ParagraphGroupProps) {
-  const para = group.paragraphs[edition]!
+/** One paragraph of the Read view. */
+export default function ParagraphGroup({ para, dropCap }: ParagraphGroupProps) {
   // Permalink id: the paragraph's 1-based position in its own edition's
   // section (#p12). The page URL already names edition and chapter, and this
   // never changes when alignment overrides shift rows — a row-based id would.
   return <ElementParagraph para={para} id={`p${para.paragraphIndex + 1}`} dropCap={dropCap} />
-}
-
-const ELEMENT_LABELS: Partial<Record<ParagraphElementType, string>> = {
-  salutation: 'To',
-  dateline: 'Date',
-  closing: 'Closing',
-  signature: 'Signature',
-  poem: 'Verse',
 }
 
 /**

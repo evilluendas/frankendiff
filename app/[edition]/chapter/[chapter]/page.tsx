@@ -129,7 +129,7 @@ export default async function ChapterPage({ params }: PageProps) {
 
   // Hide the chapter H1 when the content opens with a book-title element (e.g. Cover)
   const hasBookTitle = groups.some(
-    (g) => g.paragraphs[activeEdition]?.elementType === 'book-title',
+    (g) => g.paragraphs[activeEdition]?.[0]?.elementType === 'book-title',
   )
 
   return (

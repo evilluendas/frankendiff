@@ -109,12 +109,20 @@ function ref(p: BookParagraph | undefined): string {
   return p ? `${p.edition}[${p.paragraphIndex}]` : '        '
 }
 
+/** A row's paragraphs of one edition as one paragraph-like value for scoring. */
+function rowParagraph(group: AlignedParagraphGroup, edition: Edition): BookParagraph | undefined {
+  const paras = group.paragraphs[edition]
+  if (!paras?.length) return undefined
+  if (paras.length === 1) return paras[0]
+  return { ...paras[0], text: paras.map((p) => p.text).join(' ') }
+}
+
 function analyseChapter(groups: AlignedParagraphGroup[], opts: Options): RowReport[] {
   const reports: RowReport[] = []
 
   for (let i = 0; i < groups.length; i++) {
-    const a = groups[i].paragraphs[A]
-    const b = groups[i].paragraphs[B]
+    const a = rowParagraph(groups[i], A)
+    const b = rowParagraph(groups[i], B)
     const report: RowReport = { row: i, kind: 'empty', score: null, a, b }
 
     if (a && b) {
@@ -133,7 +141,7 @@ function analyseChapter(groups: AlignedParagraphGroup[], opts: Options): RowRepo
       let best: RowReport['suggestion'] | undefined
       for (let j = Math.max(0, i - opts.window); j <= Math.min(groups.length - 1, i + opts.window); j++) {
         if (j === i) continue
-        const candidate = groups[j].paragraphs[other]
+        const candidate = rowParagraph(groups[j], other)
         if (!candidate) continue
         const s = similarity(mine, candidate)
         if (s >= opts.threshold && s >= (report.score ?? 0) + opts.margin && (!best || s > best.score)) {

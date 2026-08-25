@@ -15,7 +15,7 @@ import path from 'path'
 import { parseMarkdown, sectionsToParagraphs, ParsedSection } from './parse'
 import { alignAllChapters, loadDiffUnits } from './align'
 import { computePairDiffs } from './diff'
-import { Edition, EDITIONS, ChapterMeta, AlignedParagraphGroup, BookParagraph } from '../lib/types'
+import { Edition, EDITIONS, ChapterMeta, BookParagraph, rowText } from '../lib/types'
 
 const ROOT        = path.resolve(process.cwd())
 const RAW_DIR     = path.join(ROOT, 'content', 'raw')
@@ -84,11 +84,13 @@ function main() {
   console.log(`  ✓  Aligned ${chapterMap.size} chapters`)
 
   // ── 3. Compute diffs for each aligned group ────────
-  for (const [slug, groups] of chapterMap) {
+  for (const groups of chapterMap.values()) {
     for (const group of groups) {
-      group.diffs = computePairDiffs(group.paragraphs)
+      group.diffs = computePairDiffs({
+        '1818': rowText(group, '1818'),
+        '1831': rowText(group, '1831'),
+      })
     }
-    chapterMap.set(slug, groups)
   }
   console.log(`  ✓  Diffs computed`)
 

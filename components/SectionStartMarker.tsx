@@ -3,8 +3,12 @@ import { Edition, SectionStart } from '@/lib/types'
 interface SectionStartMarkerProps {
   edition: Edition
   start: SectionStart
-  /** 'diff': "Chapter I ends here and Chapter II begins"; 'read': "Chapter II begins here" (shown in the other edition's text). */
-  variant: 'diff' | 'read'
+  /**
+   * 'diff': "Chapter I ends here and Chapter II begins"; 'read': "Chapter II
+   * begins here" (shown in the other edition's text); 'read-within': the
+   * same, when the break falls inside the paragraph that follows.
+   */
+  variant: 'diff' | 'read' | 'read-within'
 }
 
 /** Stable anchor id so links can jump to where a section begins inside a diff unit. */
@@ -21,6 +25,8 @@ export default function SectionStartMarker({ edition, start, variant }: SectionS
   const text =
     variant === 'diff'
       ? `In the ${edition} edition, ${start.afterLabel} ends here and ${start.label} begins.`
+      : variant === 'read-within'
+      ? `In the ${edition} edition, ${start.label} begins within the following paragraph.`
       : `In the ${edition} edition, ${start.label} begins here.`
 
   return (

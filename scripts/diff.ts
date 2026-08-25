@@ -673,24 +673,21 @@ function refineRuns(ops: DiffOp[]): DiffOp[] {
 }
 
 /**
- * Compute diffs for all relevant edition pairs within an aligned group.
+ * Compute diffs for all relevant edition pairs of a row, given each
+ * edition's row text (its paragraphs joined by PARAGRAPH_BREAK).
  * Returns a record keyed by "editionA_editionB".
  */
 export function computePairDiffs(
-  paragraphs: Partial<Record<string, { text: string }>>,
+  texts: Partial<Record<string, string | undefined>>,
 ): Record<string, DiffOp[]> {
-  const editions = Object.keys(paragraphs)
+  const editions = Object.keys(texts).filter((e) => texts[e] !== undefined)
   const result: Record<string, DiffOp[]> = {}
 
   for (let i = 0; i < editions.length; i++) {
     for (let j = i + 1; j < editions.length; j++) {
       const a = editions[i]
       const b = editions[j]
-      const paraA = paragraphs[a]
-      const paraB = paragraphs[b]
-      if (paraA && paraB) {
-        result[`${a}_${b}`] = computeDiff(paraA.text, paraB.text)
-      }
+      result[`${a}_${b}`] = computeDiff(texts[a]!, texts[b]!)
     }
   }
 

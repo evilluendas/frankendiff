@@ -1,323 +1,140 @@
 {
-  "rowOverrides": [
+  "rows": [
     {
-      "alignmentKey": "chcover-p1",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Cover: 'IN THREE VOLUMES.' has no 1831 counterpart; leave row 1 as 1818-only"
+      "1818": null,
+      "1831": "1/6",
+      "note": "1831 Ch1: 'There was a considerable difference between the ages of my parents...' is new"
     },
     {
-      "alignmentKey": "chletter-iv-p28",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Letter IV: 'Such words, you may imagine, strongly excited my curiosity...' inserted with no 1818 counterpart"
+      "1818": "v1-1/10",
+      "1831": [
+        "1/11",
+        "2/1"
+      ],
+      "note": "1818 ‘Every one adored Elizabeth…’ was rewritten as two paragraphs in 1831: the end of Chapter I (‘Every one loved Elizabeth…’) and the opening of Chapter II (‘We were brought up together…’, which keeps its ‘strangers to any species of disunion’, ‘aerial creations of the poets’ and ‘The world was to me a secret’). Read as one row so the shared sentences diff and the new paragraph break shows where Chapter II begins."
     },
     {
-      "alignmentKey": "chletter-iv-p29",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Letter IV: 'Having conquered the violence of his feelings...' inserted with no 1818 counterpart"
+      "1818": null,
+      "1831": "2/4",
+      "note": "1831 Ch2 [3] 'My temper was sometimes violent...' is new"
     },
     {
-      "alignmentKey": "ch23-p21",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch23: 'My manner, as I thus addressed him, was impressive...' inserted with no 1818 counterpart"
+      "1818": null,
+      "1831": "2/10",
+      "note": "1831 Ch2 [9] 'The untaught peasant beheld the elements...' is new"
     },
     {
-      "alignmentKey": "ch22-p25",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch22: 'Soon after my arrival my father spoke of my immediate marriage...' was cut from 1831; leave row 25 as 1818-only"
+      "1818": "v1-1/20",
+      "1831": null,
+      "note": "1818 Ch1 'The natural phaenomena that take place every day...' (distillation, the air-pump) was cut from 1831"
     },
     {
-      "alignmentKey": "ch22-p9",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch22: letter header '\"*To* Victor Frankenstein.' has no 1831 counterpart; leave row 9 as 1818-only"
+      "1818": "v1-1/21",
+      "1831": null,
+      "note": "1818 Ch1 'The ignorance of the early philosophers...' was cut from 1831"
     },
     {
-      "alignmentKey": "ch21-p46",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch21: 'I remember, as I quitted the prison...' has no 1831 counterpart; leave row 46 as 1818-only"
+      "1818": [
+        "v1-1/23",
+        "v1-1/24"
+      ],
+      "1831": "2/14",
+      "note": "1818 ‘The catastrophe of this tree excited my extreme astonishment’ (father explains electricity) and ‘This last stroke completed the overthrow of Cornelius Agrippa’ were folded into one 1831 paragraph, ‘Before this I was not unacquainted with the more obvious laws of electricity…’; read as one row."
     },
     {
-      "alignmentKey": "ch18-p12",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch18: '\"I am content,\" I replied...' was cut from 1831 (absorbed into surrounding narrative); leave row 12 as 1818-only"
+      "1818": "v1-1/25",
+      "1831": null,
+      "note": "1818 Ch1 'My father expressed a wish that I should attend a course of lectures' was dropped from 1831 Chapter II"
     },
     {
-      "alignmentKey": "ch16-p35",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch16: inserted 'The sleeper stirred; a thrill of terror ran through me...' at row 35 with no 1818 counterpart"
+      "1818": null,
+      "1831": "2/16",
+      "note": "1831 Ch2 [15] 'It was a strong effort of the spirit of good; but it was ineffectual' is new and closes Chapter II"
     },
     {
-      "alignmentKey": "ch11-p9",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch11 printing error: 'overcome by fatigue, I lay down...' was a stray sentence fragment on its own line; 1831 correctly merged it into the preceding paragraph"
-    },
-    {
-      "alignmentKey": "ch9-p11",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch9: 1831 inserted 'Sometimes I could cope with the sullen despair...' with no 1818 counterpart"
-    },
-    {
-      "alignmentKey": "ch8-p25",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch8: 1818 has 'I will try to comfort you...' with no 1831 counterpart (1831 condensed 3 paragraphs into 1)"
-    },
-    {
-      "alignmentKey": "ch8-p26",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch8: 1818 has 'Justine smiled languidly...' with no 1831 counterpart"
-    },
-    {
-      "alignmentKey": "ch3-p4",
-      "edition": "1818",
-      "paragraphIndex": null,
+      "1818": null,
+      "1831": "3/5",
       "note": "1831 inserted a new paragraph at p4 ('She indeed veiled her grief...') with no 1818 counterpart"
     },
     {
-      "alignmentKey": "ch3-p17",
-      "edition": "1818",
-      "paragraphIndex": null,
+      "1818": null,
+      "1831": "3/18",
       "note": "1831 inserted a second new paragraph at p17 ('I closed not my eyes that night...') with no 1818 counterpart"
     },
     {
-      "alignmentKey": "ch6-p1",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart; leave row 1 as 1818-only"
+      "1818": "v1-5/2",
+      "1831": null,
+      "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart"
     },
     {
-      "alignmentKey": "ch7-p1",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart; leave row 1 as 1818-only"
+      "1818": "v1-6/2",
+      "1831": null,
+      "note": "1818 has a letter header '\"*To* V. Frankenstein.' with no 1831 counterpart"
     },
     {
-      "alignmentKey": "ch1-p5",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch1: 'There was a considerable difference between the ages of my parents...' is new; leave row 5 as 1831-only"
+      "1818": "v1-7/26",
+      "1831": null,
+      "note": "1818 Ch8: 1818 has 'I will try to comfort you...' with no 1831 counterpart (1831 condensed 3 paragraphs into 1)"
     },
     {
-      "alignmentKey": "ch1-p11",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch2 [0] 'We were brought up together...' opens Chapter II; its matter was folded out of 1818's 'Every one adored Elizabeth' (row 10), so leave row 11 as 1831-only"
+      "1818": "v1-7/27",
+      "1831": null,
+      "note": "1818 Ch8: 1818 has 'Justine smiled languidly...' with no 1831 counterpart"
     },
     {
-      "alignmentKey": "ch1-p14",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch2 [3] 'My temper was sometimes violent...' is new; leave row 14 as 1831-only"
+      "1818": null,
+      "1831": "9/12",
+      "note": "1831 Ch9: 1831 inserted 'Sometimes I could cope with the sullen despair...' with no 1818 counterpart"
     },
     {
-      "alignmentKey": "ch1-p20",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch2 [9] 'The untaught peasant beheld the elements...' is new; leave row 20 as 1831-only"
+      "1818": "v2-3/10",
+      "1831": null,
+      "note": "1818 Ch11 printing error: 'overcome by fatigue, I lay down...' was a stray sentence fragment on its own line; 1831 correctly merged it into the preceding paragraph"
     },
     {
-      "alignmentKey": "ch1-p23",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch1 'The natural phaenomena that take place every day...' (distillation, the air-pump) was cut from 1831; leave row 23 as 1818-only"
+      "1818": null,
+      "1831": "16/36",
+      "note": "1831 Ch16: inserted 'The sleeper stirred; a thrill of terror ran through me...' with no 1818 counterpart"
     },
     {
-      "alignmentKey": "ch1-p24",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch1 'The ignorance of the early philosophers...' was cut from 1831; leave row 24 as 1818-only"
+      "1818": "v3-1/13",
+      "1831": null,
+      "note": "1818 Ch18: '\"I am content,\" I replied...' was cut from 1831 (absorbed into surrounding narrative)"
     },
     {
-      "alignmentKey": "ch1-p26",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch1 'The catastrophe of this tree excited my extreme astonishment' (father explains electricity) has no separate 1831 counterpart — 1831 merged it into the 'man of great research' paragraph paired at row 27; leave row 26 as 1818-only"
+      "1818": "v3-4/47",
+      "1831": null,
+      "note": "1818 Ch21: 'I remember, as I quitted the prison...' has no 1831 counterpart"
     },
     {
-      "alignmentKey": "ch1-p28",
-      "edition": "1831",
-      "paragraphIndex": null,
-      "note": "1818 Ch1 'My father expressed a wish that I should attend a course of lectures' was dropped from 1831 Chapter II; leave row 28 as 1818-only"
+      "1818": "v3-5/10",
+      "1831": null,
+      "note": "1818 Ch22: letter header '\"*To* Victor Frankenstein.' has no 1831 counterpart"
     },
     {
-      "alignmentKey": "ch1-p30",
-      "edition": "1818",
-      "paragraphIndex": null,
-      "note": "1831 Ch2 [15] 'It was a strong effort of the spirit of good; but it was ineffectual' is new and closes Chapter II; leave row 30 as 1831-only"
-    }
-  ],
-  "chapterShifts": [
-    {
-      "chapter": "letter-iv",
-      "edition": "1818",
-      "fromRow": 30,
-      "shift": -2,
-      "note": "1831 Letter IV: two extra paragraphs inserted at rows 28-29; shift 1818 back by 2 from row 30 onwards"
+      "1818": "v3-5/26",
+      "1831": null,
+      "note": "1818 Ch22: 'Soon after my arrival my father spoke of my immediate marriage...' was cut from 1831"
     },
     {
-      "chapter": "3",
-      "edition": "1818",
-      "fromRow": 5,
-      "shift": -1,
-      "note": "1831 Ch3: extra paragraph at row 4; shift 1818 index back by 1 from row 5 onwards"
+      "1818": null,
+      "1831": "23/22",
+      "note": "1831 Ch23: 'My manner, as I thus addressed him, was impressive...' inserted with no 1818 counterpart"
     },
     {
-      "chapter": "3",
-      "edition": "1818",
-      "fromRow": 18,
-      "shift": -1,
-      "note": "1831 Ch3: second extra paragraph at row 17; cumulates with the first shift to -2 total from row 18 onwards"
+      "1818": "cover/2",
+      "1831": null,
+      "note": "1818 Cover: 'IN THREE VOLUMES.' has no 1831 counterpart"
     },
     {
-      "chapter": "23",
-      "edition": "1818",
-      "fromRow": 22,
-      "shift": -1,
-      "note": "1831 Ch23: extra paragraph at row 21; shift 1818 back by 1 from row 22 onwards"
+      "1818": null,
+      "1831": "letter-iv/29",
+      "note": "1831 Letter IV: 'Such words, you may imagine, strongly excited my curiosity...' inserted with no 1818 counterpart"
     },
     {
-      "chapter": "22",
-      "edition": "1831",
-      "fromRow": 10,
-      "shift": -1,
-      "note": "1818 Ch22: extra letter header at row 9 removed in 1831; shift 1831 back by 1 from row 10 onwards"
-    },
-    {
-      "chapter": "22",
-      "edition": "1831",
-      "fromRow": 26,
-      "shift": -1,
-      "note": "1818 Ch22: second extra paragraph at row 25 ('Soon after my arrival...'); cumulates with first shift to -2 total from row 26"
-    },
-    {
-      "chapter": "21",
-      "edition": "1831",
-      "fromRow": 47,
-      "shift": -1,
-      "note": "1818 Ch21: extra paragraph at row 46; shift 1831 back by 1 so the closing 'Ever since my recovery...' paragraphs align"
-    },
-    {
-      "chapter": "18",
-      "edition": "1831",
-      "fromRow": 13,
-      "shift": -1,
-      "note": "1818 Ch18: extra paragraph at row 12 ('I am content...'); shift 1831 back by 1 from row 13 onwards"
-    },
-    {
-      "chapter": "16",
-      "edition": "1818",
-      "fromRow": 36,
-      "shift": -1,
-      "note": "1831 Ch16: extra paragraph at row 35; shift 1818 back by 1 so the final paragraph aligns"
-    },
-    {
-      "chapter": "11",
-      "edition": "1831",
-      "fromRow": 10,
-      "shift": -1,
-      "note": "1818 Ch11: printing error created an extra paragraph at row 9; shift 1831 back by 1 from row 10 onwards"
-    },
-    {
-      "chapter": "9",
-      "edition": "1818",
-      "fromRow": 12,
-      "shift": -1,
-      "note": "1831 Ch9: extra paragraph at row 11; shift 1818 index back by 1 from row 12 so the bridge paragraphs align"
-    },
-    {
-      "chapter": "8",
-      "edition": "1831",
-      "fromRow": 27,
-      "shift": -2,
-      "note": "1818 Ch8: 1831 condensed 3 dialogue paragraphs (rows 24-26) into 1, shifting 1831 index by -2 from row 27 onwards"
-    },
-    {
-      "chapter": "6",
-      "edition": "1831",
-      "fromRow": 2,
-      "shift": -1,
-      "note": "1818 Chapter VI has an extra letter header at p1 that was removed in 1831, shifting all subsequent 1831 paragraphs by -1"
-    },
-    {
-      "chapter": "7",
-      "edition": "1831",
-      "fromRow": 2,
-      "shift": -1,
-      "note": "1818 Chapter VII has an extra letter header at p1 that was removed in 1831, shifting all subsequent 1831 paragraphs by -1"
-    },
-    {
-      "chapter": "cover",
-      "edition": "1831",
-      "fromRow": 2,
-      "shift": -1,
-      "note": "1818 Cover has 'IN THREE VOLUMES.' at p1 with no 1831 counterpart, shifting all subsequent 1831 paragraphs by -1"
-    },
-    {
-      "chapter": "1",
-      "edition": "1818",
-      "fromRow": 6,
-      "shift": -1,
-      "note": "1831 Ch1: Elizabeth's origin rewritten in 5 paragraphs vs 4 in 1818; shift 1818 back by 1 from row 6 so 'Every one adored/loved Elizabeth' pair at row 10"
-    },
-    {
-      "chapter": "1",
-      "edition": "1818",
-      "fromRow": 12,
-      "shift": -1,
-      "note": "1831 Ch2: after the 1831-only opener at row 11, 1818 'My brothers were considerably younger' pairs with 'On the birth of a second son' (both introduce Clerval); cumulative 1818 shift -2 from row 12"
-    },
-    {
-      "chapter": "1",
-      "edition": "1818",
-      "fromRow": 15,
-      "shift": -1,
-      "note": "1831 Ch2: after the new paragraph at row 14, 1818 'In this description of our domestic circle' pairs with 'Meanwhile Clerval occupied himself'; anchors 'I feel pleasure in dwelling' (96%), 'Natural philosophy is the genius' (89%) follow; cumulative -3 from row 15"
-    },
-    {
-      "chapter": "1",
-      "edition": "1818",
-      "fromRow": 21,
-      "shift": -1,
-      "note": "1831 Ch2: after the new paragraph at row 20, 1818 'It may appear very strange, that a disciple of Albertus Magnus' pairs with 'But here were books' (60%) and 'Nor were these my only visions' aligns (69%); cumulative -4 from row 21"
-    },
-    {
-      "chapter": "1",
-      "edition": "1831",
-      "fromRow": 23,
-      "shift": -2,
-      "note": "1818 Ch1: two paragraphs cut from 1831 at rows 23-24; shift 1831 back by 2 so 'When I was about fifteen years old' aligns at row 25 (99%)"
-    },
-    {
-      "chapter": "1",
-      "edition": "1831",
-      "fromRow": 26,
-      "shift": -1,
-      "note": "1818 Ch1: 1818-only row 26; shift 1831 back by 1 so 'This last stroke completed the overthrow of Cornelius Agrippa' pairs with 'Before this I was not unacquainted with the more obvious laws of electricity'; cumulative -3 from row 26"
-    },
-    {
-      "chapter": "1",
-      "edition": "1831",
-      "fromRow": 28,
-      "shift": -1,
-      "note": "1818 Ch1: 1818-only row 28; shift 1831 back by 1 so 'My occupations at this age were principally the mathematics' pairs with 'Thus strangely are our souls constructed... I betook myself to the mathematics'; cumulative -4 from row 28"
-    },
-    {
-      "chapter": "1",
-      "edition": "1818",
-      "fromRow": 31,
-      "shift": -1,
-      "note": "1818 Ch1: after the 1831-only closing paragraph at row 30, the last two 1818 paragraphs ('Another task also devolved upon me', 'Such was our domestic circle') are 1818-only; cumulative -5 from row 31"
+      "1818": null,
+      "1831": "letter-iv/30",
+      "note": "1831 Letter IV: 'Having conquered the violence of his feelings...' inserted with no 1818 counterpart"
     }
   ]
 }
