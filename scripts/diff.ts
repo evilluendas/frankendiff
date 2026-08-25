@@ -220,9 +220,24 @@ function cleanupSemanticIslands(ops: DiffOp[]): DiffOp[] {
         curr.text.length <= prev.text.length &&
         curr.text.length <= next.text.length
       ) {
-        prev.text += curr.text
-        next.text = curr.text + next.text
-        arr.splice(i, 1)
+        // The island belongs to both texts, so it must be emitted once as a
+        // delete and once as an insert.  When the neighbours differ in type,
+        // each absorbs a copy.  When both are the same type (e.g. two inserts
+        // around a shared word), absorbing into both would put the text on
+        // that side twice and never on the other — so the island becomes a
+        // pair of ops instead, one merged into `prev` and one of the opposite
+        // type standing on its own.
+        if (prev.type !== next.type) {
+          prev.text += curr.text
+          next.text = curr.text + next.text
+          arr.splice(i, 1)
+        } else {
+          prev.text += curr.text
+          arr.splice(i, 1, {
+            type: prev.type === 'delete' ? 'insert' : 'delete',
+            text: curr.text,
+          })
+        }
         arr = mergeOps(arr)
         changed = true
         break

@@ -38,7 +38,7 @@ These rules apply to every action Claude takes on this project. Do not violate t
 - All chapter and diff pages are statically generated. No database, no runtime diffing, no API routes for content. Anything expensive is precomputed by `npm run preprocess`.
 - Preprocessing lives in `scripts/` (run with `tsx`; excluded from `tsconfig.json`, so `next build` does not type-check it — keep the functions pure and small, and run `npm run preprocess` after touching them). Runtime data loading lives in `lib/`; shared types in `lib/types.ts`.
 - Model all content as the typed structures in `lib/types.ts` (`BookParagraph`, `AlignedParagraphGroup`, `DiffOp`, `ChapterMeta`). No untyped JSON access.
-- Lint with `npm run lint` (`eslint-config-next` core-web-vitals + TypeScript). Don't let warnings accumulate. No test framework yet; if tests are added, start with the pipeline (`parse`, `align`, `diff`) which is pure and easy to cover.
+- Lint with `npm run lint` (`eslint-config-next` core-web-vitals + TypeScript). Don't let warnings accumulate. Tests are `node:test` run through `tsx` (`npm test`, files in `tests/`, excluded from `tsconfig.json` like `scripts/`); they cover the pipeline (`parse`, `align`, `diff`), which is pure — add whole-book invariants there rather than unit fixtures when a rule must hold for every paragraph.
 - Typography and editorial restraint come first: generous whitespace, legible serif body text (Lora), restrained ornament. Light and dark modes must both be checked for any visual change.
 
 ### Content pipeline rules
