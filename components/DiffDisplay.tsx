@@ -29,10 +29,12 @@ export default function DiffDisplay({ ops, elementType = 'body', group }: DiffDi
         <div key={i}>
           {block.breakBefore && (
             <>
-              <ParagraphBreakMarker type={block.breakBefore.type} />
+              {/* The chapter note is about the boundary; the ¶ marker is part of
+                  the change and belongs with the paragraph it opens, so it comes last. */}
               {sectionStartsAt(group, block.breakBefore).map(([edition, start]) => (
-                <SectionStartMarker key={edition} edition={edition} start={start} variant="diff" />
+                <SectionStartMarker key={edition} edition={edition} start={start} variant="diff-within" />
               ))}
+              <ParagraphBreakMarker type={block.breakBefore.type} />
             </>
           )}
           {elementType === 'poem' ? (

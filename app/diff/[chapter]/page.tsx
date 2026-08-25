@@ -104,7 +104,7 @@ export default async function DiffPage({ params }: PageProps) {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex">
           {/* Sidebar */}
-          <StickyChapterNav className="hidden lg:block w-54 shrink-0 py-14 pr-5 border-r border-border">
+          <StickyChapterNav className="hidden lg:block w-64 shrink-0 py-14 pr-5 border-r border-border">
             {/* The chapter list follows whichever edition's structure is chosen here */}
             <EditionSelect value={activeEdition} className="mb-6" />
             <ChapterNav
