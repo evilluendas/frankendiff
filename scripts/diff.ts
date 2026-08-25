@@ -1,13 +1,24 @@
 /**
- * Two-level diff between a paragraph of 1818 and its counterpart in 1831.
+ * Diff between a row of 1818 and its counterpart in 1831.  A row is one
+ * paragraph, or several joined by PARAGRAPH_BREAK when one edition split or
+ * merged paragraphs the other kept whole (see lib/types.ts).
+ *
+ * The diff runs in four stages:
  *
  *   1. Clause level.  Both texts are split into clauses (at sentence and
- *      clause punctuation) and the clauses are aligned with a Needleman–
- *      Wunsch pass that only pairs clauses sharing enough vocabulary.
- *      Unpaired clauses are emitted whole as a deletion or an insertion.
- *   2. Word level.  Each paired clause is diffed word by word with an LCS,
- *      then tidied so that a rewritten phrase reads as one block rather
- *      than a scatter of matched function words.
+ *      clause punctuation) and aligned with a Needleman–Wunsch pass that only
+ *      pairs clauses sharing enough vocabulary.  A clause may pair with two
+ *      or three neighbours when only the punctuation at a boundary changed.
+ *   2. Word level.  Each paired clause is diffed word by word with a weighted
+ *      LCS (words count, punctuation half, whitespace barely) and tidied so
+ *      that a rewritten phrase reads as one block rather than a scatter of
+ *      matched function words.
+ *   3. Second chance.  Every deletion/insertion run — unpaired clauses, or a
+ *      paired clause whose tail was rewritten — keeps long shared phrases as
+ *      anchors; the rest collapses.
+ *   4. Presentation.  Within a run, deletions come before insertions, and
+ *      whitespace or delimiters both sides share stay outside the coloured
+ *      text.
  *
  * Anchoring on clauses is what lets "Every one adored Elizabeth." diff
  * against "Every one loved Elizabeth." even when the rest of the paragraph
@@ -16,9 +27,15 @@
  *
  * Whatever the diff decides, the ops always reconstruct both texts exactly
  * (equal + delete = 1818, equal + insert = 1831); tests/ guards that.
+ *
+ * The file is laid out tooling first: tokens and the weighted LCS, the
+ * cleanup passes, then the word level, the clause level, and finally the
+ * assembly in computeDiff.
  */
 
 import { DiffOp, DiffOpType } from '../lib/types'
+
+// ── Tokens and the weighted LCS ─────────────────────────────────────────────
 
 /**
  * Split text into fine-grained tokens: words (with apostrophes for
@@ -81,8 +98,46 @@ function mergeOps(ops: DiffOp[]): DiffOp[] {
   return merged
 }
 
+/** Raw word-level LCS ops of two texts, before any cleanup. */
+function rawWordOps(textA: string, textB: string): DiffOp[] {
+  const tokensA = tokenize(textA)
+  const tokensB = tokenize(textB)
+  const dp = buildLCS(tokensA, tokensB)
+
+  const raw: { type: DiffOpType; text: string }[] = []
+  let i = tokensA.length
+  let j = tokensB.length
+
+  // Walk back through the table, taking an equal token only when it lies on
+  // an optimal path.
+  while (i > 0 || j > 0) {
+    if (
+      i > 0 &&
+      j > 0 &&
+      tokensA[i - 1] === tokensB[j - 1] &&
+      dp[i][j] === dp[i - 1][j - 1] + tokenWeight(tokensA[i - 1])
+    ) {
+      raw.unshift({ type: 'equal', text: tokensA[i - 1] })
+      i--
+      j--
+    } else if (
+      j > 0 &&
+      (i === 0 || dp[i][j - 1] >= dp[i - 1][j])
+    ) {
+      raw.unshift({ type: 'insert', text: tokensB[j - 1] })
+      j--
+    } else {
+      raw.unshift({ type: 'delete', text: tokensA[i - 1] })
+      i--
+    }
+  }
+  return mergeOps(raw)
+}
+
+// ── Cleanup passes (run on the raw word-level ops) ──────────────────────────
+
 /**
- * Collapse the "every word highlighted" pattern that arises when two paragraphs
+ * Collapse the "every word highlighted" pattern that arises when two texts
  * are heavily rewritten.
  *
  * The LCS algorithm matches whitespace tokens that appear in both texts,
@@ -148,22 +203,30 @@ function cleanupEditZones(ops: DiffOp[]): DiffOp[] {
   return result
 }
 
+/** True for an equal op made only of whitespace and punctuation. */
+function isDelimiter(op: DiffOp): boolean {
+  return op.type === 'equal' && /^[\s\p{P}]+$/u.test(op.text)
+}
+
 /**
  * Collapse "chaotic zones" — contiguous regions where the word-level diff is
  * fragmented because the LCS matched scattered function words rather than
  * genuine semantic phrases.
  *
- * The algorithm splits the op stream at "anchor" equal ops (long enough to be
- * unambiguously shared content, >= ANCHOR_MIN_CHARS characters).  Between two
- * anchors we have a "zone".  If the Dice similarity of the equal content within
- * the zone to the total content is below ZONE_MIN_DICE, the zone is collapsed
- * to a single del + single ins, reconstructing the original 1818 and 1831 text
- * by merging del/ins/equal ops appropriately.
+ * The op stream is split at "anchor" equal ops (at least `anchorMinChars`
+ * long, so unambiguously shared content).  Between two anchors is a "zone".
+ * If the Dice similarity of the zone's equal content to its total content is
+ * below `zoneMinDice`, the zone collapses to one deletion and one insertion,
+ * reconstructed from its del/ins/equal ops.
+ *
+ * The thresholds depend on what is being cleaned: inside a paired clause the
+ * defaults apply; anchorDiff, which works on text already judged dissimilar
+ * at clause level, passes stricter ones.
  */
 function cleanupChaoticZones(
   ops: DiffOp[],
-  ANCHOR_MIN_CHARS = 15,
-  ZONE_MIN_DICE = 0.25,
+  anchorMinChars = 15,
+  zoneMinDice = 0.25,
 ): DiffOp[] {
 
   const result: DiffOp[] = []
@@ -172,7 +235,7 @@ function cleanupChaoticZones(
   while (i < ops.length) {
     const op = ops[i]
 
-    if (op.type === 'equal' && op.text.length >= ANCHOR_MIN_CHARS) {
+    if (op.type === 'equal' && op.text.length >= anchorMinChars) {
       result.push(op)
       i++
       continue
@@ -186,7 +249,7 @@ function cleanupChaoticZones(
 
     while (j < ops.length) {
       const cur = ops[j]
-      if (cur.type === 'equal' && cur.text.length >= ANCHOR_MIN_CHARS) break
+      if (cur.type === 'equal' && cur.text.length >= anchorMinChars) break
       if (cur.type === 'delete') {
         text1818 += cur.text
       } else if (cur.type === 'insert') {
@@ -202,7 +265,7 @@ function cleanupChaoticZones(
     const totalChars = text1818.length + text1831.length
     const dice = totalChars === 0 ? 1 : (2 * equalChars) / totalChars
 
-    if (dice < ZONE_MIN_DICE) {
+    if (dice < zoneMinDice) {
       // A shared delimiter at either end of the zone (a full stop, a space)
       // stays shared, so the collapse reads "word[-old-]{+new+}." and not
       // "word[-old.-]{+new.+}".
@@ -318,46 +381,14 @@ const CLAUSE_MIN_EQUAL_FRACTION = 0.2
 const ANCHOR_MIN_CHARS = 20
 const ANCHOR_MIN_WORDS = 4
 
+/** Between anchors in text already judged dissimilar at clause level, only
+ *  zones that are mostly shared survive; anything looser collapses. */
+const ANCHOR_ZONE_MIN_DICE = 0.5
+
 function isAnchor(op: DiffOp): boolean {
   return op.type === 'equal' &&
     op.text.length >= ANCHOR_MIN_CHARS &&
     words(op.text).length >= ANCHOR_MIN_WORDS
-}
-
-/** Raw word-level LCS ops of two texts, before any cleanup. */
-function rawWordOps(textA: string, textB: string): DiffOp[] {
-  const tokensA = tokenize(textA)
-  const tokensB = tokenize(textB)
-  const dp = buildLCS(tokensA, tokensB)
-
-  const raw: { type: DiffOpType; text: string }[] = []
-  let i = tokensA.length
-  let j = tokensB.length
-
-  // Walk back through the table, taking an equal token only when it lies on
-  // an optimal path.
-  while (i > 0 || j > 0) {
-    if (
-      i > 0 &&
-      j > 0 &&
-      tokensA[i - 1] === tokensB[j - 1] &&
-      dp[i][j] === dp[i - 1][j - 1] + tokenWeight(tokensA[i - 1])
-    ) {
-      raw.unshift({ type: 'equal', text: tokensA[i - 1] })
-      i--
-      j--
-    } else if (
-      j > 0 &&
-      (i === 0 || dp[i][j - 1] >= dp[i - 1][j])
-    ) {
-      raw.unshift({ type: 'insert', text: tokensB[j - 1] })
-      j--
-    } else {
-      raw.unshift({ type: 'delete', text: tokensA[i - 1] })
-      i--
-    }
-  }
-  return mergeOps(raw)
 }
 
 /** Word-level diff of two clauses that the clause aligner has paired. */
@@ -383,7 +414,7 @@ function anchorDiff(textA: string, textB: string): DiffOp[] | null {
   const result = cleanupChaoticZones(
     cleanupSemanticIslands(cleanupEditZones(rawWordOps(textA, textB))),
     ANCHOR_MIN_CHARS,
-    0.5,
+    ANCHOR_ZONE_MIN_DICE,
   )
   return result.some(isAnchor) ? result : null
 }
@@ -474,9 +505,10 @@ const MERGE_MIN_DICE = 0.6
 /**
  * Align two clause lists monotonically (Needleman–Wunsch), maximising the
  * number of shared words over paired clauses.  A pairing is allowed only when
- * its Dice coefficient reaches CLAUSE_MIN_DICE; unpaired clauses cost nothing.
- * Returns the steps in order; each step's texts are the concatenation of the
- * clauses it covers.
+ * its Dice coefficient reaches CLAUSE_MIN_DICE (MERGE_MIN_DICE for a merged
+ * step, which also pays MERGE_PENALTY per extra clause); unpaired clauses
+ * cost nothing.  Returns the steps in order; each step's texts are the
+ * concatenation of the clauses it covers.
  */
 function alignClauses(A: string[], B: string[]): ClauseStep[] {
   const n = A.length
@@ -520,53 +552,13 @@ function alignClauses(A: string[], B: string[]): ClauseStep[] {
   return steps
 }
 
-/** Compute the diff between a 1818 text and its 1831 counterpart. */
-export function computeDiff(textA: string, textB: string): DiffOp[] {
-  if (textA === textB) return [{ type: 'equal', text: textA }]
-
-  const A = splitClauses(textA)
-  const B = splitClauses(textB)
-  const ops: DiffOp[] = []
-
-  let pendingDelete = ''
-  let pendingInsert = ''
-  const flush = () => {
-    if (pendingDelete) ops.push({ type: 'delete', text: pendingDelete })
-    if (pendingInsert) ops.push({ type: 'insert', text: pendingInsert })
-    pendingDelete = ''
-    pendingInsert = ''
-  }
-
-  let i = 0
-  let j = 0
-  for (const step of alignClauses(A, B)) {
-    const a = A.slice(i, i + step.a).join('')
-    const b = B.slice(j, j + step.b).join('')
-    i += step.a
-    j += step.b
-    if (step.a > 0 && step.b > 0) {
-      flush()
-      ops.push(...wordDiff(a, b))
-    } else if (step.a > 0) {
-      pendingDelete += a
-    } else {
-      pendingInsert += b
-    }
-  }
-  flush()
-
-  return refineRuns(normalizeRuns(ops))
-}
-
-/** True for an equal op made only of whitespace and punctuation. */
-function isDelimiter(op: DiffOp): boolean {
-  return op.type === 'equal' && /^[\s\p{P}]+$/u.test(op.text)
-}
+// ── Assembly ────────────────────────────────────────────────────────────────
 
 /**
  * Within a run of non-equal ops, emit every deletion before every insertion
  * (each side keeps its own order, so both texts still reconstruct exactly),
- * and move whitespace the two sides share at either end out of the run.
+ * and move whitespace the two sides share at either end out of the run — or
+ * a shared delimiter, when one side is nothing else (see commonAffix).
  * The reader then always sees 1818's words first, then 1831's, a run like
  * del/ins/del collapses to one of each, and "one[- adored-]{+ loved+}"
  * becomes "one [-adored-]{+loved+}".
@@ -670,6 +662,54 @@ function refineRuns(ops: DiffOp[]): DiffOp[] {
     i = j
   }
   return mergeOps(result)
+}
+
+/**
+ * Compute the diff between a 1818 row text and its 1831 counterpart.
+ *
+ * Aligns the clauses, diffs each paired step word by word, gathers the
+ * unpaired clauses between paired steps per side, then hands the stream to
+ * normalizeRuns (order and shared affixes) and refineRuns (anchors inside
+ * runs).
+ */
+export function computeDiff(textA: string, textB: string): DiffOp[] {
+  if (textA === textB) return [{ type: 'equal', text: textA }]
+
+  const A = splitClauses(textA)
+  const B = splitClauses(textB)
+  const ops: DiffOp[] = []
+
+  // Unpaired clauses between two paired steps, gathered per side.  They are
+  // emitted as one deletion and one insertion; refineRuns then looks for
+  // phrases they still share.
+  let pendingDelete = ''
+  let pendingInsert = ''
+  const flush = () => {
+    if (pendingDelete) ops.push({ type: 'delete', text: pendingDelete })
+    if (pendingInsert) ops.push({ type: 'insert', text: pendingInsert })
+    pendingDelete = ''
+    pendingInsert = ''
+  }
+
+  let i = 0
+  let j = 0
+  for (const step of alignClauses(A, B)) {
+    const a = A.slice(i, i + step.a).join('')
+    const b = B.slice(j, j + step.b).join('')
+    i += step.a
+    j += step.b
+    if (step.a > 0 && step.b > 0) {
+      flush()
+      ops.push(...wordDiff(a, b))
+    } else if (step.a > 0) {
+      pendingDelete += a
+    } else {
+      pendingInsert += b
+    }
+  }
+  flush()
+
+  return refineRuns(normalizeRuns(ops))
 }
 
 /**
