@@ -63,3 +63,78 @@ test('never produces empty or adjacent same-type ops', () => {
     if (i > 0) assert.notEqual(ops[i].type, ops[i - 1].type, 'adjacent ops of the same type')
   }
 })
+
+// ── Clause splitting ────────────────────────────────────────────────────────
+
+import { splitClauses } from '../scripts/diff'
+
+test('clauses end after sentence and clause punctuation, keeping their trailing space', () => {
+  const text = 'She died calmly; and her countenance expressed affection even in death. It is so long! Is it? Yes: quite.'
+  const clauses = splitClauses(text)
+  assert.deepEqual(clauses, [
+    'She died calmly; ',
+    'and her countenance expressed affection even in death. ',
+    'It is so long! ',
+    'Is it? ',
+    'Yes: ',
+    'quite.',
+  ])
+  assert.equal(clauses.join(''), text, 'clauses concatenate back to the text')
+})
+
+test('abbreviations and a closing quote do not end a clause early', () => {
+  assert.deepEqual(splitClauses('I met M. Krempe and Mr. Waldman. "Go on." She went.'), [
+    'I met M. Krempe and Mr. Waldman. ',
+    '"Go on." ',
+    'She went.',
+  ])
+})
+
+test('a paragraph break always ends a clause', () => {
+  assert.deepEqual(splitClauses('First paragraph\n\nSecond one.'), ['First paragraph\n\n', 'Second one.'])
+})
+
+// ── Passages from reader feedback ───────────────────────────────────────────
+
+test('a shared opening sentence is diffed even when the rest of the paragraph was rewritten (Chapter I)', () => {
+  const a = 'Every one adored Elizabeth. If the servants had any request to make, it was always through her intercession. We were strangers to any species of disunion and dispute; for although there was a great dissimilitude in our characters, there was an harmony in that very dissimilitude.'
+  const b = 'Every one loved Elizabeth. The passionate and almost reverential attachment with which all regarded her became, while I shared it, my pride and my delight. On the evening previous to her being brought to my home, my mother had said playfully,—"I have a pretty present for my Victor—to-morrow he shall have it."'
+  const ops = assertRoundTrip(a, b)
+  assert.deepEqual(ops.slice(0, 4), [
+    { type: 'equal', text: 'Every one ' },
+    { type: 'delete', text: 'adored' },
+    { type: 'insert', text: 'loved' },
+    { type: 'equal', text: ' Elizabeth. ' },
+  ])
+  assert.deepEqual(ops.slice(4).map((o) => o.type), ['delete', 'insert'], 'the rest is one replacement')
+})
+
+test('a sentence kept in the middle of a rewritten paragraph is aligned (Clerval, Chapter I)', () => {
+  const a = 'My brothers were considerably younger than myself; but I had a friend in one of my schoolfellows, who compensated for this deficiency. Henry Clerval was the son of a merchant of Geneva, an intimate friend of my father. He was a boy of singular talent and fancy. I remember, when he was nine years old, he wrote a fairy tale, which was the delight and amazement of all his companions.'
+  const b = 'It was my temper to avoid a crowd, and to attach myself fervently to a few. I was indifferent, therefore, to my schoolfellows in general; but I united myself in the bonds of the closest friendship to one among them. Henry Clerval was the son of a merchant of Geneva. He was a boy of singular talent and fancy. He loved enterprise, hardship, and even danger, for its own sake.'
+  const ops = assertRoundTrip(a, b)
+  const rendered = ops.map((o) => (o.type === 'equal' ? o.text : o.type === 'delete' ? `[-${o.text}-]` : `{+${o.text}+}`)).join('')
+  assert.ok(
+    rendered.includes('Henry Clerval was the son of a merchant of Geneva[-, an intimate friend of my father-]. He was a boy of singular talent and fancy. '),
+    rendered,
+  )
+})
+
+test('a rewritten opening followed by a lightly edited sentence (Justine, Chapter VI)', () => {
+  const a = '"And now I must tell you a little story that will please, and perhaps amuse you. Do you not remember Justine Moritz? Probably you do not; I will relate her history, therefore, in a few words.'
+  const b = '"Little alteration, except the growth of our dear children, has taken place since you left us. Do you remember on what occasion Justine Moritz entered our family? Probably you do not; I will relate her history, therefore, in a few words.'
+  const ops = assertRoundTrip(a, b)
+  const rendered = ops.map((o) => (o.type === 'equal' ? o.text : o.type === 'delete' ? `[-${o.text}-]` : `{+${o.text}+}`)).join('')
+  assert.equal(
+    rendered,
+    '[-"And now I must tell you a little story that will please, and perhaps amuse you.-]{+"Little alteration, except the growth of our dear children, has taken place since you left us.+} Do you[- not-] remember{+ on what occasion+} Justine Moritz{+ entered our family+}? Probably you do not; I will relate her history, therefore, in a few words.',
+  )
+})
+
+test('a changed clause boundary (comma to semicolon) does not break the diff (Chapter III)', () => {
+  const a = 'He desired me to procure, and dismissed me, after mentioning that he intended to commence a course of lectures upon natural philosophy in its general relations, and that M. Waldman would lecture upon chemistry the alternate days that he missed.'
+  const b = 'He desired me to procure; and dismissed me, after mentioning that he intended to commence a course of lectures upon natural philosophy in its general relations, and that M. Waldman would lecture upon chemistry the alternate days that he omitted.'
+  const ops = assertRoundTrip(a, b)
+  const rendered = ops.map((o) => (o.type === 'equal' ? o.text : o.type === 'delete' ? `[-${o.text}-]` : `{+${o.text}+}`)).join('')
+  assert.equal(rendered, 'He desired me to procure[-,-]{+;+} and dismissed me, after mentioning that he intended to commence a course of lectures upon natural philosophy in its general relations, and that M. Waldman would lecture upon chemistry the alternate days that he [-missed-]{+omitted+}.')
+})

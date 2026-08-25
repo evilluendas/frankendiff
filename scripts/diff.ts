@@ -1,9 +1,21 @@
 /**
- * Word-level diff using the LCS (longest common subsequence) algorithm.
+ * Two-level diff between a paragraph of 1818 and its counterpart in 1831.
  *
- * Tokenises text into alternating word and whitespace chunks so that
- * insertions and deletions align naturally at word boundaries.
- * Consecutive ops of the same type are merged into a single DiffOp.
+ *   1. Clause level.  Both texts are split into clauses (at sentence and
+ *      clause punctuation) and the clauses are aligned with a Needleman–
+ *      Wunsch pass that only pairs clauses sharing enough vocabulary.
+ *      Unpaired clauses are emitted whole as a deletion or an insertion.
+ *   2. Word level.  Each paired clause is diffed word by word with an LCS,
+ *      then tidied so that a rewritten phrase reads as one block rather
+ *      than a scatter of matched function words.
+ *
+ * Anchoring on clauses is what lets "Every one adored Elizabeth." diff
+ * against "Every one loved Elizabeth." even when the rest of the paragraph
+ * was rewritten from scratch: a whole-paragraph similarity check would
+ * throw the shared sentence away with the rest.
+ *
+ * Whatever the diff decides, the ops always reconstruct both texts exactly
+ * (equal + delete = 1818, equal + insert = 1831); tests/ guards that.
  */
 
 import { DiffOp, DiffOpType } from '../lib/types'
@@ -19,7 +31,27 @@ function tokenize(text: string): string[] {
   return text.match(/\w+(?:'\w+)*|[^\w\s]|\s+/g) ?? []
 }
 
-/** Build LCS DP table for two token arrays. */
+/** Lower-cased words of a text, for similarity measures. */
+function words(text: string): string[] {
+  return text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []
+}
+
+/**
+ * Weight of a token in the LCS objective.  Words count in full, punctuation
+ * half, whitespace almost nothing: an unweighted LCS happily matches two
+ * scattered words plus the spaces around them in preference to one
+ * three-word phrase, which is exactly the "messy" colouring readers object
+ * to.  Whitespace keeps a token weight so that, all else equal, the spaces
+ * around a changed word still line up.  (Integers, so the traceback can
+ * compare sums exactly.)
+ */
+function tokenWeight(token: string): number {
+  if (/^\s+$/.test(token)) return 1
+  if (/^[^\w\s]$/.test(token)) return 50
+  return 100
+}
+
+/** Build the weighted-LCS DP table for two token arrays. */
 function buildLCS(a: string[], b: string[]): number[][] {
   const m = a.length
   const n = b.length
@@ -28,11 +60,8 @@ function buildLCS(a: string[], b: string[]): number[][] {
   )
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      if (a[i - 1] === b[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1] + 1
-      } else {
-        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1])
-      }
+      const diag = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + tokenWeight(a[i - 1]) : -1
+      dp[i][j] = Math.max(diag, dp[i - 1][j], dp[i][j - 1])
     }
   }
   return dp
@@ -85,7 +114,6 @@ function cleanupEditZones(ops: DiffOp[]): DiffOp[] {
     // equal ops between them.
     let delText = ''
     let insText = ''
-    let lastSide: 'delete' | 'insert' | null = null
 
     while (i < ops.length) {
       const cur = ops[i]
@@ -93,11 +121,9 @@ function cleanupEditZones(ops: DiffOp[]): DiffOp[] {
 
       if (cur.type === 'delete') {
         delText += cur.text
-        lastSide = 'delete'
         i++
       } else if (cur.type === 'insert') {
         insText += cur.text
-        lastSide = 'insert'
         i++
       } else if (
         cur.type === 'equal' &&
@@ -134,9 +160,11 @@ function cleanupEditZones(ops: DiffOp[]): DiffOp[] {
  * to a single del + single ins, reconstructing the original 1818 and 1831 text
  * by merging del/ins/equal ops appropriately.
  */
-function cleanupChaoticZones(ops: DiffOp[]): DiffOp[] {
-  const ANCHOR_MIN_CHARS = 15
-  const ZONE_MIN_DICE = 0.25
+function cleanupChaoticZones(
+  ops: DiffOp[],
+  ANCHOR_MIN_CHARS = 15,
+  ZONE_MIN_DICE = 0.25,
+): DiffOp[] {
 
   const result: DiffOp[] = []
   let i = 0
@@ -175,8 +203,19 @@ function cleanupChaoticZones(ops: DiffOp[]): DiffOp[] {
     const dice = totalChars === 0 ? 1 : (2 * equalChars) / totalChars
 
     if (dice < ZONE_MIN_DICE) {
+      // A shared delimiter at either end of the zone (a full stop, a space)
+      // stays shared, so the collapse reads "word[-old-]{+new+}." and not
+      // "word[-old.-]{+new.+}".
+      let from = i
+      let to = j
+      const lead = ops[from]
+      if (to - from > 1 && isDelimiter(lead)) { from++; text1818 = text1818.slice(lead.text.length); text1831 = text1831.slice(lead.text.length) }
+      const trail = ops[to - 1]
+      if (to - from > 1 && isDelimiter(trail)) { to--; text1818 = text1818.slice(0, -trail.text.length); text1831 = text1831.slice(0, -trail.text.length) }
+      if (from > i) result.push(lead)
       if (text1818) result.push({ type: 'delete', text: text1818 })
       if (text1831) result.push({ type: 'insert', text: text1831 })
+      if (to < j) result.push(trail)
     } else {
       for (let k = i; k < j; k++) result.push(ops[k])
     }
@@ -188,8 +227,10 @@ function cleanupChaoticZones(ops: DiffOp[]): DiffOp[] {
 }
 
 /**
- * Absorb "noise equal" islands — short equal ops that are completely surrounded
- * by edits on both sides and are shorter than both neighbouring edit blocks.
+ * Absorb "noise equal" islands — single-word equal ops that are completely
+ * surrounded by edits on both sides and are shorter than both neighbouring
+ * edit blocks.  (Two or more shared words in a row — a name, a phrase — are
+ * kept; they are what the reader is looking for.)
  *
  * Example: [del "My father had a sister"] eq "my" [ins "From Italy they visited"]
  * The equal "my" (2 chars) is far shorter than either edit, so it adds no
@@ -217,6 +258,7 @@ function cleanupSemanticIslands(ops: DiffOp[]): DiffOp[] {
         curr.type === 'equal' &&
         prev.type !== 'equal' &&
         next.type !== 'equal' &&
+        words(curr.text).length <= 1 &&
         curr.text.length <= prev.text.length &&
         curr.text.length <= next.text.length
       ) {
@@ -253,49 +295,53 @@ const FULL_REPLACEMENT = (a: string, b: string): DiffOp[] => [
   { type: 'insert', text: b },
 ]
 
+/** Equal characters as a fraction of both texts' characters. */
+function equalFraction(ops: DiffOp[], a: string, b: string): number {
+  const equalChars = ops
+    .filter((op) => op.type === 'equal')
+    .reduce((sum, op) => sum + op.text.length, 0)
+  return (a.length + b.length) === 0 ? 1 : equalChars / (a.length + b.length)
+}
+
+// ── Word level ──────────────────────────────────────────────────────────────
+
 /**
- * Decide whether a cleaned-up word-level diff is useful to display.
- *
- * The Dice coefficient on raw tokens (a priori check) can be fooled by
- * high-frequency function words — "my", "and", "was", "the", "of" — that
- * appear in almost every English sentence.  Two completely rewritten
- * paragraphs may share 50 %+ of their tokens by count simply because of
- * these words, yet the word-level diff is still fragmented.
- *
- * This a posteriori check looks at the RESULT after cleanup: if less than
- * MIN_EQUAL_FRACTION of the total character count lands in equal ops, the
- * diff isn't providing enough shared context to anchor the reader, and a
- * plain full-replacement is cleaner.
+ * Inside a paired clause the word diff must keep either a fifth of the
+ * characters as shared text or one shared phrase of ANCHOR_MIN_CHARS;
+ * otherwise the shared words were scattered function words and the clause
+ * reads better as a plain replacement.
  */
-const MIN_EQUAL_FRACTION = 0.05   // at least 5 % of chars must be equal after cleanup
-const MIN_INPUT_DICE     = 0.20   // fast pre-filter: skip backtracking when clearly too different
+const CLAUSE_MIN_EQUAL_FRACTION = 0.2
 
-/** Compute a word-level diff between two texts. */
-export function computeDiff(textA: string, textB: string): DiffOp[] {
-  if (textA === textB) return [{ type: 'equal', text: textA }]
+/** A shared run this long (and at least ANCHOR_MIN_WORDS words) is a phrase
+ *  worth showing on its own, even inside otherwise rewritten text. */
+const ANCHOR_MIN_CHARS = 20
+const ANCHOR_MIN_WORDS = 4
 
+function isAnchor(op: DiffOp): boolean {
+  return op.type === 'equal' &&
+    op.text.length >= ANCHOR_MIN_CHARS &&
+    words(op.text).length >= ANCHOR_MIN_WORDS
+}
+
+/** Raw word-level LCS ops of two texts, before any cleanup. */
+function rawWordOps(textA: string, textB: string): DiffOp[] {
   const tokensA = tokenize(textA)
   const tokensB = tokenize(textB)
-
   const dp = buildLCS(tokensA, tokensB)
-  const lcsLen = dp[tokensA.length][tokensB.length]
-
-  // Fast pre-filter: if the raw token Dice score is too low, skip the full
-  // backtracking and immediately return a full replacement.
-  const dice = (tokensA.length + tokensB.length === 0)
-    ? 1
-    : (2 * lcsLen) / (tokensA.length + tokensB.length)
-  if (dice < MIN_INPUT_DICE) return FULL_REPLACEMENT(textA, textB)
 
   const raw: { type: DiffOpType; text: string }[] = []
   let i = tokensA.length
   let j = tokensB.length
 
+  // Walk back through the table, taking an equal token only when it lies on
+  // an optimal path.
   while (i > 0 || j > 0) {
     if (
       i > 0 &&
       j > 0 &&
-      tokensA[i - 1] === tokensB[j - 1]
+      tokensA[i - 1] === tokensB[j - 1] &&
+      dp[i][j] === dp[i - 1][j - 1] + tokenWeight(tokensA[i - 1])
     ) {
       raw.unshift({ type: 'equal', text: tokensA[i - 1] })
       i--
@@ -311,22 +357,319 @@ export function computeDiff(textA: string, textB: string): DiffOp[] {
       i--
     }
   }
+  return mergeOps(raw)
+}
 
-  const result = cleanupChaoticZones(cleanupSemanticIslands(cleanupEditZones(mergeOps(raw))))
+/** Word-level diff of two clauses that the clause aligner has paired. */
+function wordDiff(textA: string, textB: string): DiffOp[] {
+  if (textA === textB) return [{ type: 'equal', text: textA }]
 
-  // A posteriori check: even if raw Dice was acceptable, the cleaned-up diff
-  // might still be mostly edits because the shared tokens were scattered
-  // function words rather than genuine semantic overlap.  If the equal
-  // content is less than MIN_EQUAL_FRACTION of the total, fall back to a
-  // full replacement.
-  const equalChars = result
-    .filter((op) => op.type === 'equal')
-    .reduce((sum, op) => sum + op.text.length, 0)
-  if (equalChars / (textA.length + textB.length) < MIN_EQUAL_FRACTION) {
+  const result = cleanupChaoticZones(cleanupSemanticIslands(cleanupEditZones(rawWordOps(textA, textB))))
+
+  if (equalFraction(result, textA, textB) < CLAUSE_MIN_EQUAL_FRACTION && !result.some(isAnchor)) {
     return FULL_REPLACEMENT(textA, textB)
   }
-
   return result
+}
+
+/**
+ * Diff of a deletion/insertion pair — clauses the aligner could not pair, or
+ * a rewritten tail.  Only long shared phrases survive as anchors (a sentence
+ * opening kept while its tail was rewritten, a name and title carried
+ * across); everything between them collapses to a deletion and an insertion.
+ * Returns null when there is no anchor at all.
+ */
+function anchorDiff(textA: string, textB: string): DiffOp[] | null {
+  const result = cleanupChaoticZones(
+    cleanupSemanticIslands(cleanupEditZones(rawWordOps(textA, textB))),
+    ANCHOR_MIN_CHARS,
+    0.5,
+  )
+  return result.some(isAnchor) ? result : null
+}
+
+// ── Clause level ────────────────────────────────────────────────────────────
+
+/**
+ * Two clauses are paired only if their word Dice coefficient reaches this.
+ * 0.45 pairs "Do you not remember Justine Moritz?" with "Do you remember on
+ * what occasion Justine Moritz entered our family?" (≈0.6) but not two
+ * sentences that merely share "the", "and" and "of".
+ */
+const CLAUSE_MIN_DICE = 0.45
+
+/** A full stop after one of these is an abbreviation, not a clause boundary. */
+const ABBREVIATIONS = new Set(['mr', 'mrs', 'dr', 'st', 'messrs'])
+
+/**
+ * Split a text into clauses.  A clause ends after sentence or clause
+ * punctuation (. ? ! ; :) plus any closing quotes and the whitespace that
+ * follows; the whitespace stays with the clause so the clauses concatenate
+ * back to the original text.  A paragraph break (blank line) always ends a
+ * clause.  Abbreviations ("M. Moritz", "St. George") do not.
+ */
+export function splitClauses(text: string): string[] {
+  const clauses: string[] = []
+  let start = 0
+  const boundary = /[.?!;:]+["\u201d\u2019')\]]*(\s+)|\n\n/g
+  let m: RegExpExecArray | null
+  while ((m = boundary.exec(text)) !== null) {
+    const end = m.index + m[0].length
+    if (m[0] !== '\n\n') {
+      const before = text.slice(start, m.index)
+      const lastWord = before.match(/(\S+)$/)?.[1] ?? ''
+      // "M." (one capital letter) or a known abbreviation: keep going.
+      if (/^[A-Z]$/.test(lastWord) || ABBREVIATIONS.has(lastWord.toLowerCase())) continue
+    }
+    clauses.push(text.slice(start, end))
+    start = end
+  }
+  if (start < text.length) clauses.push(text.slice(start))
+  return clauses
+}
+
+/** Shared-word count and Dice coefficient of two word multisets. */
+function clauseOverlap(wa: string[], wb: string[]): { shared: number; dice: number } {
+  const counts = new Map<string, number>()
+  for (const w of wa) counts.set(w, (counts.get(w) ?? 0) + 1)
+  let shared = 0
+  for (const w of wb) {
+    const c = counts.get(w) ?? 0
+    if (c > 0) {
+      shared++
+      counts.set(w, c - 1)
+    }
+  }
+  const total = wa.length + wb.length
+  return { shared, dice: total === 0 ? 1 : (2 * shared) / total }
+}
+
+/**
+ * One step of a clause alignment: `a` clauses of 1818 paired with `b`
+ * clauses of 1831.  (1,0) and (0,1) are unpaired clauses; (1,2), (2,1) and
+ * (2,2) pair a clause with two neighbours, which is what happens when an
+ * edition changed the punctuation at a clause boundary ("procure, and" →
+ * "procure; and") so that one side splits where the other does not; (1,3)
+ * and (3,1) cover a sentence whose commas became semicolons.
+ */
+interface ClauseStep { a: number; b: number }
+
+const CLAUSE_STEPS: ClauseStep[] = [
+  { a: 1, b: 1 },
+  { a: 1, b: 2 }, { a: 2, b: 1 }, { a: 2, b: 2 },
+  { a: 1, b: 3 }, { a: 3, b: 1 },
+]
+
+/** Cost of each clause beyond one per side in a paired step, so that a
+ *  merged pair only wins when it actually shares more words. */
+const MERGE_PENALTY = 0.5
+
+/**
+ * A merged step must look like the same text with a moved boundary, so it
+ * needs a higher Dice than a plain pair; otherwise a long unrelated clause
+ * can ride in on shared function words and drag a good pair down with it.
+ */
+const MERGE_MIN_DICE = 0.6
+
+/**
+ * Align two clause lists monotonically (Needleman–Wunsch), maximising the
+ * number of shared words over paired clauses.  A pairing is allowed only when
+ * its Dice coefficient reaches CLAUSE_MIN_DICE; unpaired clauses cost nothing.
+ * Returns the steps in order; each step's texts are the concatenation of the
+ * clauses it covers.
+ */
+function alignClauses(A: string[], B: string[]): ClauseStep[] {
+  const n = A.length
+  const m = B.length
+  const score: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0))
+  const choice: (ClauseStep | null)[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(null))
+
+  const wordsA = A.map(words)
+  const wordsB = B.map(words)
+  const join = (list: string[][], end: number, count: number) => list.slice(end - count, end).flat()
+
+  for (let i = 0; i <= n; i++) {
+    for (let j = 0; j <= m; j++) {
+      if (i === 0 && j === 0) continue
+      let best = -Infinity
+      let bestStep: ClauseStep | null = null
+      if (i > 0 && score[i - 1][j] > best) { best = score[i - 1][j]; bestStep = { a: 1, b: 0 } }
+      if (j > 0 && score[i][j - 1] > best) { best = score[i][j - 1]; bestStep = { a: 0, b: 1 } }
+      for (const step of CLAUSE_STEPS) {
+        if (i < step.a || j < step.b) continue
+        const merged = step.a + step.b > 2
+        const { shared, dice } = clauseOverlap(join(wordsA, i, step.a), join(wordsB, j, step.b))
+        if (shared === 0 || dice < (merged ? MERGE_MIN_DICE : CLAUSE_MIN_DICE)) continue
+        const s = score[i - step.a][j - step.b] + shared - MERGE_PENALTY * (step.a + step.b - 2)
+        if (s > best) { best = s; bestStep = step }
+      }
+      score[i][j] = best
+      choice[i][j] = bestStep
+    }
+  }
+
+  const steps: ClauseStep[] = []
+  let i = n
+  let j = m
+  while (i > 0 || j > 0) {
+    const step = choice[i][j]!
+    steps.unshift(step)
+    i -= step.a
+    j -= step.b
+  }
+  return steps
+}
+
+/** Compute the diff between a 1818 text and its 1831 counterpart. */
+export function computeDiff(textA: string, textB: string): DiffOp[] {
+  if (textA === textB) return [{ type: 'equal', text: textA }]
+
+  const A = splitClauses(textA)
+  const B = splitClauses(textB)
+  const ops: DiffOp[] = []
+
+  let pendingDelete = ''
+  let pendingInsert = ''
+  const flush = () => {
+    if (pendingDelete) ops.push({ type: 'delete', text: pendingDelete })
+    if (pendingInsert) ops.push({ type: 'insert', text: pendingInsert })
+    pendingDelete = ''
+    pendingInsert = ''
+  }
+
+  let i = 0
+  let j = 0
+  for (const step of alignClauses(A, B)) {
+    const a = A.slice(i, i + step.a).join('')
+    const b = B.slice(j, j + step.b).join('')
+    i += step.a
+    j += step.b
+    if (step.a > 0 && step.b > 0) {
+      flush()
+      ops.push(...wordDiff(a, b))
+    } else if (step.a > 0) {
+      pendingDelete += a
+    } else {
+      pendingInsert += b
+    }
+  }
+  flush()
+
+  return refineRuns(normalizeRuns(ops))
+}
+
+/** True for an equal op made only of whitespace and punctuation. */
+function isDelimiter(op: DiffOp): boolean {
+  return op.type === 'equal' && /^[\s\p{P}]+$/u.test(op.text)
+}
+
+/**
+ * Within a run of non-equal ops, emit every deletion before every insertion
+ * (each side keeps its own order, so both texts still reconstruct exactly),
+ * and move whitespace the two sides share at either end out of the run.
+ * The reader then always sees 1818's words first, then 1831's, a run like
+ * del/ins/del collapses to one of each, and "one[- adored-]{+ loved+}"
+ * becomes "one [-adored-]{+loved+}".
+ */
+function normalizeRuns(ops: DiffOp[]): DiffOp[] {
+  const result: DiffOp[] = []
+  let del = ''
+  let ins = ''
+  const flush = () => {
+    if (del && ins) {
+      const lead = commonAffix(del, ins, 'start')
+      const trail = commonAffix(del.slice(lead.length), ins.slice(lead.length), 'end')
+      del = del.slice(lead.length, del.length - trail.length)
+      ins = ins.slice(lead.length, ins.length - trail.length)
+      if (lead) result.push({ type: 'equal', text: lead })
+      if (del) result.push({ type: 'delete', text: del })
+      if (ins) result.push({ type: 'insert', text: ins })
+      if (trail) result.push({ type: 'equal', text: trail })
+    } else {
+      if (del) result.push({ type: 'delete', text: del })
+      if (ins) result.push({ type: 'insert', text: ins })
+    }
+    del = ''
+    ins = ''
+  }
+  for (const op of ops) {
+    if (op.type === 'equal') {
+      flush()
+      result.push(op)
+    } else if (op.type === 'delete') {
+      del += op.text
+    } else {
+      ins += op.text
+    }
+  }
+  flush()
+  return mergeOps(result)
+}
+
+/**
+ * The whitespace both strings share at the start or the end — or the shared
+ * whitespace-and-punctuation when taking it would leave one side empty, so
+ * that "TITLE[-; SUBTITLE.-]{+.+}" reads "TITLE[-; SUBTITLE-].".
+ */
+function commonAffix(a: string, b: string, side: 'start' | 'end'): string {
+  const re = side === 'start' ? /^[\s\p{P}]*/u : /[\s\p{P}]*$/u
+  const pa = a.match(re)?.[0] ?? ''
+  const pb = b.match(re)?.[0] ?? ''
+  let n = 0
+  while (n < pa.length && n < pb.length) {
+    const ca = side === 'start' ? pa[n] : pa[pa.length - 1 - n]
+    const cb = side === 'start' ? pb[n] : pb[pb.length - 1 - n]
+    if (ca !== cb) break
+    n++
+  }
+  let shared = side === 'start' ? pa.slice(0, n) : pa.slice(pa.length - n)
+  const emptiesOneSide = shared.length === a.length || shared.length === b.length
+  if (!emptiesOneSide) {
+    // Keep only the whitespace part nearest the run.
+    shared = side === 'start' ? (shared.match(/^\s*/)?.[0] ?? '') : (shared.match(/\s*$/)?.[0] ?? '')
+  }
+  return shared
+}
+
+/**
+ * Give every deletion/insertion run — unpaired clauses, or a paired clause
+ * whose tail was rewritten — a second chance to share a long phrase
+ * (anchorDiff).  A run may span shared delimiters ("…philosophy. He…"), so
+ * a phrase split across one is still found.  Runs without an anchor are
+ * left as they are.
+ */
+function refineRuns(ops: DiffOp[]): DiffOp[] {
+  const result: DiffOp[] = []
+  let i = 0
+  while (i < ops.length) {
+    if (ops[i].type === 'equal') {
+      result.push(ops[i])
+      i++
+      continue
+    }
+    // Collect the run: non-equal ops, plus delimiter-only equals followed by more of them.
+    let j = i
+    let del = ''
+    let ins = ''
+    while (j < ops.length) {
+      const op = ops[j]
+      if (op.type === 'equal') {
+        if (!isDelimiter(op) || !ops[j + 1] || ops[j + 1].type === 'equal') break
+        del += op.text
+        ins += op.text
+      } else if (op.type === 'delete') {
+        del += op.text
+      } else {
+        ins += op.text
+      }
+      j++
+    }
+    const refined = del && ins ? anchorDiff(del, ins) : null
+    if (refined) result.push(...normalizeRuns(refined))
+    else result.push(...ops.slice(i, j))
+    i = j
+  }
+  return mergeOps(result)
 }
 
 /**
