@@ -87,30 +87,23 @@ This section is dynamic. Update it via `/wrap` at the end of each session.
 
 ### Current state
 
-2026-08-24, night: PR #10 linked the repository from the About page and rewrote the README to match the current site and pipeline. GitHub's About box points at frankendiff.com with a description and topics. `hello@frankendiff.com` is attached to the GitHub account, so commits are attributed and Vercel deploys them (the one blocked production deploy, `3f86b2b`, was superseded).
+2026-08-25: a reader's detailed feedback on the diff coloring (`/diff/1`, `/diff/6`) drove three PRs, all squash-merged and live:
 
-2026-08-24, evening: the repository is **public** under the MIT License. History was rewritten so every commit is authored as `hello@frankendiff.com` (short SHAs quoted below and in `docs/GOTCHAS.md` predate the rewrite and no longer resolve; PR numbers still do). A `trunk` ruleset is active: PR-only, squash-only, Vercel check required (with "require branches up to date"), no bypass actors.
+- PR #12 fixed a text-fidelity bug in the diff cleanup (a shared word between two same-type ops was duplicated on one side and lost on the other) and added the first tests: `npm test` (`node:test` via `tsx`, `tests/`), including whole-book invariants.
+- PR #15 replaced the whole-paragraph word LCS with a two-level diff (`scripts/diff.ts`): clauses are aligned first (Needleman–Wunsch over shared words, Dice ≥ 0.45; merged 1:2/2:1/2:2/1:3/3:1 steps at ≥ 0.6 absorb moved punctuation), paired clauses are diffed with a weighted word LCS (word 100, punctuation 50, whitespace 1), any deletion/insertion run keeps long shared phrases (≥ 20 chars, ≥ 4 words) as anchors, and runs are normalised to red-then-green with shared whitespace/delimiters factored out. Book-wide: 10 rows went from full replacement to partial, none the other way.
+- PR #14 let a row hold several paragraphs per edition (`paragraphs: Partial<Record<Edition, BookParagraph[]>>`) so a paragraph one edition split or joined is diffed as one unit; the break renders as an inline tinted ¶ (`ParagraphBreakMarker`), preceded by the chapter note when a chapter begins there ("…; in 1818 the paragraph continues"). `content/alignment-overrides.json` changed to identity pins (`rows`, see the content-pipeline rules); the 49 row-number entries became 26 pins that reproduce the previous 831 rows exactly, plus two content pins in Chapter I (the Elizabeth 1:2 and the electricity 2:1). Diff sidebar widened to `w-64`.
 
-2026-08-24, later: PR #6 (`feature/edition-urls`) moved Read pages to `/<edition>/chapter/<slug>` — fully prerendered (SSG), legacy `/chapter/<slug>?edition=` 308s to the new shape — and made paragraph permalink ids stable (`#p12`). PR #7 removed Plausible; analytics are Vercel Analytics + Speed Insights only.
+The user is replying to the reader (draft agreed in session; it says the tool is AI-built and links the repo). Light mode of the ¶ marker and the reordered note was checked only through markup, not by eye.
 
-Earlier the same day: PR #5 (`feature/diff-units`, 28 commits) squash-merged to `trunk`. It answered reader feedback on `/diff/1`: chapter-1 alignment fixed; diff units (`content/diff-units.json`) compare 1818 Chapter I against 1831 Chapters I–II on one page with a yellow "Chapter II begins here" note (and the same note in the 1818 Read view); `/diff/2` 308s to that anchor; the Diff sidebar has an edition dropdown (shared cookie) and a scroll-spy that highlights the chapter under the reader; `npm run align:report` flags likely misalignments. Also shipped: Read-view paragraph permalinks (hover ¶, desktop only), chapters FAB label reveal on hover, pointer cursors on buttons, homepage hero image and green selected-edition card, and a pipeline fix for stacked negative shifts.
-
-Housekeeping worth knowing: `README.md` predates the current pipeline (still describes purely positional alignment and a flat overrides file) and `instructions.md` is the original scaffold prompt — both are candidates for a `docs/` cleanup. `npm run lint` has 4 pre-existing errors (About page unescaped quotes, `ThemeToggle` setState-in-effect, `extract-html.ts` prefer-const).
+Housekeeping still open: `instructions.md` is the original scaffold prompt (candidate for `docs/` cleanup); `npm run lint` keeps its 4 pre-existing errors (About page unescaped quotes, `ThemeToggle` setState-in-effect, `extract-html.ts` prefer-const).
 
 ### What's next
 
-Pipeline hardening, in order (each is a day or less; assessed 2026-08-24):
-
-1. **Tests for the pipeline invariants** — no paragraph dropped or duplicated per edition/section, every diff-unit section start marked, processed trees stable for unchanged input. The pipeline is pure; today's throwaway verification scripts are the tests, just not checked in. Test framework to be chosen (none yet).
-2. **Anchor alignment overrides to paragraph identity, not row numbers.** `ch1-p14` means "row 14", so an earlier override renumbers everything after it (the cumulative-shift bug was a symptom). Express pairs as `1818 <section> ¶n ↔ 1831 <section> ¶m` and edition-only paragraphs by identity; derive rows.
-3. **Similarity-based aligner.** Dynamic programming over the report's similarity score (Needleman–Wunsch / Gale–Church shape) to produce pairings automatically; overrides remain for judgment calls only.
-4. **Sentence-anchored diff pre-filter.** "Every one adored/loved Elizabeth" is a full replacement because whole-paragraph Dice is low; anchor on shared sentence-initial runs before the Dice check so the shared opening still diffs word by word.
-
-Content and smaller items:
-
-5. Fix the misalignments `npm run align:report` flags with a better neighbour: Cover (rows 5/7), Chapter III (rows 16/17), Chapter XXIII (row 21). `content/` branch.
-6. Optional `:target` tint for permalinked paragraphs; clear the 4 lint errors; delete the Plausible site on the Plausible side; consider a "How it works" write-up (text never altered; alignment as an editorial layer with stated reasons; diff units; output-judged diff cleanup).
-7. The Diff view is still server-rendered per request because it reads the edition cookie for the sidebar; if that ever matters, move the edition into the diff URL or read the cookie client-side so the page prerenders.
+1. **Similarity-based aligner** (roadmap item carried over): dynamic programming over a paragraph similarity score, allowing 1:0, 0:1, 1:1, 1:2, 2:1, so pins are only needed for judgment calls. The pin format in `alignment-overrides.json` is what it should emit; the whole-book tests in `tests/pipeline.test.ts` are the safety net.
+2. **Content:** fix the rows `npm run align:report` flags with a better neighbour (Cover rows 5/7, Chapter III 16/17, Chapter XXIII 21); look for other split/merged paragraphs that deserve a grouped row (the report's weak rows are the place to start). `content/` branch.
+3. **Diff polish, if wanted:** a "moved" style for a deleted clause that reappears as an insertion in the same row (the reader's permutation question; today it shows as delete + insert); check the ¶ marker and note in light mode by eye.
+4. Smaller items: optional `:target` tint for permalinked paragraphs; clear the 4 lint errors; delete the Plausible site on the Plausible side; a "How it works" write-up (text never altered; alignment as an editorial layer with stated reasons; clause-anchored diff; grouped rows).
+5. The Diff view is still server-rendered per request because it reads the edition cookie for the sidebar; if that ever matters, move the edition into the diff URL or read the cookie client-side so the page prerenders.
 
 ### Active decisions
 
@@ -131,6 +124,12 @@ When a decision is superseded, reverted, or no longer applies, move the entry to
 - **2026-08-24 — Read URLs carry the edition in the path (`/1818/chapter/22`); the diff stays edition-less (`/diff/22`).** Makes Read pages fully static and the URL readable. Legacy `/chapter/<slug>?edition=` URLs 308 to the new shape; bare/invalid → 1818, never cookie-dependent (browsers cache permanent redirects). All Read links go through `lib/routes.ts`.
 - **2026-08-24 — Paragraph permalinks are `#p<n>`, the 1-based position within the edition's section.** Stable across alignment changes; the URL already names edition and chapter.
 
+- **2026-08-25 — The diff is two-level: clauses are aligned first, then words inside paired clauses; long shared phrases survive as anchors anywhere; one consistent threshold, never per-passage colouring.** Reader sketches are test cases for what the rules should produce, not edits applied by hand. Moved sentences still show as delete + insert.
+- **2026-08-25 — Red always precedes green within a run, and shared whitespace/delimiters stay outside the coloured boxes** (`one [-adored-]{+loved+}`, `word[-old-]{+new+}.`).
+- **2026-08-25 — A row may group several paragraphs of one edition when the other split or joined them; the break is a diff op, rendered as an inline tinted ¶ at the head of the paragraph it opens.** Where a chapter begins at that break, the yellow note comes first (it is about the boundary) and says the other edition's paragraph continues; the ¶ follows (it is part of the change). Paragraphs are still never split or reworded.
+- **2026-08-25 — Alignment overrides pin rows by paragraph identity (`section/n`, the permalink number); paragraphs pair off positionally between pins.** Replaces row-number overrides and cumulative chapter shifts, which renumbered everything after an edit. A pin spanning two sections resolves only inside its diff unit.
+- **2026-08-25 — Tests are `node:test` via `tsx`, favouring whole-book invariants over fixtures** (every pin resolves; every paragraph once per file in reading order; every unit section start marked; every row diff reconstructs both texts).
+
 ### Active gotchas
 
 API quirks, tooling surprises, and workarounds that still affect current work. Oldest at top.
@@ -144,3 +143,6 @@ When a gotcha is resolved, move the entry to `docs/GOTCHAS.md`. Same ~15-entry r
 - **2026-08-24 — `next dev` warns "Failed to find font override values for font `Manufacturing Consent`"**: Next has no metrics for that Google font, so it can't synthesise a size-matched fallback. `adjustFontFallback: false` is already set in `app/layout.tsx`; the warning is cosmetic and safe to ignore.
 - **2026-08-24 — The `trunk` ruleset requires PR branches to be up to date with `trunk`:** a PR opened before another one merged is refused until it is updated (`gh pr update-branch <n>`) and Vercel has re-run. Merges also fail transiently while the Vercel check is pending — retry after it passes.
 - **2026-08-24 — On this machine `grep` is ugrep:** patterns starting with `--` are parsed as options and `{` is a regex metacharacter. Use `grep -F -e '<pattern>'` for literal strings, or Python, when checking compiled CSS.
+- **2026-08-25 — GitHub closes a stacked PR when its base branch is deleted on merge** (`gh pr merge --squash --delete-branch` of the base PR closed the next one; a closed PR's base cannot be changed). Retarget stacked PRs to `trunk` *before* merging the PR below them, or merge without `--delete-branch`.
+- **2026-08-25 — `gh pr checks --watch` right after a push reports "no checks reported" and returns immediately**, so a following `gh pr merge` is refused while Vercel is still pending. Poll until the Vercel check appears, then watch.
+- **2026-08-25 — A second `next dev` refuses to start ("Unable to acquire lock at `.next/dev/lock`") while the user's dev server runs.** Port 3000 may belong to another project's server; find this repo's instance with `lsof -iTCP -sTCP:LISTEN` plus each pid's cwd (it was on 3001) and verify against that instead of starting another.
