@@ -21,7 +21,9 @@ export function sectionAnchor(edition: Edition, slug: string): string {
 /**
  * A note marking where one edition starts a new chapter in the middle of the
  * other edition's chapter. Styled like the chapter-level notes (the former
- * "This chapter was created in 1831…" box) so it reads as the same device.
+ * "This chapter was created in 1831…" box) so it reads as the same device
+ * (.section-note in globals.css). An <aside>, so that the Diff view's rules
+ * for its paragraphs (`.diff-row > p`) leave it alone.
  */
 export default function SectionStartMarker({ edition, start, variant }: SectionStartMarkerProps) {
   const other: Edition = edition === '1818' ? '1831' : '1818'
@@ -35,12 +37,8 @@ export default function SectionStartMarker({ edition, start, variant }: SectionS
       : `In the ${edition} edition, ${start.label} begins here.`
 
   return (
-    <div
-      id={sectionAnchor(edition, start.slug)}
-      role="note"
-      className="scroll-mt-24 my-6 px-4 py-3 rounded-md border border-note-border bg-note-bg"
-    >
-      <p className="font-sans text-note-text leading-relaxed">{text}</p>
-    </div>
+    <aside id={sectionAnchor(edition, start.slug)} role="note" className="section-note">
+      {text}
+    </aside>
   )
 }
