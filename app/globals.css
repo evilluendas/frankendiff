@@ -73,9 +73,24 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Remove browser default strikethrough on <del> used in diff display */
-del {
-  text-decoration: none;
+/* Diff changes are styled by element, so the markup stays a plain <ins>/<del>
+   (no strikethrough or underline). In the base layer so that utility classes
+   still win where an element needs its own padding: the logo, the ¶ marker. */
+@layer base {
+  ins,
+  del {
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    padding-inline: calc(var(--spacing) * 0.5);
+  }
+  ins {
+    background-color: var(--ins-bg);
+    color: var(--ins-text);
+  }
+  del {
+    background-color: var(--del-bg);
+    color: var(--del-text);
+  }
 }
 
 /* Prose text uses serif — reference the Next.js font variable directly */
