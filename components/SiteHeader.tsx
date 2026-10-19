@@ -35,7 +35,7 @@ export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }:
               ].join(' ')}
             >
               <BookOpen size={14} />
-              <span className="hidden sm:inline">Read</span>
+              <span className="sr-only sm:not-sr-only">Read</span>
             </Link>
             <Link
               href={diffTarget}
@@ -47,7 +47,7 @@ export default function SiteHeader({ mode, activeSlug, activeEdition = '1831' }:
               ].join(' ')}
             >
               <GitCompare size={14} />
-              <span className="hidden sm:inline">Diff</span>
+              <span className="sr-only sm:not-sr-only">Diff</span>
             </Link>
           </nav>
           <ThemeToggle />
