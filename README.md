@@ -24,10 +24,14 @@ Other scripts:
 npm run preprocess     # content/raw → content/processed (parse, align, diff)
 npm run align:report   # flag paragraph rows that look misaligned
 npm run build          # preprocess + next build
+npm test               # preprocess, then the pipeline tests and the snapshot check
+npm run snapshot       # rewrite the HTML snapshots in tests/snapshots/
 npm run lint
 ```
 
-`content/processed/` is generated and gitignored; it's rebuilt by `dev` and `build`. Scripts or tests that import `lib/data.ts` need `npm run preprocess` first.
+`content/processed/` is generated and gitignored; it's rebuilt by `dev`, `build` and `test`. Scripts that import `lib/data.ts` need `npm run preprocess` first.
+
+`tests/snapshots/` holds the HTML of every Diff and Read page's text (classes stripped, one paragraph per line), committed so that a pull request shows exactly how it changes what readers get. After changing the text, the alignment, the diff or the rendering, run `npm run snapshot` and commit the result; `npm test`, which runs on every pull request, fails while the snapshots are out of date.
 
 ## How the text gets on the page
 
