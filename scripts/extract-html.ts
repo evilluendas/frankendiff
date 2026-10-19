@@ -159,9 +159,7 @@ function extractSection(html: string, _filename: string): string | null {
   $('.wst-smallrefs').remove()
   // Hidden nop spans
   $('.wst-nop').remove()
-  // Tooltip markers
-  $('[class*="wst-tooltip"]').remove()
-  // [sic] markers – keep inner text
+  // [sic] markers – keep inner text (the printed reading)
   $('[class*="wst-tooltip"]').each((_i, el) => {
     $(el).replaceWith($(el).text())
   })
