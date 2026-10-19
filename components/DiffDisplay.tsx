@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { AlignedParagraphGroup, DiffOp, Edition, ParagraphElementType, SectionStart } from '@/lib/types'
 import { renderDiffBlocks, DiffBreak } from '@/lib/utils'
 import ParagraphBreakMarker from './ParagraphBreakMarker'
@@ -10,54 +11,42 @@ interface DiffDisplayProps {
   group?: AlignedParagraphGroup
 }
 
+/**
+ * The paragraphs of one diffed row, returned bare so they are direct children
+ * of the row (DiffView), each preceded by the note for a section that begins
+ * at its break. Styled by element in globals.css.
+ */
 export default function DiffDisplay({ ops, elementType = 'body', group }: DiffDisplayProps) {
   const isEmpty = !ops || ops.length === 0
 
   if (isEmpty) {
-    return (
-      <p className="prose-serif text-muted italic text-sm">
-        No differences in this paragraph.
-      </p>
-    )
+    return <p className="text-muted italic">No differences in this paragraph.</p>
   }
 
-  const blocks = renderDiffBlocks(ops)
-
-  return (
-    <div className="space-y-5">
-      {blocks.map((block, i) => {
-        // The chapter note is about the boundary and stands on its own; the ¶
-        // marker is part of the change and opens the paragraph inline.
-        const marker = block.breakBefore ? <ParagraphBreakMarker type={block.breakBefore.type} /> : null
-        return (
-          <div key={i}>
-            {block.breakBefore &&
-              sectionStartsAt(group, block.breakBefore).map(([edition, start]) => (
-                <SectionStartMarker key={edition} edition={edition} start={start} variant="diff-within" />
-              ))}
-            {elementType === 'poem' ? (
-              <blockquote className="prose-serif italic border-l-2 border-border pl-4 leading-relaxed whitespace-pre-line">
-                {marker}
-                {block.nodes}
-              </blockquote>
-            ) : (
-              <p
-                className={[
-                  'prose-serif leading-[1.85]',
-                  elementType === 'signature' ? 'font-semibold [font-variant:small-caps]' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {marker}
-                {block.nodes}
-              </p>
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
+  return renderDiffBlocks(ops).map((block, i) => {
+    // The chapter note is about the boundary and stands on its own; the ¶
+    // marker is part of the change and opens the paragraph inline.
+    const marker = block.breakBefore ? <ParagraphBreakMarker type={block.breakBefore.type} /> : null
+    return (
+      <Fragment key={i}>
+        {block.breakBefore &&
+          sectionStartsAt(group, block.breakBefore).map(([edition, start]) => (
+            <SectionStartMarker key={edition} edition={edition} start={start} variant="diff-within" />
+          ))}
+        {elementType === 'poem' ? (
+          <blockquote>
+            {marker}
+            {block.nodes}
+          </blockquote>
+        ) : (
+          <p className={elementType === 'signature' ? 'signature' : undefined}>
+            {marker}
+            {block.nodes}
+          </p>
+        )}
+      </Fragment>
+    )
+  })
 }
 
 /** Section starts (if any) that fall on the paragraph opened by a break. */

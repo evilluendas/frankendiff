@@ -94,7 +94,8 @@ body {
 }
 
 /* Prose text uses serif — reference the Next.js font variable directly */
-.prose-serif {
+.prose-serif,
+.diff-row > :is(p, blockquote) {
   font-family: var(--font-lora), Georgia, 'Times New Roman', serif;
   font-size: 1.25rem;
   line-height: 1.82;
@@ -108,4 +109,64 @@ body {
   line-height: 0.78;
   padding-right: 0.08em;
   padding-top: 0.06em;
+}
+
+/* ── Diff view ────────────────────────────────────── */
+/* One .diff-row per aligned row, with its paragraphs, poems and section notes
+   as direct children, styled here by element rather than by utility classes
+   on each one. In the components layer: above the base ins/del rules, below
+   utilities. Margins (not gaps) so that a note's margin and a paragraph's
+   collapse into one. */
+@layer components {
+  .diff-row {
+    padding-bottom: calc(var(--spacing) * 8);
+    border-bottom: 1px dashed var(--border);
+    text-wrap: pretty;
+  }
+  .diff-row + .diff-row {
+    margin-top: calc(var(--spacing) * 8);
+  }
+  .diff-row:last-child {
+    border-bottom: 0;
+  }
+  .diff-row > * + * {
+    margin-top: calc(var(--spacing) * 5);
+  }
+  .diff-row > blockquote {
+    font-style: italic;
+    border-left: 2px solid var(--border);
+    padding-left: calc(var(--spacing) * 4);
+    white-space: pre-line;
+  }
+  .diff-row > .signature {
+    font-weight: 600;
+    font-variant: small-caps;
+  }
+
+  /* ¶ at the head of a paragraph a break opens: an <ins> or <del>, coloured
+     by the base rules above, or a neutral <span> */
+  .pilcrow {
+    padding-inline: calc(var(--spacing) * 1);
+    margin-inline-end: calc(var(--spacing) * 1.5);
+    border-radius: var(--radius-sm);
+    user-select: none;
+  }
+  span.pilcrow {
+    background-color: var(--subtle);
+    color: var(--muted);
+  }
+
+  /* "In the 1831 edition, Chapter II begins here", in both views. After the
+     .diff-row rules, so its margins win there. */
+  .section-note {
+    scroll-margin-top: calc(var(--spacing) * 24);
+    margin-block: calc(var(--spacing) * 6);
+    padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+    border: 1px solid var(--note-border);
+    border-radius: var(--radius-md);
+    background-color: var(--note-bg);
+    color: var(--note-text);
+    font-family: var(--font-inter), system-ui, sans-serif;
+    line-height: 1.625;
+  }
 }
