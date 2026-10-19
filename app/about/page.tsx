@@ -73,9 +73,9 @@ export default function AboutPage() {
               Shelley revised the text extensively: she softened some of the more provocative passages,
               expanded Victor Frankenstein’s childhood and backstory, and shifted the
               novel’s framing toward a more fatalistic, providential tone. She also added a
-              new author’s introduction —now almost as famous as the novel itself— describing
-              how she came to write the story during the &ldquo;wet, ungenial summer&rdquo; at
-              the Villa Diodati in 1816.
+              new author’s introduction — now almost as famous as the novel itself — describing
+              how she came to write the story during the &ldquo;wet, ungenial summer&rdquo; of 1816
+              at the Villa Diodati.
               </p>
               <div className="mx-auto mt-2 w-full max-w-80 md:max-w-40 shrink-0 shadow-lg">
                 <Image
@@ -96,15 +96,15 @@ export default function AboutPage() {
           <p>
             A second edition was published in two volumes in 1823 by G. and W.B. Whittaker.
             It has one notable distinction: it was the first edition to carry Shelley’s
-            name on the title page, rather than the anonymous attribution of the 1818 printing.
+            name on the title page, rather than the 1818 printing’s anonymous attribution.
           </p>
           <p>
             Beyond that, the 1823 edition introduced relatively few changes, mainly
-            correcting typographical errors and some minor stylistic inconsistencies from the
+            correcting typographical errors and some minor stylistic inconsistencies in the
             1818 text. It does not represent a significant editorial intervention in the way
             the 1831 revision does. For that reason it is not included in this project:
-            the editorial story worth telling is the contrast between the raw 1818 first
-            edition and the considered, heavily revised 1831 text.
+            the story worth telling is the contrast between the raw 1818 first
+            edition and the heavily revised 1831 text.
           </p>
         </section>
 
@@ -127,7 +127,7 @@ export default function AboutPage() {
           </p>
 
           <p>
-          If you notice an error in the text, a misaligned paragraph, or anything else worth fixing —or if you simply have something to share— you are welcome to write to{' '}
+          If you notice an error in the text, a misaligned paragraph, or anything else worth fixing — or if you simply have something to share — you are welcome to write to{' '}
           {/* Email encoded as HTML entities — browsers decode them, most address harvesters do not */}
           <span dangerouslySetInnerHTML={{__html: '<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#104;&#101;&#108;&#108;&#111;&#64;&#102;&#114;&#97;&#110;&#107;&#101;&#110;&#100;&#105;&#102;&#102;&#46;&#99;&#111;&#109;" class="underline underline-offset-4 decoration-1 hover:text-muted transition-colors">&#104;&#101;&#108;&#108;&#111;&#64;&#102;&#114;&#97;&#110;&#107;&#101;&#110;&#100;&#105;&#102;&#102;&#46;&#99;&#111;&#109;</a>'}} />.
           </p>
