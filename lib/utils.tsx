@@ -66,9 +66,6 @@ export function renderDiffBlocks(ops: DiffOp[]): DiffBlock[] {
   const boundary: Record<Edition, number> = { '1818': 0, '1831': 0 }
   let key = 0
 
-  const DEL_CLS = 'bg-del-bg text-del-text rounded-sm px-0.5'
-  const INS_CLS = 'no-underline bg-ins-bg text-ins-text rounded-sm px-0.5'
-
   const push = (node: ReactNode) => blocks[blocks.length - 1].nodes.push(node)
 
   for (const op of ops) {
@@ -84,7 +81,7 @@ export function renderDiffBlocks(ops: DiffOp[]): DiffBlock[] {
       if (!piece) continue
 
       if (/^\s+$/.test(piece)) {
-        push(<span key={key++}>{piece}</span>)
+        push(piece)
         continue
       }
 
@@ -104,27 +101,27 @@ export function renderDiffBlocks(ops: DiffOp[]): DiffBlock[] {
         if (op.type === 'equal') {
           if (i1818 && i1831) {
             // Italic in both — plain <em>
-            push(<span key={key++}><em>{text}</em></span>)
+            push(<em key={key++}>{text}</em>)
           } else if (i1818 && !i1831) {
             // Italic removed in 1831 — del/ins pair
-            push(<del key={key++} className={DEL_CLS} title="Italicised in 1818"><em>{text}</em></del>)
-            push(<ins key={key++} className={INS_CLS} title="Plain in 1831">{text}</ins>)
+            push(<del key={key++} title="Italicised in 1818"><em>{text}</em></del>)
+            push(<ins key={key++} title="Plain in 1831">{text}</ins>)
           } else if (!i1818 && i1831) {
             // Italic added in 1831 — del/ins pair
-            push(<del key={key++} className={DEL_CLS} title="Plain in 1818">{text}</del>)
-            push(<ins key={key++} className={INS_CLS} title="Italicised in 1831"><em>{text}</em></ins>)
+            push(<del key={key++} title="Plain in 1818">{text}</del>)
+            push(<ins key={key++} title="Italicised in 1831"><em>{text}</em></ins>)
           } else {
-            push(<span key={key++}>{text}</span>)
+            push(text)
           }
         } else if (op.type === 'insert') {
           push(
-            <ins key={key++} className={INS_CLS} title="Added in 1831">
+            <ins key={key++} title="Added in 1831">
               {i1831 ? <em>{text}</em> : text}
             </ins>,
           )
         } else {
           push(
-            <del key={key++} className={DEL_CLS} title="Removed in 1831">
+            <del key={key++} title="Removed in 1831">
               {i1818 ? <em>{text}</em> : text}
             </del>,
           )
