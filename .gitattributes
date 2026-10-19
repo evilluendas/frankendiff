@@ -1,0 +1,3 @@
+# Generated HTML snapshots: left out of GitHub's language statistics, but not
+# marked linguist-generated, which would collapse them in PR diffs.
+tests/snapshots/** linguist-detectable=false
